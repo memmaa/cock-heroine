@@ -4,7 +4,7 @@ A tool for recording, editing and playing beat patterns for cock hero videos
 # Why?
 The year is 2015. Cock Hero movies have been around for a while, but technology hasn't caught up yet.  
 Some Cock Hero videos have simple beats - maybe they're a bit boring. Others have intricate and difficult ones - that's fun, but getting them right takes your attention away from the video. If only there was a better way...  
-Neither the fleshlight launch nor funscripts will emerge for a couple of years, and 'beats only' tracks are a distant fantasy.  
+Neither the fleshlight launch nor funscripts will emerge for a couple of years, and 'beats only' audio tracks are a distant fantasy.  
 The author has an arduino, a collection of vibrating toys, and a mission: to make them play cock hero.
 
 # Is this another funscript editor?
