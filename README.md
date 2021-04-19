@@ -56,6 +56,7 @@ Then you can use them to create beat tracks, control hardware and play back the 
 ![image](https://user-images.githubusercontent.com/82333228/115297179-ce464000-a153-11eb-9e08-d94e04ffa8be.png)
 * Handy support - both playback and csv export
 * Adjust stroke location, speed, and choose how short strokes are handled
+* Import funscripts either as beats or as raw data
 * Export to full speed or half speed funscripts
 * Keyboard shortcuts for almost everything
 * Probably some other stuff I forgot
