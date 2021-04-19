@@ -18,6 +18,16 @@ You can import funscripts, or record events on-the-fly, and then use the editor 
 Then you can use them to control hardware and play back the events.
 
 # Feature list
+* Linux, Mac and Windows support.
 * Sortable, editable table of all event data
 ![image](https://user-images.githubusercontent.com/82333228/115289801-e5ccfb00-a14a-11eb-8f7f-0f592fd9c0ad.png)
+* Record events as you play, in full-screen if you like, then go back and fix them up later.
+* Select beats and analyse them
+![image](https://user-images.githubusercontent.com/82333228/115291601-dbabfc00-a14c-11eb-8593-4caa8ba270b5.png)
+* Automatic tempo detection, tap a key to specify the tempo, or enter a value yourself.
+* Automatic, configurable pattern detection and naming.
+![image](https://user-images.githubusercontent.com/82333228/115293051-bf10c380-a14e-11eb-9582-9e3c0ebbac73.png)
+* Individuallly or batch-edit event data
+* Open beats in the editor
+![image](https://user-images.githubusercontent.com/82333228/115291269-735d1a80-a14c-11eb-8fc1-6d70728e03ad.png)
 
