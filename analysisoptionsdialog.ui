@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AnalysisOptionsDialog</class>
+ <widget class="QDialog" name="AnalysisOptionsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>806</width>
+    <height>417</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Configure Beat Analysis</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="1" colspan="2">
+    <widget class="QGroupBox" name="beatDetectionGroupBox">
+     <property name="title">
+      <string>Beat Detection</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="leftMargin">
+       <number>6</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="maxPercentAcceptableBeatErrorLayout">
+        <item>
+         <widget class="QLabel" name="maxPercentAcceptableBeatErrorLabel">
+          <property name="text">
+           <string>Beat intervals are unique if they differ by at least</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="maxPercentAcceptableBeatErrorSpinBox">
+          <property name="suffix">
+           <string>%</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="maxPercentAcceptableBeatErrorSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="maxUniqueIntervalMergeCyclesLayout">
+        <item>
+         <widget class="QLabel" name="maxUniqueIntervalMergeCyclesLabel1">
+          <property name="text">
+           <string>Merge and re-detect unique intervals upto</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="maxUniqueIntervalMergeCyclesSpinBox"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="maxUniqueIntervalMergeCyclesLabel2">
+          <property name="text">
+           <string>times</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="maxUniqueIntervalMergeCyclesSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="detectTripletValuesCheckBox">
+        <property name="text">
+         <string>Detect triplet values</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="minNumberOfBeatsToQualifyAsBreakLayout">
+        <item>
+         <widget class="QLabel" name="minNumberOfBeatsToQualifyAsBreakLabel1">
+          <property name="text">
+           <string>Treat intervals longer than</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="minNumberOfBeatsToQualifyAsBreakSpinBox"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="minNumberOfBeatsToQualifyAsBreakLabel2">
+          <property name="text">
+           <string>beats as a break</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="minNumberOfBeatsToQualifyAsBreakSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="allowHalfBeatsInBreaksCheckBox">
+        <property name="text">
+         <string>Allow half beats in break lengths</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="maxPermissibleProportionUnmatchedBeatsLayout">
+        <item>
+         <widget class="QLabel" name="maxPermissibleProportionUnmatchedBeatsLabel1">
+          <property name="text">
+           <string>Allow</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="maxPermissibleProportionUnmatchedBeatsSpinBox">
+          <property name="suffix">
+           <string>%</string>
+          </property>
+          <property name="singleStep">
+           <double>0.250000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="maxPermissibleProportionUnmatchedBeatsLabel2">
+          <property name="text">
+           <string>of intervals to be unmatched</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="maxPermissibleProportionUnmatchedBeatsSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="3">
+    <widget class="QDialogButtonBox" name="buttons">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" rowspan="5" colspan="3">
+    <widget class="QGroupBox" name="patternsGroupBox">
+     <property name="title">
+      <string>Patterns</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <layout class="QHBoxLayout" name="maxPatternLengthInStrokesLayout">
+        <item>
+         <widget class="QLabel" name="maxPatternLengthInStrokesLabel1">
+          <property name="text">
+           <string>Detect patterns upto</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="maxPatternLengthInStrokesSpinBox"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="maxPatternLengthInStrokesLabel2">
+          <property name="text">
+           <string>strokes long</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="maxPatternLengthInStrokesSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="1" rowspan="2">
+       <widget class="QFrame" name="patternMatchingTypesFrame">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QFormLayout" name="formLayout">
+         <property name="horizontalSpacing">
+          <number>3</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>3</number>
+         </property>
+         <property name="topMargin">
+          <number>3</number>
+         </property>
+         <property name="rightMargin">
+          <number>3</number>
+         </property>
+         <property name="bottomMargin">
+          <number>3</number>
+         </property>
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="matchPatternMembersByActualValueCheckBox">
+           <property name="text">
+            <string>Comparing the beats' actual lengths</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="matchPatternMembersByNearestKnownValueCheckBox">
+           <property name="text">
+            <string>Comparing the beats' nearest values</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="patternMatchingTypesLabel">
+           <property name="text">
+            <string>Match patterns by:</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="allowOddPatternLengthsCheckBox">
+        <property name="text">
+         <string>Allow odd pattern lengths</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="longPatternsLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="preferLongPatternsCheckBox">
+          <property name="text">
+           <string>Prefer patterns at least</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="minLongPatternLengthInStrokesSpinBox"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="longPatternsLabel1">
+          <property name="text">
+           <string>stokes long if they repeat at least</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="minLongPatternRepetitionsToPreferSpinBox"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="longPatternsLabel2">
+          <property name="text">
+           <string>times</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="longPatternsSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="tempoGroupBox">
+     <property name="title">
+      <string>Tempo</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="leftMargin">
+       <number>6</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QRadioButton" name="automaticTempoRadioButton">
+        <property name="text">
+         <string>Automatic Detection</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="expectedTempoFrame" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>3</number>
+         </property>
+         <item>
+          <widget class="QRadioButton" name="fastRadioButton">
+           <property name="text">
+            <string>Fast</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="normalRadioButton">
+           <property name="text">
+            <string>Normal</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="slowRadioButton">
+           <property name="text">
+            <string>Slow</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="useProvidedTempoRadioButton">
+        <property name="text">
+         <string>Use Provided Tempo:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="providedInputTempoLayout">
+        <property name="leftMargin">
+         <number>9</number>
+        </property>
+        <item>
+         <widget class="QDoubleSpinBox" name="providedInputTempoSpinBox">
+          <property name="minimum">
+           <double>15.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>600.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="providedInputTempoLabel">
+          <property name="text">
+           <string>BPM</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="providedInputTempoSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,1">
+        <item>
+         <widget class="QPushButton" name="tapTempoInputButton">
+          <property name="text">
+           <string>Tap Tempo...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="tapTempoResetButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Reset</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttons</sender>
+   <signal>accepted()</signal>
+   <receiver>AnalysisOptionsDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttons</sender>
+   <signal>rejected()</signal>
+   <receiver>AnalysisOptionsDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
