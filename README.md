@@ -95,7 +95,7 @@ These include:
 # How do I run it?
 I'll admit, I haven't found a very good way of distributing it yet.  
 The basic steps are:
-* Download and install Qt Creator (complete with a version of Qt) on your platform (Linux, Mac, Windows)
+* Download and install Qt Creator (complete with a version of Qt 5.x) on your platform (Linux, Mac, Windows)
 * Download the Cock Heroine source
 * Open up the project file (CockHeroine.pro) in Qt Creator
 * Set up at least 1 configuration (if Qt installed properly, this should be as easy as clicking 'OK')
