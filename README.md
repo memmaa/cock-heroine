@@ -136,3 +136,9 @@ If you want to create a new script:
 * Click 'Save' to save your script to a CHML file
   * Do this regularly (usually every time you finish using the editor) - the software is not perfect, and no one like data loss.
 * Rinse, repeat and you're done! You can now export to a funscript, play the script on your handy or arduino companion, export a beat track or midi file or whatver you like.
+
+# How do I make it better?
+* Submit useful bug reports!
+* Make a change yourself and and submit a pull request!
+* Find a way to donate to me even though I haven't posted my PayPal details!
+* Or just send me encouraging messages!
