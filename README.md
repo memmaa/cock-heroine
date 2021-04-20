@@ -9,7 +9,7 @@ The author has an arduino, a collection of vibrating toys, and a mission: to mak
 
 # Is this another funscript editor?
 No, for all of the reasons above.  
-But, as they are a popular file format for storing sex hardware instructions, funscripts are supported.
+But, as they became a popular file format for storing sex hardware instructions, funscript support was added.
 
 # So what does it do then?
 Cock Heroine is designed specifically with Cock Hero games in mind.  
