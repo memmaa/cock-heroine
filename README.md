@@ -1,11 +1,29 @@
 # Cock Heroine
 A tool for recording, editing and playing beat patterns for cock hero videos
 
+# Licensing
+The code is made available under the Artistic License 2.0.  
+The main points are:
+* You CAN freely use the software as supplied here
+* You CAN make and use your own modifications to the code
+* BUT there are restrictions on distributing your modified version of the code
+* See LICENSING.txt for details.
+
 # Why?
 The year is 2015. Cock Hero movies have been around for a while, but technology hasn't caught up yet.  
 Some Cock Hero videos have simple beats - maybe they're a bit boring. Others have intricate and difficult ones - that's fun, but getting them right takes your attention away from the video. If only there was a better way...  
 Neither the fleshlight launch nor funscripts will emerge for a couple of years, and 'beats only' audio tracks are a distant fantasy.  
-The author has an arduino, a collection of vibrating toys, and a mission: to make them play cock hero.
+The author has an arduino, a collection of vibrating toys, and a mission: to make them play cock hero.  
+
+# Why now?
+Fast forward to 2021.
+6 years later and life has changed.  
+There are lots of new tools available, though none that completely fulfills Cock Heroine's role.
+There are new demands on the developer's time and Cock Heroine might have to take a back seat.
+By opening up the code to the world, we can:
+* Allow other people to make use of the tool, as I have done - seveal popular, publicly available funscripts have been quietly created with Cock Heroine
+* Harness the community, allowing other people to contribute to the tool's development.
+* Keep me motivated. My excitement for the project has faded a little, and without the enthusiasm of the community, I fear the tool will fall into neglect.
 
 # Is this another funscript editor?
 No, for all of the reasons above.  
@@ -60,3 +78,30 @@ Then you can use them to create beat tracks, control hardware and play back the 
 * Export to full speed or half speed funscripts
 * Keyboard shortcuts for almost everything
 * Probably some other stuff I forgot
+
+# What doesn't it do?
+There are (more than) a few things Cock Heroine doesn't do, which I wish it did, but haven't had the time to add yet.  
+These include:
+* [Buttplug](https://buttplug.io/) support, to control more types of hardware.
+* More drag-n-drop UI interfaces
+* Support for 'edging' type events on the Handy
+* Ability to export beat meters instead of just rendering them inside the tool
+* Undo functionality
+* Ask to save on exit
+* Make it less glitchy and make it crash less often (though to be fair it's not terrible)
+* Fully customisable keyboard shortcuts (they're half-done, but never quite made it)
+* A list of things that gets longer every time I think about it
+
+# How do I run it?
+I'll admit, I haven't found a very good way of distributing it yet.  
+The basic steps are:
+* Download and install Qt Creator (complete with a version of Qt) on your platform (Linux, Mac, Windows)
+* Download the Cock Heroine source
+* Open up the project file (CockHeroine.pro) in Qt Creator
+* Set up at least 1 configuration (if Qt installed properly, this should be as easy as clicking 'OK')
+* 'Run' the project by clicking the play button in the bottom left of Qt Creator
+* On Windows you will probably need to install a video codec pack because... Windows
+* On Linux, you might need to add yourself to the comms group in order to connect to the Arduino companion
+* Any other problems, consider getting in touch as I might have seen them before.
+
+If you know a better way to package and distribute a Qt application, get in touch!
