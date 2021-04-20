@@ -105,3 +105,34 @@ The basic steps are:
 * Any other problems, consider getting in touch as I might have seen them before.
 
 If you know a better way to package and distribute a Qt application, get in touch!
+
+# How do I use it?
+If you have an existing Cock Heroine filetype or funscript:
+* File => Open (select your video)
+* If the script isn't automatically selected for you, File => Open (select the script)
+* Connect your Handy or Arduino companion
+* Press play!
+
+If you want to create a new script:
+* File => Open (select your video, say 'no' if it asks to load a script as well)
+* Press play
+* Record events as the video is playing
+  * Press 'f' to toggle fullscreen
+  * Press 's' or the numberpad '5' to record a normal stroke event
+  * Depress the 'e' key to start an edging period
+  * Release the 'e' key to finish the edging period
+  * There are a bunch of other shoftcuts, but I never got around to documenting them properly
+* Pause, play, stop, record more events as you need
+  * Use the arrow jeys to skip forward or back in the video
+  * Select items in the table and press delete to remove them
+* Once you're done recording on-the-fly, select a group of events (click and drag or Ctrl-click) and press 'Enter' or 'Return' to open them in the editor.
+* Select the analysis options if you like (the defaults are usually fine), then press OK
+* If Analysis fails, make sure the tempo is detected correctly and thata all of the beat 'values' you used are checked in the bottom right table, then click 'Analyse' in the top left to restart analysis.
+* Use the editor to fine-tune your inputs and make sure all the detected beata 'values' are correct
+  * Press the 'Adjust' button top-centre to automatically select a poorly-matched beat for your attention
+* Once all the 'values' are correct, click 'Optimise' to align your beats perfectly
+* Click 'Apply' to apply your changes back into the table in the main window
+* If you mess up in the editor, click 'Cancel' to exit the ediitor without applying your changes (you can then reselct any events you like and try again)
+* Click 'Save' to save your script to a CHML file
+  * Do this regularly (usually every time you finish using the editor) - the software is not perfect, and no one like data loss.
+* Rinse, repeat and you're done! You can now export to a funscript, play the script on your handy or arduino companion, export a beat track or midi file or whatver you like.
