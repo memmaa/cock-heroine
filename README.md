@@ -137,6 +137,12 @@ If you want to create a new script:
   * Do this regularly (usually every time you finish using the editor) - the software is not perfect, and no one like data loss.
 * Rinse, repeat and you're done! You can now export to a funscript, play the script on your handy or arduino companion, export a beat track or midi file or whatver you like.
 
+# What's wrong with it?
+A lot, probably.  
+Don't forget to save regularly.  
+It might crash from time to time... Usually if you try to perform an edit action when you just deleted the last beat that was selected. I should fix that, but the bug is a little elusive.  
+Just make sure you select the beat you want to edit in the table on the left of the editor, and you'll probably be fine...
+
 # How do I make it better?
 * Submit useful bug reports!
 * Make a change yourself and and submit a pull request!
