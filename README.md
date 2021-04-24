@@ -114,6 +114,7 @@ If you have an existing Cock Heroine filetype or funscript:
 * Press play!
 
 If you want to create a new script:
+* File => New to clear any events you have loaded
 * File => Open (select your video, say 'no' if it asks to load a script as well)
 * Press play
 * Record events as the video is playing
@@ -125,17 +126,30 @@ If you want to create a new script:
 * Pause, play, stop, record more events as you need
   * Use the arrow jeys to skip forward or back in the video
   * Select items in the table and press delete to remove them
-* Once you're done recording on-the-fly, select a group of events (click and drag or Ctrl-click) and press 'Enter' or 'Return' to open them in the editor.
-* Select the analysis options if you like (the defaults are usually fine), then press OK
-* If Analysis fails, make sure the tempo is detected correctly and thata all of the beat 'values' you used are checked in the bottom right table, then click 'Analyse' in the top left to restart analysis.
+* Once you're done recording on-the-fly, select a group of events and press 'Enter' or 'Return' to open them in the editor.
+  * When choosing which events to select, generally go for one whole round at a time.
+  * The whole selection will be treated as the same tempo, so tracks which speed up or slow down part-way though might need to be split into sections for each tempo. Tracks which just switch tempo to double time or half time are fine though.
+  * To select events, click and drag in the table, or click the first event, then hold shift and click the last one
+  * You can also Ctrl-click events to select them individually.
+  * If you want to select just a certain type of event, you can sort the table by type before you make the selection.
+* When you first open the editor, the analysis options are displayed.
+* Adjust the analysis options if you like (the defaults are usually fine), then press OK
+* If Analysis fails, make sure the tempo is detected correctly and that all of the beat 'values' you used are checked in the bottom right table, then click 'Analyse' in the top left to restart analysis.
 * Use the editor to fine-tune your inputs and make sure all the detected beata 'values' are correct
   * Press the 'Adjust' button top-centre to automatically select a poorly-matched beat for your attention
-* Once all the 'values' are correct, click 'Optimise' to align your beats perfectly
-* Click 'Apply' to apply your changes back into the table in the main window
-* If you mess up in the editor, click 'Cancel' to exit the ediitor without applying your changes (you can then reselct any events you like and try again)
+  * Use the tools in the bottom left, below the values table, to edit the beats.
+  * You can also access a more keyboard-friendly version of the same tools from the menus, or using their shortcut keys (A for Add, S for Split, D for aaDjust and X for delete)
+* Make sure the detected value for each beat is correct (it doesn't have to be well-matched, but it must be correct)
+  * For example, if what should actually be 'Three Semiquavers' is detected as a 'Crochet', the beats won't line up with the music correctly after optimisation
+  * Pay particular attention to how many beats are in any long breaks within the round - a wrong value here can skew the rest of your beats.
+* Once all the 'values' are correct, click 'Optimise' to align your beats perfectly. This basically straightens out the beats so that they are perfectly evenly spaced.
+  * You can choose a few options for optimisation. If you _KNOW_ that the BPM is an exact whole number, you can round to the nearest whole number, but it's safer not to - you can easily re-optimise with BPM rounding if the BPM turns out to be 126.97BPM, but if you round 91.52BPM to 92BPM, your beats will probably all be way off, and that's harder to fix once you've done it (Oh for an undo function...)
+* If you're happy with the results, click 'Apply' to apply your changes back into the table in the main window
+  * If you want to check how much the beats were changed by the optimisation, click 'Analyse' again (and press OK), and see how much the beats move in the beat meter.
+* If you mess up in the editor, click 'Cancel' to exit the editor without applying your changes (you can then reselct any events you like and try again)
 * Click 'Save' to save your script to a CHML file
   * Do this regularly (usually every time you finish using the editor) - the software is not perfect, and no one like data loss.
-* Rinse, repeat and you're done! You can now export to a funscript, play the script on your handy or arduino companion, export a beat track or midi file or whatver you like.
+* Rinse, repeat and you're done! (i.e. select the next round and tidy that one up, until you've tidied them all up) You can now export to a funscript, play the script on your handy or arduino companion, export an audio beat track or midi file or whatver you like.
 
 # What's wrong with it?
 A lot, probably.  
