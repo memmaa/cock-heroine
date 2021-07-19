@@ -1651,7 +1651,7 @@ void MainWindow::loadFile(QString filename, bool isAssociatedFile)
         {
             if (QMessageBox::Yes == QMessageBox::question(this,
                                                        tr("Open Associated File?"),
-                                                       tr("Would you also like to open") + associatedFile + " ?",
+                                                       tr("Would you also like to open ") + associatedFile + " ?",
                                                        QMessageBox::Yes,
                                                        QMessageBox::No))
                 loadFile(associatedFile,true);
@@ -1662,7 +1662,7 @@ void MainWindow::loadFile(QString filename, bool isAssociatedFile)
             if ( ! nameMatch.isEmpty() &&
                  QMessageBox::Yes == QMessageBox::question(this,
                                        tr("Open Matching File?"),
-                                       tr("Would you also like to open") + nameMatch + " ?",
+                                       tr("Would you also like to open ") + nameMatch + " ?",
                                        QMessageBox::Yes,
                                        QMessageBox::No))
                 loadFile(nameMatch,true);
@@ -1819,24 +1819,36 @@ void MainWindow::importFunscript(QString filename)
     QMessageBox importTypeQuestionBox;
     importTypeQuestionBox.setWindowTitle("Import Events as Beats?");
     importTypeQuestionBox.setText(tr("Cock Heroine is designed to work with beats and rhythms, which is how cock heroes work!\n\n"
+
                                       "Funscript files usually contain instructions for a particular type of 'stroker' hardware like the 'Handy', 'OSR', 'Launch' etc.\n"
-                                      "Funscripts do not work so well with other sorts of hardware, and they don't honour the settings in the preferences dialog.\n\n"
-                                      "You should import the funscripts as 'beats' if:\n"
-                                      "- You want to use Cock Heroine to edit or optimise the beat patterns, or\n"
-                                      "- You have a 'half-speed' cock hero script with un up-stroke on one beat and a down-stroke on the next beat\n\n"
+                                      "Funscripts do not always work so well with other sorts of hardware, and they don't honour the settings in the preferences dialog.\n\n"
+
+                                      "You should import the funscript as 'beats' if:\n"
+                                      "- You want to use Cock Heroine to play, edit or optimise the beat patterns in a cock hero funscript, or\n"
+                                      "- You want to convert a half speed script to a full speed script, or a full speed script to a half speed script\n\n"
+
+                                      "Select 'half speed' if your funscript moves up on one beat and down on the next beat\n"
+                                      "Select 'full speed' if your funscript moves up and down once for each beat\n\n"
+
                                       "You should import the 'raw data' if:\n"
-                                      "- You just want to use Cock Heroine to play a non-cock-hero video with a script file, or\n"
-                                      "- You have a 'full-speed' cock hero script with an up-and-down stroke for each beat.\n\n"
-                                      "You can usually convert a full-speed script to normal beats by removing the 'tops' of the strokes (sort the data by 'value' and remove the higher numbers) and converting the remaining bottoms of the strokes to normal (type '1') events in the editor. In a future version, this process could be automated for you...\n\n"
+                                      "- You just want to use Cock Heroine to play a non-cock-hero video with a script file\n\n"
+
                                       "How would you like to import the funscript?"));
-    QPushButton * beatsButton = importTypeQuestionBox.addButton(tr("Normal Beats"),QMessageBox::AcceptRole);
+    importTypeQuestionBox.addButton(tr("Beats (half speed)"),QMessageBox::AcceptRole);
+    QPushButton * fullStrokesButton = importTypeQuestionBox.addButton(tr("Beats (full speed)"),QMessageBox::AcceptRole);
     QPushButton * rawDataButton = importTypeQuestionBox.addButton(tr("Raw Data"),QMessageBox::RejectRole);
-    importTypeQuestionBox.setDefaultButton(beatsButton);
+    importTypeQuestionBox.setDefaultButton(fullStrokesButton);
     importTypeQuestionBox.exec();
 
     bool importActualFunscriptEvents = (importTypeQuestionBox.clickedButton() == rawDataButton);
+    bool importFullStrokes = (importTypeQuestionBox.clickedButton() == fullStrokesButton);
     QFile funscript(filename, this);
     funscript.open(QIODevice::ReadOnly);
+    if (importFullStrokes)
+    {
+        importFunscriptFullStrokes(funscript);
+        return;
+    }
     QString content = funscript.readAll();
     content = content.simplified();
     QRegularExpression re("{\\s*\"pos\"\\s*:\\s*(\\d+)\\s*,\\s*\"at\"\\s*:\\s*(\\d+)\\s*}");
@@ -1862,7 +1874,7 @@ void MainWindow::importFunscript(QString filename)
             comingFrom = lastPos;
         }
         int posDiff = abs(diff);
-        int posValue = (posDiff * 255) / 100;
+        int posValue = convertStrokeLengthToIntensity(posDiff);
         int absoluteValue = 128;
 //        int relativeBias = 7;
 //        int absoluteBias = 1;
@@ -1913,7 +1925,7 @@ void MainWindow::importFunscript(QString filename)
                 comingFrom = lastPos;
             }
             int posDiff = abs(diff);
-            int posValue = (posDiff * 255) / 100;
+            int posValue = convertStrokeLengthToIntensity(posDiff);
             int absoluteValue = 128;
             int relativeBias = 7;
             int absoluteBias = 1;
@@ -1941,6 +1953,98 @@ void MainWindow::importFunscript(QString filename)
         }
     }
     removeDuplicateEvents();
+}
+
+int MainWindow::convertStrokeLengthToIntensity(int length)
+{
+    return (length * 255) / 100;
+}
+
+void MainWindow::importFunscriptFullStrokes(QFile &funscript)
+{
+    auto fsContent = funscript.readAll();
+    QJsonDocument fsDoc = QJsonDocument::fromJson(fsContent);
+    if (!fsDoc.isObject()) {
+        QMessageBox::warning(this,"Malformed funscript", "Funscript content was not a Json Object");
+        return;
+    }
+    QJsonObject fsObj = fsDoc.object();
+    QJsonValue actionsVal = fsObj.value("actions");
+    if (actionsVal.isUndefined() || !actionsVal.isArray()) {
+        QMessageBox::warning(this,"Malformed funscript", "Funscript actions absent or not a Json array");
+        return;
+    }
+    QJsonArray actionsArr = actionsVal.toArray();
+
+    int lastPeak = 0;
+    int lastPos = 0;
+    int nextPos = 0;
+    for (int i = 0; i < actionsArr.size(); ++i)
+    {
+        QJsonValue actionVal = actionsArr[i];
+        if (!actionVal.isObject()) {
+            QMessageBox::warning(this,"Malformed funscript", "Funscript action was not a json object");
+            return;
+        }
+        QJsonValue atVal = actionVal.toObject().value("at");
+        QJsonValue posVal = actionVal.toObject().value("pos");
+        if (atVal.isUndefined() || posVal.isUndefined() || !atVal.isDouble() || !posVal.isDouble()) {
+            QMessageBox::warning(this,"Malformed funscript", "Funscript action did not contain 'pos' and 'at'");
+            return;
+        }
+        bool isLastWaypoint = (i >= actionsArr.size() - 1);
+        QJsonValue nextPosVal;
+        if (!isLastWaypoint)
+        {
+            QJsonValue nextActionVal = actionsArr[i + 1];
+            if (!nextActionVal.isObject()) {
+                QMessageBox::warning(this,"Malformed funscript", "Funscript action was not a json object");
+                return;
+            }
+            nextPosVal = nextActionVal.toObject().value("pos");
+            if (nextPosVal.isUndefined() || !nextPosVal.isDouble()) {
+                QMessageBox::warning(this,"Malformed funscript", "Funscript action did not contain 'pos'");
+                return;
+            }
+        }
+        //now actually do the logic...
+        long at = roundToInt(atVal.toDouble());
+        int pos = roundToInt(posVal.toDouble());
+        if (!isLastWaypoint)
+        {
+            nextPos = roundToInt(nextPosVal.toDouble());
+        }
+
+        if (i == 0)
+        {
+            //first waypoint - just set...
+            lastPeak = pos;
+            lastPos = pos;
+            continue;
+        }
+        else
+        {
+            if (
+                    lastPos > pos
+                    &&
+                    (isLastWaypoint || nextPos >= pos)
+                )
+            {
+                //we've reached the end of a down stroke
+                int strokeLength = lastPeak - pos;
+                int strokeIntensity = convertStrokeLengthToIntensity(strokeLength);
+                Event newEvent(at, 1, strokeIntensity);
+                addEventToTable(newEvent);
+                lastPeak = pos;
+            }
+
+            if (pos > lastPeak)
+                lastPeak = pos;
+
+        }
+        lastPos = pos;
+        pos = nextPos;
+    }
 }
 
 void MainWindow::on_currentItemChanged(const QModelIndex & current, const QModelIndex &)

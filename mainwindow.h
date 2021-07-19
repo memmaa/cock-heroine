@@ -132,6 +132,8 @@ private:
     void exportFullSpeed(SyncFileWriter &writer);
     void exportHalfSpeed(SyncFileWriter &writer);
     void importFunscript(QString filename);
+    void importFunscriptFullStrokes(QFile & funscript);
+    int convertStrokeLengthToIntensity(int);
 
     void calculateHandyServerTimeOffset();
     void requestHandyServerTime();
