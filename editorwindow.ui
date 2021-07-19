@@ -175,9 +175,20 @@ in time with the music as possible)</string>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
    </widget>
+   <widget class="QMenu" name="menuVideo">
+    <property name="title">
+     <string>Video</string>
+    </property>
+    <addaction name="actionPlay_Pause"/>
+    <addaction name="actionSkip_to_First_Event"/>
+    <addaction name="actionSkip_Backward"/>
+    <addaction name="actionSkip_Forward"/>
+    <addaction name="actionSkip_to_Last_Event"/>
+   </widget>
    <addaction name="menuActions"/>
    <addaction name="menuSelect"/>
    <addaction name="menuHistory"/>
+   <addaction name="menuVideo"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="beatsAndIntervalsDock">
@@ -969,6 +980,46 @@ following interval</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Y</string>
+   </property>
+  </action>
+  <action name="actionPlay_Pause">
+   <property name="text">
+    <string>Play/Pause</string>
+   </property>
+   <property name="shortcut">
+    <string>Space</string>
+   </property>
+  </action>
+  <action name="actionSkip_Forward">
+   <property name="text">
+    <string>Skip Forward</string>
+   </property>
+   <property name="shortcut">
+    <string>Right</string>
+   </property>
+  </action>
+  <action name="actionSkip_Backward">
+   <property name="text">
+    <string>Skip Backward</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionSkip_to_First_Event">
+   <property name="text">
+    <string>Skip to First Event</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Left</string>
+   </property>
+  </action>
+  <action name="actionSkip_to_Last_Event">
+   <property name="text">
+    <string>Skip to Last Event</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Right</string>
    </property>
   </action>
  </widget>

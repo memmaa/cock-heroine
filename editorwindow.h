@@ -143,6 +143,16 @@ private slots:
 
     void on_actionRedo_triggered();
 
+    void on_actionPlay_Pause_triggered();
+
+    void on_actionSkip_Forward_triggered();
+
+    void on_actionSkip_Backward_triggered();
+
+    void on_actionSkip_to_First_Event_triggered();
+
+    void on_actionSkip_to_Last_Event_triggered();
+
 private:
     Ui::EditorWindow *ui;
     ValueTableKeyboardEventHandler * valueTableKeyboardHandler;

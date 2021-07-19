@@ -1785,6 +1785,42 @@ void EditorWindow::on_actionRedo_triggered()
     applySnapshot(undoStack[undoStackBookmark]);
 }
 
+void EditorWindow::on_actionPlay_Pause_triggered()
+{
+    mainWindow->pressPlay();
+}
+
+void EditorWindow::on_actionSkip_Forward_triggered()
+{
+    mainWindow->skipForward();
+    scrollStrokeMeterToTimestamp();
+}
+
+void EditorWindow::on_actionSkip_Backward_triggered()
+{
+    mainWindow->skipBackward();
+    scrollStrokeMeterToTimestamp();
+}
+
+
+void EditorWindow::on_actionSkip_to_First_Event_triggered()
+{
+    if (!beatTimestamps.isEmpty())
+    {
+        seekToTimestamp(beatTimestamps.first().eventData.timestamp);
+        scrollStrokeMeterToTimestamp();
+    }
+}
+
+void EditorWindow::on_actionSkip_to_Last_Event_triggered()
+{
+    if (!beatTimestamps.isEmpty())
+    {
+        seekToTimestamp(beatTimestamps.last().eventData.timestamp);
+        scrollStrokeMeterToTimestamp();
+    }
+}
+
 void EditorWindow::clearUndoStack()
 {
     for (auto snapshot : undoStack)
