@@ -2,6 +2,12 @@
 #include "ui_optionsdialog.h"
 #include "mainwindow.h"
 
+#define DEFAULT_BEAT_METER_HEIGHT 100
+#define DEFAULT_BEAT_METER_WIDTH 1920
+#define DEFAULT_BEAT_METER_SPEED 167
+#define DEFAULT_BEAT_METER_FRAME_RATE 29.97
+#define DEFAULT_BEAT_MARKER_DIAMETER 20
+
 OptionsDialog::OptionsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::OptionsDialog),
@@ -24,6 +30,9 @@ void OptionsDialog::setControlsFromPreferences()
     ui->endingIntensitySlider->setValue(settings.value("Ending Min Intensity", MainWindow::endingMinIntensity).toInt());
     ui->endingIntensitySpinBox->setValue(settings.value("Ending Min Intensity", MainWindow::endingMinIntensity).toInt());
 
+    ui->obscureBottomScreenPortionWidthSlider->setValue(settings.value("Obscure Bottom Screen Portion").toDouble() * 100);
+    ui->obscureBottomScreenPortionWidthSpinBox->setValue(settings.value("Obscure Bottom Screen Portion").toDouble());
+
     ui->handyKeyEdit->setText(settings.value("Handy Connection Key", "NO_KEY").toString());
     ui->syncOffsetSpinBox->setValue(settings.value("Handy Sync Offset", 0).toInt());
     ui->syncOffsetSlider->setValue(settings.value("Handy Sync Offset", 0).toInt());
@@ -36,8 +45,11 @@ void OptionsDialog::setControlsFromPreferences()
     ui->fullStrokeRadioButton->setChecked(settings.value("Full Strokes", true).toBool());
     ui->halfStrokeRadioButton->setChecked( ! ui->fullStrokeRadioButton->isChecked());
 
-    ui->beatMeterWidthSlider->setValue(settings.value("Beat Meter Width").toDouble() * 100);
-    ui->beatMeterWidthSpinBox->setValue(settings.value("Beat Meter Width").toDouble());
+    ui->meterHeightSpinBox->setValue(settings.value("Beat Meter Height", DEFAULT_BEAT_METER_HEIGHT).toInt());
+    ui->meterWidthSpinBox->setValue(settings.value("Beat Meter Width", DEFAULT_BEAT_METER_WIDTH).toInt());
+    ui->meterSpeedSpinBox->setValue(settings.value("Beat Meter Speed", DEFAULT_BEAT_METER_SPEED).toInt());
+    ui->meterFrameRateSpinBox->setValue(settings.value("Beat Meter Frame Rate", DEFAULT_BEAT_METER_FRAME_RATE).toDouble());
+    ui->meterMarkerDiameterSpinBox->setValue(settings.value("Beat Marker Diameter", DEFAULT_BEAT_MARKER_DIAMETER).toInt());
 }
 
 void OptionsDialog::setPreferencesFromControls()
@@ -45,7 +57,7 @@ void OptionsDialog::setPreferencesFromControls()
     QSettings settings;
     settings.setValue("Starting Min Intensity", ui->startingIntensitySpinBox->value());
     settings.setValue("Ending Min Intensity", ui->endingIntensitySlider->value());
-    settings.setValue("Beat Meter Width", ui->beatMeterWidthSpinBox->value());
+    settings.setValue("Obscure Bottom Screen Portion", ui->obscureBottomScreenPortionWidthSlider->value());
     settings.setValue("Connect To Handy", ui->connectToHandyCheckBox->isChecked());
     settings.setValue("Handy Connection Key", ui->handyKeyEdit->text());
     settings.setValue("Handy Sync Offset", ui->syncOffsetSpinBox->value());
@@ -55,7 +67,12 @@ void OptionsDialog::setPreferencesFromControls()
     settings.setValue("Handy Full Stroke Duration", ui->handyStrokeDurationSpinBox->value());
     settings.setValue("Handy Scaling Proportion", ui->handyScalingProportionSlider->value());
     settings.setValue("Full Strokes", ui->fullStrokeRadioButton->isChecked());
-    settings.setValue("Beat Meter Width", ui->beatMeterWidthSpinBox->value());
+
+    settings.setValue("Beat Meter Height", ui->meterHeightSpinBox->value());
+    settings.setValue("Beat Meter Width", ui->meterWidthSpinBox->value());
+    settings.setValue("Beat Meter Speed", ui->meterSpeedSpinBox->value());
+    settings.setValue("Beat Meter Frame Rate", ui->meterFrameRateSpinBox->value());
+    settings.setValue("Beat Marker Diameter", ui->meterMarkerDiameterSpinBox->value());
 }
 
 bool OptionsDialog::connectToHandy()
@@ -184,14 +201,14 @@ void OptionsDialog::on_startingIntensitySlider_valueChanged(int value)
     }
 }
 
-void OptionsDialog::on_beatMeterWidthSlider_valueChanged(int value)
+void OptionsDialog::on_obscureBottomScreenPortionWidthSlider_valueChanged(int value)
 {
-    ui->beatMeterWidthSpinBox->setValue(value / 100.0);
+    ui->obscureBottomScreenPortionWidthSpinBox->setValue(value / 100.0);
 }
 
-void OptionsDialog::on_beatMeterWidthSpinBox_valueChanged(double value)
+void OptionsDialog::on_obscureBottomScreenPortionWidthSpinBox_valueChanged(double value)
 {
-    ui->beatMeterWidthSlider->setValue(value * 100);
+    ui->obscureBottomScreenPortionWidthSlider->setValue(value * 100);
 }
 
 void OptionsDialog::on_connectToHandyCheckBox_stateChanged(int checkState)
@@ -269,4 +286,34 @@ void OptionsDialog::on_topOfRangeSpinBox_valueChanged(int value)
         }
         triggeringWidget = NULL;
     }
+}
+
+int OptionsDialog::getBeatMeterHeight()
+{
+    QSettings settings;
+    return settings.value("Beat Meter Height", DEFAULT_BEAT_METER_HEIGHT).toInt();
+}
+
+int OptionsDialog::getBeatMeterWidth()
+{
+    QSettings settings;
+    return settings.value("Beat Meter Width", DEFAULT_BEAT_METER_WIDTH).toInt();
+}
+
+int OptionsDialog::getBeatMeterSpeed()
+{
+    QSettings settings;
+    return settings.value("Beat Meter Speed", DEFAULT_BEAT_METER_SPEED).toInt();
+}
+
+double OptionsDialog::getBeatMeterFrameRate()
+{
+    QSettings settings;
+    return settings.value("Beat Meter Frame Rate", DEFAULT_BEAT_METER_FRAME_RATE).toDouble();
+}
+
+int OptionsDialog::getBeatMarkerDiameter()
+{
+    QSettings settings;
+    return settings.value("Beat Marker Diameter", DEFAULT_BEAT_MARKER_DIAMETER).toInt();
 }

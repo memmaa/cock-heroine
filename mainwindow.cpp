@@ -30,6 +30,7 @@
 #include <QHttpMultiPart>
 #include "handycsvwriter.h"
 #include "funscriptwriter.h"
+#include "exportbeatmeterdialog.h"
 
 //how many events should we 'buffer' by sending them to the arduino hardware ahead of real time?
 //this lets it spin up motors in advance, or enqueue or ramp up its internal events for most accurate timings.
@@ -2621,4 +2622,11 @@ void MainWindow::on_actionRecalculate_Handy_Server_Time_triggered()
 void MainWindow::on_actionLaunchEditor_triggered()
 {
     launchEditor();
+}
+
+void MainWindow::on_actionExport_Beat_Meter_triggered()
+{
+    ExportBeatMeterDialog * ebmDialog = new ExportBeatMeterDialog(this);
+    ebmDialog->exec();
+    delete ebmDialog;
 }

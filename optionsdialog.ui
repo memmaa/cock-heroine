@@ -6,27 +6,49 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>340</height>
+    <width>419</width>
+    <height>522</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Preferences</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="8" column="1">
-    <widget class="QSlider" name="topOfRangeSlider">
-     <property name="minimum">
-      <number>1</number>
+   <item row="7" column="2">
+    <widget class="QSpinBox" name="bottomOfRangeSpinBox">
+     <property name="suffix">
+      <string>%</string>
      </property>
-     <property name="maximum">
-      <number>100</number>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="obscureBottomScreenPortionWidthLabel">
+     <property name="text">
+      <string>Hide Bottom of Image</string>
      </property>
-     <property name="value">
-      <number>100</number>
-     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QSlider" name="bottomOfRangeSlider">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1">
+    <widget class="QRadioButton" name="fullStrokeRadioButton">
+     <property name="text">
+      <string>Full (up-and-down) stroke</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="2">
+    <widget class="QRadioButton" name="halfStrokeRadioButton">
+     <property name="text">
+      <string>Half stroke</string>
      </property>
     </widget>
    </item>
@@ -40,86 +62,36 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="beatMeterWidthLabel">
+   <item row="9" column="0">
+    <widget class="QLabel" name="AnchorToBottomLabel">
      <property name="text">
-      <string>Beat meter width</string>
+      <string>Anchor to bottom</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QSlider" name="startingIntensitySlider">
+   <item row="1" column="2">
+    <widget class="QSpinBox" name="endingIntensitySpinBox">
+     <property name="minimum">
+      <number>1</number>
+     </property>
      <property name="maximum">
-      <number>1022</number>
+      <number>1023</number>
      </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="2">
-    <widget class="QSpinBox" name="bottomOfRangeSpinBox">
-     <property name="suffix">
-      <string>%</string>
+     <property name="value">
+      <number>414</number>
      </property>
     </widget>
    </item>
-   <item row="4" column="2">
-    <widget class="QSpinBox" name="syncOffsetSpinBox">
-     <property name="suffix">
-      <string>ms</string>
-     </property>
+   <item row="4" column="1">
+    <widget class="QSlider" name="syncOffsetSlider">
      <property name="minimum">
       <number>-1000</number>
      </property>
      <property name="maximum">
       <number>1000</number>
      </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="connectToHandyCheckBox">
-     <property name="text">
-      <string>Connect to Handy</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="2">
-    <widget class="QSpinBox" name="handyStrokeDurationSpinBox">
-     <property name="suffix">
-      <string>ms</string>
-     </property>
-     <property name="minimum">
-      <number>100</number>
-     </property>
-     <property name="maximum">
-      <number>60000</number>
-     </property>
-     <property name="value">
-      <number>420</number>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QSpinBox" name="startingIntensitySpinBox">
-     <property name="maximum">
-      <number>1022</number>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="2">
-    <widget class="QSpinBox" name="topOfRangeSpinBox">
-     <property name="suffix">
-      <string>%</string>
-     </property>
-     <property name="minimum">
-      <number>1</number>
-     </property>
-     <property name="maximum">
-      <number>100</number>
-     </property>
-     <property name="value">
-      <number>100</number>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -139,23 +111,63 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="topOfRangeLabel">
+   <item row="1" column="0">
+    <widget class="QLabel" name="endingIntensityLabel">
      <property name="text">
-      <string>Top of range</string>
+      <string>Ending Intensity</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QSlider" name="beatMeterWidthSlider">
+   <item row="4" column="2">
+    <widget class="QSpinBox" name="syncOffsetSpinBox">
+     <property name="suffix">
+      <string>ms</string>
+     </property>
      <property name="minimum">
-      <number>200</number>
+      <number>-1000</number>
      </property>
      <property name="maximum">
-      <number>3333</number>
+      <number>1000</number>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1">
+    <widget class="QSlider" name="handyScalingProportionSlider">
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="2">
+    <widget class="QSpinBox" name="topOfRangeSpinBox">
+     <property name="suffix">
+      <string>%</string>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
      </property>
      <property name="value">
-      <number>667</number>
+      <number>100</number>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="startingIntensityLabel">
+     <property name="text">
+      <string>Starting Intensity</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QSlider" name="startingIntensitySlider">
+     <property name="maximum">
+      <number>1022</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -169,8 +181,18 @@
      </property>
     </widget>
    </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="consistentLengthLabel">
+     <property name="toolTip">
+      <string>Try to keep all strokes the same length, increasing speed as needed</string>
+     </property>
+     <property name="text">
+      <string>Consistent length</string>
+     </property>
+    </widget>
+   </item>
    <item row="2" column="2">
-    <widget class="QDoubleSpinBox" name="beatMeterWidthSpinBox">
+    <widget class="QDoubleSpinBox" name="obscureBottomScreenPortionWidthSpinBox">
      <property name="suffix">
       <string>%</string>
      </property>
@@ -188,7 +210,7 @@
      </property>
     </widget>
    </item>
-   <item row="13" column="1" colspan="2">
+   <item row="17" column="1" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -198,43 +220,17 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
-    <widget class="QSlider" name="bottomOfRangeSlider">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QSlider" name="syncOffsetSlider">
-     <property name="minimum">
-      <number>-1000</number>
-     </property>
-     <property name="maximum">
-      <number>1000</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QSpinBox" name="endingIntensitySpinBox">
-     <property name="minimum">
-      <number>1</number>
-     </property>
-     <property name="maximum">
-      <number>1023</number>
-     </property>
-     <property name="value">
-      <number>414</number>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="startingIntensityLabel">
+   <item row="13" column="0">
+    <widget class="QLabel" name="strokeTypeLabel">
      <property name="text">
-      <string>Starting Intensity</string>
+      <string>For each beat:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QSpinBox" name="startingIntensitySpinBox">
+     <property name="maximum">
+      <number>1022</number>
      </property>
     </widget>
    </item>
@@ -245,28 +241,70 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="endingIntensityLabel">
-     <property name="text">
-      <string>Ending Intensity</string>
+   <item row="10" column="2">
+    <widget class="QSpinBox" name="handyStrokeDurationSpinBox">
+     <property name="suffix">
+      <string>ms</string>
+     </property>
+     <property name="minimum">
+      <number>100</number>
+     </property>
+     <property name="maximum">
+      <number>60000</number>
+     </property>
+     <property name="value">
+      <number>420</number>
      </property>
     </widget>
    </item>
-   <item row="11" column="0">
-    <widget class="QLabel" name="consistentLengthLabel">
-     <property name="toolTip">
-      <string>Try to keep all strokes the same length, increasing speed as needed</string>
-     </property>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="connectToHandyCheckBox">
      <property name="text">
-      <string>Consistent length</string>
+      <string>Connect to Handy</string>
      </property>
     </widget>
    </item>
-   <item row="11" column="1">
-    <widget class="QSlider" name="handyScalingProportionSlider">
+   <item row="8" column="1">
+    <widget class="QSlider" name="topOfRangeSlider">
+     <property name="minimum">
+      <number>1</number>
+     </property>
      <property name="maximum">
       <number>100</number>
      </property>
+     <property name="value">
+      <number>100</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QSlider" name="obscureBottomScreenPortionWidthSlider">
+     <property name="minimum">
+      <number>200</number>
+     </property>
+     <property name="maximum">
+      <number>3333</number>
+     </property>
+     <property name="value">
+      <number>667</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="2">
+    <widget class="QLabel" name="AnchorToTopLabel">
+     <property name="text">
+      <string>Anchor to top</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QSlider" name="rangeAnchorSlider">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -289,49 +327,143 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
-    <widget class="QLabel" name="AnchorToBottomLabel">
+   <item row="8" column="0">
+    <widget class="QLabel" name="topOfRangeLabel">
      <property name="text">
-      <string>Anchor to bottom</string>
+      <string>Top of range</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="2">
-    <widget class="QLabel" name="AnchorToTopLabel">
-     <property name="text">
-      <string>Anchor to top</string>
+   <item row="14" column="0" colspan="3">
+    <widget class="QGroupBox" name="beatMeterOptionsGroup">
+     <property name="title">
+      <string>Beat Meter</string>
      </property>
-    </widget>
-   </item>
-   <item row="9" column="1">
-    <widget class="QSlider" name="rangeAnchorSlider">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="0">
-    <widget class="QLabel" name="strokeTypeLabel">
-     <property name="text">
-      <string>For each beat:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="1">
-    <widget class="QRadioButton" name="fullStrokeRadioButton">
-     <property name="text">
-      <string>Full (up-and-down) stroke</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="2">
-    <widget class="QRadioButton" name="halfStrokeRadioButton">
-     <property name="text">
-      <string>Half stroke</string>
-     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="4" column="1">
+       <widget class="QSpinBox" name="meterMarkerDiameterSpinBox">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>5000</number>
+        </property>
+        <property name="value">
+         <number>20</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="meterPixelsPerSecondLabel">
+        <property name="text">
+         <string>Speed (pixels per second)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLabel" name="meterColouringModeTbdLabel">
+        <property name="text">
+         <string>Sorry - not done yet. Consider supporting me!</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="meterColouringModeLabel">
+        <property name="text">
+         <string>Colouring mode</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="meterHeightLabel">
+        <property name="text">
+         <string>Height (pixels)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="meterWidthLabel">
+        <property name="text">
+         <string>Width (pixels)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="meterSpeedSpinBox">
+        <property name="minimum">
+         <number>20</number>
+        </property>
+        <property name="maximum">
+         <number>5000</number>
+        </property>
+        <property name="value">
+         <number>167</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="meterWidthSpinBox">
+        <property name="minimum">
+         <number>50</number>
+        </property>
+        <property name="maximum">
+         <number>100000</number>
+        </property>
+        <property name="singleStep">
+         <number>10</number>
+        </property>
+        <property name="value">
+         <number>1920</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="meterHeightSpinBox">
+        <property name="minimum">
+         <number>10</number>
+        </property>
+        <property name="maximum">
+         <number>50000</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
+        </property>
+        <property name="value">
+         <number>25</number>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="meterMarkerDiameterLabel">
+        <property name="text">
+         <string>Beat marker diameter (pixels)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="meterFrameRateLabel">
+        <property name="text">
+         <string>Frame rate (frames per second)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDoubleSpinBox" name="meterFrameRateSpinBox">
+        <property name="minimum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>240.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.030000000000000</double>
+        </property>
+        <property name="value">
+         <double>29.969999999999999</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

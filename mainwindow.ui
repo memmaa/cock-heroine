@@ -307,6 +307,7 @@
     <addaction name="actionExport_To_FunScript"/>
     <addaction name="actionExport_To_FunScript_half_speed_for_Launch"/>
     <addaction name="actionExport_to_Handy_CSV"/>
+    <addaction name="actionExport_Beat_Meter"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -489,6 +490,11 @@
    </property>
    <property name="shortcut">
     <string>Return</string>
+   </property>
+  </action>
+  <action name="actionExport_Beat_Meter">
+   <property name="text">
+    <string>Export Beat Meter...</string>
    </property>
   </action>
  </widget>

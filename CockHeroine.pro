@@ -18,6 +18,7 @@ SOURCES += main.cpp\
     beatvaluewidget.cpp \
     customeventaction.cpp \
     deletedialog.cpp \
+    exportbeatmeterdialog.cpp \
     funscriptwriter.cpp \
     handycsvwriter.cpp \
         mainwindow.cpp \
@@ -63,6 +64,7 @@ HEADERS  += mainwindow.h \
     customeventaction.h \
     deletedialog.h \
     event.h \
+    exportbeatmeterdialog.h \
     funscriptwriter.h \
     handycsvwriter.h \
     seektotimecodedialog.h \
@@ -104,6 +106,7 @@ FORMS    += mainwindow.ui \
     adddialog.ui \
     adjustdialog.ui \
     deletedialog.ui \
+    exportbeatmeterdialog.ui \
     seektotimecodedialog.ui \
     editorwindow.ui \
     analysisoptionsdialog.ui \

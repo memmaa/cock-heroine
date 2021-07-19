@@ -26,6 +26,11 @@ public:
     static int getRangeTop();
     static int getRangeBottom();
     static int getRangeAnchor();
+    static int getBeatMeterHeight();
+    static int getBeatMeterWidth();
+    static int getBeatMeterSpeed();
+    static int getBeatMarkerDiameter();
+    static double getBeatMeterFrameRate();
 
 private slots:
     void on_startingIntensitySpinBox_valueChanged(int value);
@@ -36,9 +41,9 @@ private slots:
 
     void on_startingIntensitySlider_valueChanged(int value);
 
-    void on_beatMeterWidthSlider_valueChanged(int value);
+    void on_obscureBottomScreenPortionWidthSlider_valueChanged(int value);
 
-    void on_beatMeterWidthSpinBox_valueChanged(double value);
+    void on_obscureBottomScreenPortionWidthSpinBox_valueChanged(double value);
 
     void on_connectToHandyCheckBox_stateChanged(int checkState);
 

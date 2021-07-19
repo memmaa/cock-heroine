@@ -257,6 +257,7 @@ private slots:
     void on_actionExport_to_Handy_CSV_triggered();
     void on_actionRecalculate_Handy_Server_Time_triggered();
     void on_actionLaunchEditor_triggered();
+    void on_actionExport_Beat_Meter_triggered();
 };
 
 #endif // MAINWINDOW_H
