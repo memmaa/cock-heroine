@@ -41,10 +41,10 @@ QVariant BeatDataModel::headerData(int section, Qt::Orientation orientation, int
         switch (section)
         {
         case 0:
-            returnValue = QSize(80,20);
+            returnValue = QSize(65,20);
             break;
         case 1:
-            returnValue = QSize(38,20);
+            returnValue = QSize(80,20);
             break;
         case 2:
             returnValue = QSize(45,20);
@@ -96,7 +96,9 @@ QVariant BeatDataModel::data ( const QModelIndex & index, int role ) const
     {
         case 0: returnValue = int(beatTimestamps.at(index.row()).eventData.timestamp);
                 break;
-        case 1: returnValue = beatTimestamps.at(index.row()).eventData.type();
+        case 1: returnValue = QString("%1 (%2)")
+                                      .arg(beatTimestamps.at(index.row()).eventData.type())
+                                           .arg(beatTimestamps.at(index.row()).eventData.typeName());
                 break;
         case 2: returnValue = beatTimestamps.at(index.row()).eventData.value;
                 break;

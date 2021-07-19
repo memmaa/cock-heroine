@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QDomDocument>
 #include <QFile>
+#include "mainwindow.h" //just for tr()
 
 Event::Event()
     : timestamp(0),
@@ -49,6 +50,46 @@ QString Event::toAsciiString()
 unsigned char Event::type() const
 {
     return typeData & 0x7F;
+}
+
+QString Event::typeName() const
+{
+    unsigned char t = type();
+    switch (t) {
+    case EVENT_RESET_TIMECODE:
+        return MainWindow::tr("Reset Timecode");
+    case EVENT_NORMAL_WAND_PULSE:
+        return MainWindow::tr("Full Stroke");
+    case EVENT_NORMAL_WAND_PULSE_END:
+        return MainWindow::tr("Wand Pulse End");
+    case EVENT_TIMED_WAND_PULSE:
+        return MainWindow::tr("Fixed Length Vibrator Pulse");
+    case EVENT_TIMED_WAND_PULSE_END:
+        return MainWindow::tr("Fixed Length Vibrator Pulse End");
+    case EVENT_EDGE_BEGIN:
+        return MainWindow::tr("Start Edging");
+    case EVENT_EDGE_END:
+        return MainWindow::tr("Stop Edging");
+    case EVENT_ANAL_VIBRATOR_PULSE:
+        return MainWindow::tr("Anal Vibrator Pulse");
+    case EVENT_ANAL_VIBRATOR_PULSE_END:
+        return MainWindow::tr("Anal Vibrator Pulse End");
+    case EVENT_INFLATABLE_BUTT_PLUG_INFLATE:
+        return MainWindow::tr("Inflate Inflatable Butt Plug");
+    case EVENT_INFLATABLE_BUTT_PLUG_DEFLATE:
+        return MainWindow::tr("Deflate Inflatable Butt Plug");
+    case EVENT_AIR_PUMP_ON:
+        return MainWindow::tr("Turn Vacuum/Air Pump On");
+    case EVENT_AIR_PUMP_OFF:
+        return MainWindow::tr("Turn Vacuum/Air Pump Off");
+    case EVENT_RECORDING_MISTAKE:
+        return MainWindow::tr("Marker");
+    case EVENT_STROKER_WAYPOINT: //for things like handy, launch etc.
+        return MainWindow::tr("Stroker Waypoint");
+    default:
+        return MainWindow::tr("Undefined");
+    }
+    return MainWindow::tr("Undefined");
 }
 
 void Event::setType(unsigned char newType)

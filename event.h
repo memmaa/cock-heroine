@@ -22,7 +22,8 @@ enum e_eventType
     EVENT_AIR_PUMP_OFF,
     EVENT_RECORDING_MISTAKE,
     EVENT_UNUSED,
-    EVENT_STROKER_WAYPOINT //for things like handy, launch etc.
+    EVENT_STROKER_WAYPOINT, //for things like handy, launch etc.
+    EVENT_ENUM_SIZE
 };
 
 struct Event
@@ -46,6 +47,7 @@ private:
     char typeData;
 public:
     unsigned char type() const;
+    QString typeName() const;
     void setType(unsigned char newType);
     void setTypeRaw(char newTypeData);
     short value;

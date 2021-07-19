@@ -37,10 +37,10 @@ QVariant eventDataModel::headerData(int section, Qt::Orientation orientation, in
             returnValue = QSize(40,20);
             break;
         case 1:
-            returnValue = QSize(130,20);
+            returnValue = QSize(135,20);
             break;
         case 2:
-            returnValue = QSize(40,20);
+            returnValue = QSize(85,20);
             break;
         case 3:
             returnValue = QSize(65,20);
@@ -149,7 +149,9 @@ QVariant eventDataModel::data ( const QModelIndex & index, int role ) const
                 break;
             case 1: returnValue = millisToTimecode(events.at(index.row()).timestamp);
                 break;
-            case 2: returnValue = events.at(index.row()).type();
+            case 2: returnValue = QString("%1 (%2)")
+                                          .arg(events.at(index.row()).type())
+                                               .arg(events.at(index.row()).typeName());
                 break;
             case 3: returnValue = events.at(index.row()).value;
                 break;
