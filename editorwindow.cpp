@@ -41,6 +41,7 @@ EditorWindow::EditorWindow(QWidget *parent) :
     adjustValueValidator(NULL),
     strokeMeterScene(NULL),
     undoStackBookmark(0),
+    beatsTabWasAutoSelected(false),
     beatModel(new BeatDataModel(this)),
     intervalModel(NULL),
     patternModel(NULL),
@@ -364,7 +365,7 @@ void EditorWindow::on_currentBeatIntervalChanged(const QModelIndex & current, co
         controllingWidget = ui->intervalsTable;
     bool thisWasClicked = (controllingWidget == ui->intervalsTable);
 
-    if (thisWasClicked)
+    if (thisWasClicked && current != QModelIndex())
     {
         QModelIndex startingIndex = ui->beatsTable->model()->index(current.row(),0);
         QModelIndex endingIndex = ui->beatsTable->model()->index(current.row()+1,0);
@@ -604,6 +605,20 @@ void EditorWindow::on_newBeatButton_clicked()
     autoReanalyse();
 }
 
+//!
+//! \brief EditorWindow::clearTimestampBasedModelSelections clears selections and
+//! current items in models which directly relate to a timestamp (stroke markers, beat timestamps and beat values)
+//! so that changes to those models don't cause the vedeo to seek
+//!
+void EditorWindow::clearTimestampBasedModelSelections()
+{
+    ui->beatsTable->clearSelection();
+    ui->beatsTable->selectionModel()->clearCurrentIndex();
+    ui->intervalsTable->clearSelection();
+    ui->intervalsTable->selectionModel()->clearCurrentIndex();
+    strokeMeterScene->clearSelection();
+}
+
 void EditorWindow::on_deleteBeatButton_clicked()
 {
     if (multipleRowsSelected(ui->beatsTable->selectionModel()->selectedRows()))
@@ -617,12 +632,15 @@ void EditorWindow::on_deleteBeatButton_clicked()
                 indexesToDelete.append(ui->beatsTable->selectionModel()->selectedRows()[i].row());
         }
         qSort(indexesToDelete);
+        clearTimestampBasedModelSelections();
         for (i = indexesToDelete.size(); i > 0; --i) //work backwards to avoid shifting indices each time an item is deleted
             beatModel->removeBeat(indexesToDelete[i-1]);
     }
     else
     {
-        beatModel->removeBeat(ui->beatsTable->selectionModel()->currentIndex().row());
+        int removalIndex = ui->beatsTable->selectionModel()->currentIndex().row();
+        clearTimestampBasedModelSelections();
+        beatModel->removeBeat(removalIndex);
     }
     autoReanalyse();
 }
@@ -950,6 +968,8 @@ void EditorWindow::on_deleteIntervalButton_clicked()
     int firstRow, lastRow;
     identifyFirstAndLastRows(ui->intervalsTable->selectionModel()->selectedRows(),firstRow, lastRow);
 
+    //clear selections so that we don't seek the video as a result of new model row values
+    clearTimestampBasedModelSelections();
 
     int totalTimeDeleted = 0;
     if ( ui->deleteIntervalMoveLaterIntervalsRadioButton->isChecked() ||
@@ -1576,7 +1596,11 @@ void EditorWindow::refreshStrokeMeter()
 
 void EditorWindow::on_selectedStrokeMarkersChanged()
 {
-    if ( ! currentlyPlaying)
+    if (!controllingWidget)
+        controllingWidget = ui->strokeMeter;
+    bool thisWasClicked = (controllingWidget == ui->strokeMeter);
+
+    if ( thisWasClicked && ! currentlyPlaying)
     {
         QList<QGraphicsItem *> selectedItems = strokeMeterScene->selectedItems();
         if (selectedItems.size() == 0)
@@ -1599,14 +1623,28 @@ void EditorWindow::on_selectedStrokeMarkersChanged()
         scrollStrokeMeterToTimestamp();
         if (intervalModel)
         {
-            if (selectedIndex == intervalModel->rowCount()) //last marker is off end of table
-                --selectedIndex;
-            QModelIndex intervalIndex = intervalModel->index(selectedIndex,0);
+            int modifiedIndex = selectedIndex;
+            while (modifiedIndex >= intervalModel->rowCount()) //last marker is off end of table
+                --modifiedIndex;
+            QModelIndex intervalIndex = intervalModel->index(modifiedIndex,0);
             ui->intervalsTable->scrollTo(intervalIndex,QAbstractItemView::PositionAtCenter);
             ui->intervalsTable->selectionModel()->select(intervalIndex,QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current | QItemSelectionModel::Rows);
             ui->intervalsTable->selectionModel()->setCurrentIndex(intervalIndex,QItemSelectionModel::Current);
         }
+        if (ui->beatsAndIntervalsTabs->currentWidget() == ui->intervalsTab && selectedIndex >= intervalModel->rowCount())
+        {
+            ui->beatsAndIntervalsTabs->setCurrentWidget(ui->beatsTab);
+            beatsTabWasAutoSelected = true;
+        }
+        else if (beatsTabWasAutoSelected && ui->beatsAndIntervalsTabs->currentWidget() == ui->beatsTab && selectedIndex < intervalModel->rowCount())
+        {
+            ui->beatsAndIntervalsTabs->setCurrentWidget(ui->intervalsTab);
+            beatsTabWasAutoSelected = false;
+        }
     }
+
+    if (thisWasClicked)
+        controllingWidget = NULL;
 }
 
 void EditorWindow::on_actionAdd_triggered()
@@ -1623,23 +1661,28 @@ void EditorWindow::on_actionDelete_triggered()
 
 void EditorWindow::on_actionDelete_timestamp_only_triggered()
 {
-    QRadioButton * selectedButton = nullptr;
-    if (ui->deleteIntervalMergeWithFollowingRadioButton->isChecked())
-        selectedButton = ui->deleteIntervalMergeWithFollowingRadioButton;
-    if (ui->deleteIntervalMergeWithPreceedingRadioButton->isChecked())
-        selectedButton = ui->deleteIntervalMergeWithPreceedingRadioButton;
-    if (ui->deleteIntervalMergePreceedingWithFollowingRadioButton->isChecked())
-        selectedButton = ui->deleteIntervalMergePreceedingWithFollowingRadioButton;
-    if (ui->deleteIntervalMoveLaterIntervalsRadioButton->isChecked())
-        selectedButton = ui->deleteIntervalMoveLaterIntervalsRadioButton;
-    if (ui->deleteIntervalMoveEarlierIntervalsRadioButton->isChecked())
-        selectedButton = ui->deleteIntervalMoveEarlierIntervalsRadioButton;
+    if (ui->beatsAndIntervalsTabs->currentWidget() == ui->beatsTab)
+        on_deleteBeatButton_clicked();
+    else
+    {
+        QRadioButton * selectedButton = nullptr;
+        if (ui->deleteIntervalMergeWithFollowingRadioButton->isChecked())
+            selectedButton = ui->deleteIntervalMergeWithFollowingRadioButton;
+        if (ui->deleteIntervalMergeWithPreceedingRadioButton->isChecked())
+            selectedButton = ui->deleteIntervalMergeWithPreceedingRadioButton;
+        if (ui->deleteIntervalMergePreceedingWithFollowingRadioButton->isChecked())
+            selectedButton = ui->deleteIntervalMergePreceedingWithFollowingRadioButton;
+        if (ui->deleteIntervalMoveLaterIntervalsRadioButton->isChecked())
+            selectedButton = ui->deleteIntervalMoveLaterIntervalsRadioButton;
+        if (ui->deleteIntervalMoveEarlierIntervalsRadioButton->isChecked())
+            selectedButton = ui->deleteIntervalMoveEarlierIntervalsRadioButton;
 
-    ui->deleteIntervalMergeWithPreceedingRadioButton->setChecked(true);
-    on_deleteIntervalButton_clicked();
+        ui->deleteIntervalMergeWithPreceedingRadioButton->setChecked(true);
+        on_deleteIntervalButton_clicked();
 
-    if (selectedButton != nullptr)
-        selectedButton->setChecked(true);
+        if (selectedButton != nullptr)
+            selectedButton->setChecked(true);
+    }
 }
 
 void EditorWindow::on_actionAdjust_triggered()

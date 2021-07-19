@@ -146,15 +146,17 @@ private slots:
 private:
     Ui::EditorWindow *ui;
     ValueTableKeyboardEventHandler * valueTableKeyboardHandler;
-    QTableView * controllingWidget;
+    QWidget * controllingWidget;
     QStack<QComboBox *> stackOfComboBoxes;
     QIntValidator * adjustValueValidator;
     QGraphicsScene * strokeMeterScene;
     QVector<QGraphicsEllipseItem *> strokeMarkers;
+    void clearTimestampBasedModelSelections();
     QStack<EditorWin::RollbackSnapshot> undoStack;
     int undoStackBookmark;
     void applySnapshot(EditorWin::RollbackSnapshot);
     void clearUndoStack();
+    bool beatsTabWasAutoSelected;
 
 public:
     friend class BeatDataModel; //for creating and restoring snapshots
