@@ -2,6 +2,8 @@
 #include "globals.h"
 #include "event.h"
 #include <QSize>
+#include <QColor>
+#include <QBrush>
 
 eventDataModel::eventDataModel(QObject *parent) :
     QAbstractTableModel(parent)
@@ -176,6 +178,23 @@ QVariant eventDataModel::data ( const QModelIndex & index, int role ) const
                 break;
             default:
                 break;
+        }
+    }
+
+    if (role == Qt::BackgroundRole)
+    {
+        if ( index.row() > 0 && index.row() < events.length() - 1)
+        {
+            int i = index.row();
+            long maxNeighbourDistance = std::max(events[i]  .timestamp - events[i-1].timestamp,
+                                                 events[i+1].timestamp - events[i]  .timestamp);
+            if (maxNeighbourDistance > 3000)
+            {
+                maxNeighbourDistance = std::min(maxNeighbourDistance, 33000l);
+                maxNeighbourDistance -= 3000;
+                int lum = 240 - (maxNeighbourDistance * 63) / 30000;
+                returnValue = QBrush(QColor::fromHsl(240,255,lum));
+            }
         }
     }
 
