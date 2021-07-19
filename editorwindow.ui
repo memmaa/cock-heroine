@@ -168,8 +168,16 @@ in time with the music as possible)</string>
     </property>
     <addaction name="actionMost_Suspicious_Interval"/>
    </widget>
+   <widget class="QMenu" name="menuHistory">
+    <property name="title">
+     <string>History</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+   </widget>
    <addaction name="menuActions"/>
    <addaction name="menuSelect"/>
+   <addaction name="menuHistory"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="beatsAndIntervalsDock">
@@ -945,6 +953,22 @@ following interval</string>
    </property>
    <property name="shortcut">
     <string>Shift+N</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
    </property>
   </action>
  </widget>

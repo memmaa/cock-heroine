@@ -2,6 +2,7 @@
 #define BEATDATAMODEL_H
 
 #include <QAbstractTableModel>
+#include <editorwindow.h>
 class EventDataProxyModel;
 class Event;
 class BeatTimestamp;
@@ -17,9 +18,11 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
 
+    //! \param deleted almost always false - only true if restoring pre-deleted timestamps from an undo snapshot
     void addEvent(const Event &newEvent, int index = -1);
     void addBeat(const QModelIndex & index);
     void addBeats(EventDataProxyModel * model, const QModelIndexList & indexList);
+    void addEventsFromSnapshot(EditorWin::RollbackSnapshot snapshot);
 
     Event eventFromRow(int row);
     void changeEventAt(int index, const Event & event);
@@ -36,6 +39,9 @@ public:
 private:
     EventDataProxyModel * originModel;
     QVector<int> indexesToDelete;
+
+    friend void EditorWindow::createRollbackSnapshot();
+    friend void EditorWindow::applySnapshot(EditorWin::RollbackSnapshot);
 
 signals:
 

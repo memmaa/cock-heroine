@@ -5,7 +5,7 @@
 #include "beattimestamp.h"
 #include "beatanalysis.h"
 
-OptimisationOptionsDialog::OptimisationOptionsDialog(QWidget *parent) :
+OptimisationOptionsDialog::OptimisationOptionsDialog(EditorWindow *parent) :
     QDialog(parent),
     ui(new Ui::OptimisationOptionsDialog)
 {

@@ -158,6 +158,25 @@ void BeatDataModel::addBeats(EventDataProxyModel * model, const QModelIndexList 
     }
 }
 
+//!
+//! \brief BeatDataModel::addBeatsFromSnapshot adds the timestamps directly from the given list, assumming the originModel has not changed.
+//! \param snapshot a list of timestamps to be added
+//!
+void BeatDataModel::addEventsFromSnapshot(EditorWin::RollbackSnapshot snapshot)
+{
+    QVector<BeatTimestamp> timestamps = snapshot.timestamps;
+    beginInsertRows(QModelIndex(),0,timestamps.length()-1);
+    for (BeatTimestamp ts : timestamps)
+    {
+//        //Pretty sure this can cause a memory leak, but I don't think it's significant enough to care.
+//        ts.eventData.metadata = NULL;
+        //edit: actually, metadata is never created or deleted during the lifetime of the editor cycle, so it's safe to keep pointer values.
+        beatTimestamps.append(ts);
+    }
+    endInsertRows();
+    indexesToDelete = snapshot.deletions;
+}
+
 void BeatDataModel::addBeat(const QModelIndex &index)
 {
     int newRowIndex = index.row();

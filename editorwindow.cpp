@@ -40,6 +40,7 @@ EditorWindow::EditorWindow(QWidget *parent) :
     controllingWidget(NULL),
     adjustValueValidator(NULL),
     strokeMeterScene(NULL),
+    undoStackBookmark(0),
     beatModel(new BeatDataModel(this)),
     intervalModel(NULL),
     patternModel(NULL),
@@ -492,6 +493,7 @@ void EditorWindow::autoReanalyse()
 
     if ( ! BeatAnalysis::calculateUniqueBeatIntervals())
     {
+        refreshStrokeMeter();
         ui->centralStack->setCurrentWidget(ui->consolePage);
         printConsoleBanner("Automatic Reanalysis Failed");
         return;
@@ -499,6 +501,7 @@ void EditorWindow::autoReanalyse()
 
     if ( ! BeatAnalysis::calculateTempo())
     {
+        refreshStrokeMeter();
         ui->centralStack->setCurrentWidget(ui->consolePage);
         printConsoleBanner("Automatic Reanalysis Failed");
         return;
@@ -690,6 +693,8 @@ void EditorWindow::on_optimiseButton_clicked()
         return;
     }
 
+    createRollbackSnapshot();
+
     ui->centralStack->setCurrentWidget(ui->consolePage);
 
     if ( BeatOptimisation::Configuration::outputTempoProvided    &&
@@ -718,6 +723,8 @@ void EditorWindow::on_optimiseButton_clicked()
     }
 
     BeatOptimisation::applyBeats();
+    createRollbackSnapshot();
+    refreshStrokeMeter();
 
     printConsoleBanner("Optimisation Complete");
     ui->intervalsTable->repaint();
@@ -725,12 +732,14 @@ void EditorWindow::on_optimiseButton_clicked()
 
 void EditorWindow::on_cancelButton_clicked()
 {
+    clearUndoStack();
     close();
 }
 
 void EditorWindow::on_applyButton_clicked()
 {
     beatModel->writeChangesToOriginalModel();
+    clearUndoStack();
     close();
 }
 
@@ -1669,4 +1678,76 @@ void EditorWindow::on_actionSplit_triggered()
 void EditorWindow::on_actionMost_Suspicious_Interval_triggered()
 {
     on_adjustButton_clicked();
+}
+
+//!
+//! \brief EditorWindow::createRollbackSnapshot creates a snapshot which can then be restored at a later point, effectively acting as an 'undo' action.
+//!
+void EditorWindow::createRollbackSnapshot()
+{
+    //the only things we need to save are the beatTimestamps and queued deletions:
+    //beatIntervals are a thin layer that describes the gaps between the beatTimestamps
+    //beatValues can be calculated from the beatIntervals
+    //the beatTimestamps have their own copy of the event data, which contains everything we need
+    //the `Event`s themselves have metadata, which is basically a way of persisting information the
+    //editor calculates for itself, after the editor is closed, so this is not needed by the editor itself.
+    EditorWin::RollbackSnapshot snapshot(beatTimestamps, beatModel->indexesToDelete);
+    bool thisIsFirstSnapshot = undoStack.isEmpty();
+    undoStack.push(snapshot);
+    if (!thisIsFirstSnapshot)
+        undoStackBookmark++;
+}
+
+void EditorWindow::applySnapshot(EditorWin::RollbackSnapshot snapshot)
+{
+    //based on setBeatTimestamps, but we don't necessarily want to do all of the work that function does
+    clear();
+    beatModel->addEventsFromSnapshot(snapshot);
+    ui->analyseButton->setEnabled(true);
+    valueModel = new ValueDataModel(this);
+    ui->beatValuesTable->setModel(valueModel);
+    setColumWidthsFromModel(ui->beatValuesTable);
+
+    refreshStrokeMeter();
+
+//    ui->strokeMeter->centerOn(strokeMarkers.at(0));
+
+//    on_currentBeatTimestampChanged(ui->beatsTable->model()->index(0,0),QModelIndex());
+    autoReanalyse();
+}
+
+void EditorWindow::on_actionUndo_triggered()
+{
+    if (undoStack.isEmpty())
+        return;
+
+    if (undoStackBookmark < 1)
+        //already at oldest change
+        return;
+
+    --undoStackBookmark;
+    applySnapshot(undoStack[undoStackBookmark]);
+}
+
+void EditorWindow::on_actionRedo_triggered()
+{
+    if (undoStack.size() < 2)
+        return;
+
+    if (undoStackBookmark >= undoStack.size() - 1)
+        //already at newest change
+        return;
+
+    ++undoStackBookmark;
+    applySnapshot(undoStack[undoStackBookmark]);
+}
+
+void EditorWindow::clearUndoStack()
+{
+    for (auto snapshot : undoStack)
+    {
+        snapshot.timestamps.clear();
+    }
+    undoStack.clear();
+    undoStackBookmark = 0;
 }

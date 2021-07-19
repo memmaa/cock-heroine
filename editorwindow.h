@@ -5,6 +5,7 @@
 #include "eventdataproxymodel.h"
 #include "valuetablekeyboardeventhandler.h"
 #include <QStack>
+#include "beattimestamp.h"
 
 #define STROKE_MARKER_DIAMETER 20
 #define STROKE_METER_SCALE_DIVISOR 6
@@ -23,6 +24,17 @@ class BeatPattern;
 
 namespace Ui {
 class EditorWindow;
+}
+
+namespace EditorWin
+{
+struct RollbackSnapshot
+{
+    RollbackSnapshot(){}; //needed because Qt
+    RollbackSnapshot(QVector<BeatTimestamp> t, QVector<int> d) : timestamps(t), deletions(d) {timestamps.detach();};
+    QVector<BeatTimestamp> timestamps;
+    QVector<int> deletions;
+};
 }
 
 class EditorWindow : public QMainWindow
@@ -54,6 +66,7 @@ public:
     float getContigousSelectionBeats();
     BeatPattern createSplitPatternFromComboBoxes();
     void splitIntervals(BeatPattern & givenPattern, bool loopPattern, bool stretchPattern);
+    void createRollbackSnapshot();
 
 private slots:
     void on_analyseButton_clicked();
@@ -126,6 +139,10 @@ private slots:
 
     void on_actionMost_Suspicious_Interval_triggered();
 
+    void on_actionUndo_triggered();
+
+    void on_actionRedo_triggered();
+
 private:
     Ui::EditorWindow *ui;
     ValueTableKeyboardEventHandler * valueTableKeyboardHandler;
@@ -134,8 +151,13 @@ private:
     QIntValidator * adjustValueValidator;
     QGraphicsScene * strokeMeterScene;
     QVector<QGraphicsEllipseItem *> strokeMarkers;
+    QStack<EditorWin::RollbackSnapshot> undoStack;
+    int undoStackBookmark;
+    void applySnapshot(EditorWin::RollbackSnapshot);
+    void clearUndoStack();
 
 public:
+    friend class BeatDataModel; //for creating and restoring snapshots
     BeatDataModel * beatModel;
     IntervalDataModel * intervalModel;
     PatternDataModel * patternModel;

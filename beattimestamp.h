@@ -7,7 +7,13 @@ class BeatTimestamp
 {
 public:
     BeatTimestamp();
-    BeatTimestamp(int index, Event event);
+    //!
+    //! \brief BeatTimestamp
+    //! \param index
+    //! \param event
+    //! \param deleted almost always false - only true if restoring pre-deleted timestamps from an undo snapshot
+    //!
+    BeatTimestamp(int index, Event event, bool deleted = false);
 
     int originalRowIndex;
     Event eventData;

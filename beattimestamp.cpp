@@ -7,10 +7,10 @@ BeatTimestamp::BeatTimestamp()
 {
 }
 
-BeatTimestamp::BeatTimestamp(int index, Event event)
+BeatTimestamp::BeatTimestamp(int index, Event event, bool deleted)
     :
       originalRowIndex(index),
       eventData(event),
-      isDeleted(false)
+      isDeleted(deleted)
 {
 }

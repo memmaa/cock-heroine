@@ -3,6 +3,9 @@
 
 #include <QDialog>
 #include <QSettings>
+#include "editorwindow.h"
+
+#define BACKUP_WHEN_OPTIMISING_PREF "createBackupWhenOptimising"
 
 namespace Ui {
 class OptimisationOptionsDialog;
@@ -13,7 +16,7 @@ class OptimisationOptionsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit OptimisationOptionsDialog(QWidget *parent = 0);
+    explicit OptimisationOptionsDialog(EditorWindow *parent);
     ~OptimisationOptionsDialog();
 
 private slots:
