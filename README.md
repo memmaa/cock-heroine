@@ -32,7 +32,7 @@ But, as they became a popular file format for storing sex hardware instructions,
 # So what does it do then?
 Cock Heroine is designed specifically with Cock Hero games in mind.  
 You can store timestamps for all the events, just like you can with a funscript, but these events aren't tied to particular hardware.  
-You can import funscripts, or record events on-the-fly, and then use the editor to make sure they're prefectly in time with the music.  
+You can import funscripts, or record events on-the-fly, and then use the editor to make sure they're perfectly in time with the music.  
 Then you can use them to create beat tracks, control hardware and play back the events, create funscripts or whatever.
 
 # Feature list
