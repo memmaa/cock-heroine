@@ -16,6 +16,7 @@ class QMediaPlayer;
 class EditorWindow;
 class MainWindow;
 class QLCDNumber;
+class EventDispatcher;
 
 extern QVector<Event> events;
 extern QVector<BeatTimestamp> beatTimestamps;
@@ -43,5 +44,7 @@ BeatValue * getBeatValueByName(const QString & name);
 BeatValue * getBeatValueFromIntLength(int length);
 BeatValue * getBeatValueFromDropdownEntry(const QString & entry);
 QString millisToTimecode(unsigned int millis);
+
+extern QVector<EventDispatcher *> dispatchers;
 
 #endif // GLOBALS_H

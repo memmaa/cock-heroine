@@ -148,3 +148,4 @@ QVector<BeatValue> beatValues;
 QVector<BeatInterval> beatIntervals;
 QList<UniqueBeatInterval> uniqueBeatIntervals;
 QVector<BeatPattern> beatPatterns;
+QVector<EventDispatcher *> dispatchers;

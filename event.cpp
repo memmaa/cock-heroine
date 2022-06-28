@@ -104,6 +104,23 @@ void Event::setTypeRaw(char newType)
     typeData = newType;
 }
 
+short Event::maxPossibleValue()
+{
+    switch (type()) {
+    case EVENT_EDGE_BEGIN:
+    case EVENT_EDGE_END:
+        return 1;
+    case EVENT_STROKER_WAYPOINT:
+        return 100;
+    case EVENT_TIMED_WAND_PULSE:
+        return __SHRT_MAX__;
+    default:
+        return 255;
+    }
+
+    return 255;
+}
+
 bool Event::optional() const
 {
     return typeData & 0x80;

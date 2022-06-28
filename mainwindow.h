@@ -16,6 +16,7 @@
 #include <QGraphicsScene>
 #include <QNetworkAccessManager>
 #include <QTemporaryFile>
+#include "buttplug/buttpluginterface.h"
 
 QT_BEGIN_NAMESPACE
 class QGamepad;
@@ -53,8 +54,16 @@ public:
     void registerUnsyncedChanges();
     void scheduleVideoSync();
 
+    long totalPlayTime();
+    double progressThroughGame(long timestamp = currentTimecode());
+
+    Event * getLastEventBefore(long timestamp, bool includeCurrent = true);
+    Event * getNextEventAfter(long timestamp, bool includeCurrent = false);
+
     QList<QAction *> *getActionsList() const;
     void reregisterAllCustomShortcuts();
+
+    ButtplugInterface * getButtplugInterface();
 
     //used to increase intensity (such as strength of vibration, amplitude of estim) as time goes on
     static short startingMinIntensity;
@@ -100,6 +109,7 @@ private:
     void stopTimer();
     void jumpToTime();
     bool launchEditor();
+    void startEstimSignal();
 
     void createActions();
     CustomEventAction * getExistingCustomAction(CustomEventAction *);
@@ -202,6 +212,7 @@ private:
     QString serverSideHandyScriptAddress;
     int serverSideHandyScriptSize;
     QNetworkAccessManager * networkManager = new QNetworkAccessManager(this);
+    ButtplugInterface * buttplugIF;
 
 private slots:
 
@@ -260,6 +271,11 @@ private slots:
     void on_actionRecalculate_Handy_Server_Time_triggered();
     void on_actionLaunchEditor_triggered();
     void on_actionExport_Beat_Meter_triggered();
+    void on_actionConnect_to_buttplug_server_triggered();
+    void on_actionSearch_for_buttplug_devices_triggered();
+    void on_actionDisconnect_from_Buttplug_Server_triggered();
+    void on_actionConfigure_buttplug_devices_triggered();
+    void on_actionNope_triggered();
 };
 
 #endif // MAINWINDOW_H

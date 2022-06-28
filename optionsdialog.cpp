@@ -1,6 +1,7 @@
 #include "optionsdialog.h"
 #include "ui_optionsdialog.h"
 #include "mainwindow.h"
+#include <QAudioDeviceInfo>
 
 #define DEFAULT_BEAT_METER_HEIGHT 100
 #define DEFAULT_BEAT_METER_WIDTH 1920
@@ -14,12 +15,20 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     triggeringWidget(NULL)
 {
     ui->setupUi(this);
+    populateUi();
     setControlsFromPreferences();
 }
 
 OptionsDialog::~OptionsDialog()
 {
     delete ui;
+}
+
+void OptionsDialog::populateUi()
+{
+    const auto deviceInfos = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
+    for (const QAudioDeviceInfo &deviceInfo : deviceInfos)
+        ui->estimDeviceComboBox->addItem(deviceInfo.deviceName());
 }
 
 void OptionsDialog::setControlsFromPreferences()
@@ -50,6 +59,9 @@ void OptionsDialog::setControlsFromPreferences()
     ui->meterSpeedSpinBox->setValue(settings.value("Beat Meter Speed", DEFAULT_BEAT_METER_SPEED).toInt());
     ui->meterFrameRateSpinBox->setValue(settings.value("Beat Meter Frame Rate", DEFAULT_BEAT_METER_FRAME_RATE).toDouble());
     ui->meterMarkerDiameterSpinBox->setValue(settings.value("Beat Marker Diameter", DEFAULT_BEAT_MARKER_DIAMETER).toInt());
+
+    ui->estimEnabledCheckBox->setChecked(settings.value("Emit E-Stim Signal",false).toBool());
+    ui->estimDeviceComboBox->setCurrentText(settings.value("E-Stim Output Device", "").toString());
 }
 
 void OptionsDialog::setPreferencesFromControls()
@@ -73,6 +85,21 @@ void OptionsDialog::setPreferencesFromControls()
     settings.setValue("Beat Meter Speed", ui->meterSpeedSpinBox->value());
     settings.setValue("Beat Meter Frame Rate", ui->meterFrameRateSpinBox->value());
     settings.setValue("Beat Marker Diameter", ui->meterMarkerDiameterSpinBox->value());
+
+    settings.setValue("Emit E-Stim Signal", ui->estimEnabledCheckBox->isChecked());
+    settings.setValue("E-Stim Output Device", ui->estimDeviceComboBox->currentText());
+}
+
+bool OptionsDialog::emitEstimSignal()
+{
+    QSettings settings;
+    return settings.value("Emit E-Stim Signal", false).toBool();
+}
+
+QString OptionsDialog::getEstimOutputDevice()
+{
+    QSettings settings;
+    return settings.value("E-Stim Output Device", "").toString();
 }
 
 bool OptionsDialog::connectToHandy()

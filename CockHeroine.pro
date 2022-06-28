@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui serialport multimediawidgets xml gamepad network
+QT       += core gui serialport multimediawidgets xml gamepad network websockets multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -16,8 +16,15 @@ SOURCES += main.cpp\
     adddialog.cpp \
     adjustdialog.cpp \
     beatvaluewidget.cpp \
+    buttplug/buttplugdevice.cpp \
+    buttplug/buttplugdevicefeature.cpp \
+    buttplug/buttpluginterface.cpp \
+    buttplugdeviceconfigdialog.cpp \
+    buttplugdispatcher.cpp \
+    buttplugfeatureparams.cpp \
     customeventaction.cpp \
     deletedialog.cpp \
+    eventdispatcher.cpp \
     exportbeatmeterdialog.cpp \
     funscriptwriter.cpp \
     handycsvwriter.cpp \
@@ -25,7 +32,13 @@ SOURCES += main.cpp\
     event.cpp \
     seektotimecodedialog.cpp \
     splitdialog.cpp \
+    stimsignal/modifiers/beatproximitymodifier.cpp \
+    stimsignal/modifiers/triphasemodifier.cpp \
+    stimsignal/stimsignalgenerator.cpp \
+    stimsignal/stimsignalmodifier.cpp \
+    stimsignal/stimsignalsample.cpp \
     syncfilewriter.cpp \
+    vibratorpulsefeatureparams.cpp \
     wavefileexporter.cpp \
     midifilewriter.cpp \
     globals.cpp \
@@ -61,15 +74,28 @@ HEADERS  += mainwindow.h \
     adddialog.h \
     adjustdialog.h \
     beatvaluewidget.h \
+    buttplug/buttplugdevice.h \
+    buttplug/buttplugdevicefeature.h \
+    buttplug/buttpluginterface.h \
+    buttplugdeviceconfigdialog.h \
+    buttplugdispatcher.h \
+    buttplugfeatureparams.h \
     customeventaction.h \
     deletedialog.h \
     event.h \
+    eventdispatcher.h \
     exportbeatmeterdialog.h \
     funscriptwriter.h \
     handycsvwriter.h \
     seektotimecodedialog.h \
     splitdialog.h \
+    stimsignal/modifiers/beatproximitymodifier.h \
+    stimsignal/modifiers/triphasemodifier.h \
+    stimsignal/stimsignalgenerator.h \
+    stimsignal/stimsignalmodifier.h \
+    stimsignal/stimsignalsample.h \
     syncfilewriter.h \
+    vibratorpulsefeatureparams.h \
     wavefileexporter.h \
     midifilewriter.h \
     globals.h \
@@ -105,6 +131,7 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     adddialog.ui \
     adjustdialog.ui \
+    buttplugdeviceconfigdialog.ui \
     deletedialog.ui \
     exportbeatmeterdialog.ui \
     seektotimecodedialog.ui \

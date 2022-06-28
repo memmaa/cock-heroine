@@ -14,9 +14,12 @@ class OptionsDialog : public QDialog
 public:
     explicit OptionsDialog(QWidget *parent = 0);
     ~OptionsDialog();
+    void populateUi();
     virtual void accept();
     void setControlsFromPreferences();
     void setPreferencesFromControls();
+    static bool emitEstimSignal();
+    static QString getEstimOutputDevice();
     static bool connectToHandy();
     static int handySyncBaseOffset();
     static int handyFullStrokeDuration();

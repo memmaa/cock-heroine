@@ -51,6 +51,7 @@ public:
     void setType(unsigned char newType);
     void setTypeRaw(char newTypeData);
     short value;
+    short maxPossibleValue();
     bool optional() const;
     bool isOptional() const;
     void setOptional(bool optionality);

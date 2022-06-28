@@ -267,14 +267,24 @@
    </property>
    <widget class="QMenu" name="menuPlayback">
     <property name="title">
-     <string>Playback</string>
+     <string>Actions</string>
     </property>
+    <widget class="QMenu" name="menuButtplug_io">
+     <property name="title">
+      <string>Buttplug.io</string>
+     </property>
+     <addaction name="actionConnect_to_buttplug_server"/>
+     <addaction name="actionSearch_for_buttplug_devices"/>
+     <addaction name="actionConfigure_buttplug_devices"/>
+     <addaction name="actionDisconnect_from_Buttplug_Server"/>
+    </widget>
     <addaction name="actionPlay"/>
     <addaction name="actionPause"/>
     <addaction name="actionStop"/>
     <addaction name="separator"/>
     <addaction name="actionJump_To_Time"/>
     <addaction name="actionRecalculate_Handy_Server_Time"/>
+    <addaction name="menuButtplug_io"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -495,6 +505,26 @@
   <action name="actionExport_Beat_Meter">
    <property name="text">
     <string>Export Beat Meter...</string>
+   </property>
+  </action>
+  <action name="actionConnect_to_buttplug_server">
+   <property name="text">
+    <string>Connect to Buttplug Server</string>
+   </property>
+  </action>
+  <action name="actionSearch_for_buttplug_devices">
+   <property name="text">
+    <string>Search for Buttplug Devices</string>
+   </property>
+  </action>
+  <action name="actionConfigure_buttplug_devices">
+   <property name="text">
+    <string>Configure Buttplug Devices...</string>
+   </property>
+  </action>
+  <action name="actionDisconnect_from_Buttplug_Server">
+   <property name="text">
+    <string>Disconnect from Buttplug Server</string>
    </property>
   </action>
  </widget>

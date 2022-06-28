@@ -31,6 +31,10 @@
 #include "handycsvwriter.h"
 #include "funscriptwriter.h"
 #include "exportbeatmeterdialog.h"
+#include "buttplugdispatcher.h"
+#include <QWebSocket>
+#include "buttplugdeviceconfigdialog.h"
+#include "stimsignal/stimsignalgenerator.h"
 
 //how many events should we 'buffer' by sending them to the arduino hardware ahead of real time?
 //this lets it spin up motors in advance, or enqueue or ramp up its internal events for most accurate timings.
@@ -142,7 +146,8 @@ MainWindow::MainWindow(QWidget *parent) :
     waitingForTimedEventRelease(false),
 
     playbackLatency(0),
-    mainWindowActions(new QList<QAction *>())
+    mainWindowActions(new QList<QAction *>()),
+    buttplugIF(new ButtplugInterface(this))
 {
     mainWindow = this;
     ui->setupUi(this);
@@ -228,6 +233,10 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     temporaryHandyCsvFile.setFileTemplate(QString("%1/CockHeroineHandyTempXXXXXX.csv").arg(QDir::tempPath()));
+
+    ButtplugDispatcher * bpDisp = new ButtplugDispatcher(buttplugIF);
+    ButtplugDeviceConfigDialog::readInConfigs();
+    dispatchers.append(bpDisp);
 }
 
 void MainWindow::createActions()
@@ -325,6 +334,7 @@ MainWindow::~MainWindow()
     if (arduinoConnection->isOpen())
         arduinoConnection->close();
 
+    delete buttplugIF;
     delete timecode;
     delete customShortcuts;
 
@@ -912,6 +922,11 @@ bool MainWindow::triggerEvent(Event & eventToTrigger)
     {
         strokeSound.play();
     }
+
+    for (EventDispatcher * dispatcher : dispatchers)
+    {
+        dispatcher->dispatch(eventToTrigger);
+    }
     if ((arduinoConnection != NULL && arduinoConnection->isWritable()) || attemptToSetUpSerial())
     {
         arduinoConnection->write(eventToTrigger.toAsciiString().toLatin1());
@@ -964,6 +979,8 @@ void MainWindow::play()
     videoPlayer->play();
     currentlyPlaying = true; //IMPORTANT: This MUST occur BEFORE startTimer() but after videoPlayer->setPosition(currentTimecode());
     startTimer();
+    if (OptionsDialog::emitEstimSignal())
+        startEstimSignal();
     if (extraVideoSync &&
             loadedVideo.isEmpty() == false)
         scheduleVideoSync();
@@ -1038,6 +1055,11 @@ void MainWindow::startTimer()
     sendSerialTimecodeSync();
     setMinIntensity();
     scheduleEvent();
+}
+
+void MainWindow::startEstimSignal()
+{
+    //TODO: this doesn't work yet...
 }
 
 void MainWindow::sendSerialTimecodeSync()
@@ -2296,6 +2318,55 @@ void MainWindow::stopMotorIdling()
 short MainWindow::startingMinIntensity = STARTING_MIN_INTENSITY;
 short MainWindow::endingMinIntensity = ENDING_MIN_INTENSITY;
 
+long MainWindow::totalPlayTime()
+{
+    long videoLength = videoPlayer->duration();
+    long lastEvent = events.isEmpty() ? 0 : events.last().timestamp;
+
+    return std::max(videoLength,lastEvent);
+}
+
+//!
+//! \brief MainWindow::curentProgressThroughGame returns a value between 0 and 1 showing the progress through the game
+//! \return e.g. 0.0 for the beginning, 0.5 for half way thorough, 1 for the very end.
+//!
+double MainWindow::progressThroughGame(long timestamp)
+{
+    if (totalPlayTime() == 0)
+        return 1.0;
+    double retVal = std::min((double) timestamp / (double) totalPlayTime(), 1.0);
+//    qDebug() << "Progress is " << retVal * 100 << "%: " << timestamp << " out of " << totalPlayTime();
+    return retVal;
+}
+
+Event * MainWindow::getLastEventBefore(long timestamp, bool includeCurrent)
+{
+    Event * retVal = nullptr;
+    for (int i = 0; i < events.length(); ++i)
+    {
+        if (events[i].timestamp < timestamp)
+            retVal = &events[i];
+        else if (events[i].timestamp == timestamp && includeCurrent)
+            retVal = &events[i];
+        else
+            break;
+    }
+    return retVal;
+}
+
+Event *MainWindow::getNextEventAfter(long timestamp, bool includeCurrent)
+{
+    Event * retVal = nullptr;
+    for (int i = 0; i < events.length(); ++i)
+    {
+        if (events[i].timestamp == timestamp && includeCurrent)
+            return &events[i];
+        else if (events[i].timestamp > timestamp)
+            return &events[i];
+    }
+    return retVal;
+}
+
 void MainWindow::setMinIntensity()
 {
     int intensity;
@@ -2444,6 +2515,11 @@ void MainWindow::reregisterAllCustomShortcuts()
         }
     }
     settings.endGroup();
+}
+
+ButtplugInterface * MainWindow::getButtplugInterface()
+{
+    return buttplugIF;
 }
 
 void MainWindow::on_actionConfigure_Keyboard_Shortcuts_triggered()
@@ -2733,4 +2809,52 @@ void MainWindow::on_actionExport_Beat_Meter_triggered()
     ExportBeatMeterDialog * ebmDialog = new ExportBeatMeterDialog(this);
     ebmDialog->exec();
     delete ebmDialog;
+}
+
+void MainWindow::on_actionConnect_to_buttplug_server_triggered()
+{
+    buttplugIF->openSocket();
+}
+
+void MainWindow::on_actionSearch_for_buttplug_devices_triggered()
+{
+    buttplugIF->startScanning();
+}
+
+void MainWindow::on_actionConfigure_buttplug_devices_triggered()
+{
+    ButtplugDeviceConfigDialog dialog(this);
+    dialog.exec();
+}
+
+void MainWindow::on_actionDisconnect_from_Buttplug_Server_triggered()
+{
+    buttplugIF->closeSocket();
+}
+
+#include <QAudioOutput>
+void MainWindow::on_actionNope_triggered()
+{
+    QAudioFormat format;
+    format.setSampleRate(44100);
+    format.setChannelCount(2);
+    format.setSampleSize(16);
+    format.setCodec("audio/pcm");
+    format.setByteOrder(QAudioFormat::LittleEndian);
+    format.setSampleType(QAudioFormat::SignedInt);
+
+    QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
+    if (!info.isFormatSupported(format)) {
+        qWarning() << "Raw audio format not supported by backend, cannot play audio.";
+        return;
+    }
+
+    static StimSignalGenerator * gen = new StimSignalGenerator(200, format, this);
+
+    gen->open(QIODevice::ReadOnly);
+    gen->seek(currentTimecode());
+
+    static QAudioOutput * audio = new QAudioOutput(format, this);
+    //connect(audio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleStateChanged(QAudio::State)));
+    audio->start(gen);
 }
