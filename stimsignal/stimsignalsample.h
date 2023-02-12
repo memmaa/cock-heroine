@@ -13,8 +13,6 @@ public:
     qlonglong wholeTimestamp; //in ms
     qreal fractionalTimestamp; //also in ms (may be larger than 1)
     qreal totalTimestamp() {return wholeTimestamp + fractionalTimestamp;}
-    qreal primaryPhase;
-    qreal secondaryPhase;
     qreal primaryAmplitude;
     qreal secondaryAmplitude;
 
@@ -26,7 +24,15 @@ public:
 
     qreal distanceToTimestamp(qlonglong timestamp);
 
+    qreal getPrimaryPhase() const;
+    void setPrimaryPhase(const qreal &value);
+
+    qreal getSecondaryPhase() const;
+    void setSecondaryPhase(const qreal &value);
+
 private:
+    qreal primaryPhase;
+    qreal secondaryPhase;
     qint16 realToPcm(qreal real);
 
 signals:

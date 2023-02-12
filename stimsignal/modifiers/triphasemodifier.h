@@ -3,12 +3,20 @@
 
 #include "../stimsignalmodifier.h"
 
+enum StrokeStyle {
+    UP_DOWN_BEAT,
+    DOWN_BEAT_UP
+};
+
 class TriphaseModifier : public StimSignalModifier
 {
 public:
     TriphaseModifier();
-    int getMaxTriphaseStrokeLength();
     void modify(StimSignalSample &sample) override;
+private:
+    int strokeLength;
+    int getMaxTriphaseStrokeLength();
+    StrokeStyle style;
 };
 
 #endif // TRIPHASEMODIFIER_H

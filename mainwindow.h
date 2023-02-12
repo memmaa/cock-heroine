@@ -17,6 +17,7 @@
 #include <QNetworkAccessManager>
 #include <QTemporaryFile>
 #include "buttplug/buttpluginterface.h"
+#include "QAudioFormat"
 
 QT_BEGIN_NAMESPACE
 class QGamepad;
@@ -28,6 +29,8 @@ QT_END_NAMESPACE
 class EditorWindow;
 class CustomEventAction;
 class SyncFileWriter;
+class QAudioOutput;
+class StimSignalGenerator;
 
 namespace Ui {
 class MainWindow;
@@ -58,6 +61,8 @@ public:
     double progressThroughGame(long timestamp = currentTimecode());
 
     Event * getLastEventBefore(long timestamp, bool includeCurrent = true);
+    //didn't work - need a global intervals list
+//    BeatInterval * getIntervalAtTimestamp(long timestamp, bool preferNext = true);
     Event * getNextEventAfter(long timestamp, bool includeCurrent = false);
 
     QList<QAction *> *getActionsList() const;
@@ -101,6 +106,7 @@ private:
     bool attemptToSetUpSerial();
     void unableToSetUpSerial();
 
+    void setVideoOutputDevice();
     void play();
     void pause();
     void stop();
@@ -109,13 +115,20 @@ private:
     void stopTimer();
     void jumpToTime();
     bool launchEditor();
+    QAudioFormat getEstimAudioFormat();
+public:
+    //literally only public so that globals.c:seekToTimestamp can reallign estim signal
     void startEstimSignal();
+    void stopEstimSignal();
 
+private:
     void createActions();
     CustomEventAction * getExistingCustomAction(CustomEventAction *);
     void removeDuplicateEvents();
     void clearEventsList();
 
+    void setLastOpenedLocation(const QString path);
+    QString getLastOpenedLocation();
     static bool isVideoFileSuffix(const QString & suffix);
     static int isScriptFileSuffix(const QString & suffix);
     QString getAssociatedFile(const QString & filename);
@@ -214,6 +227,9 @@ private:
     QNetworkAccessManager * networkManager = new QNetworkAccessManager(this);
     ButtplugInterface * buttplugIF;
 
+    StimSignalGenerator * stimSignalGenerator;
+    QAudioOutput * stimAudio;
+
 private slots:
 
     void updateTimerDisplay();
@@ -276,6 +292,8 @@ private slots:
     void on_actionDisconnect_from_Buttplug_Server_triggered();
     void on_actionConfigure_buttplug_devices_triggered();
     void on_actionNope_triggered();
+    void handleEstimAudioStateChanged(QAudio::State state);
+    void on_actionExport_E_Stim_Track_triggered();
 };
 
 #endif // MAINWINDOW_H

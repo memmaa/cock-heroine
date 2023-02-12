@@ -35,9 +35,16 @@
 #include <QWebSocket>
 #include "buttplugdeviceconfigdialog.h"
 #include "stimsignal/stimsignalgenerator.h"
+#include "beatinterval.h"
+#include <QtEndian>
+#include <stdio.h> //strcpy
+#include <QAudioOutput>
+#include <QAudioOutputSelectorControl>
+#include <QMediaService>
 
 //how many events should we 'buffer' by sending them to the arduino hardware ahead of real time?
 //this lets it spin up motors in advance, or enqueue or ramp up its internal events for most accurate timings.
+#define PREF_LAST_SUCCESSFULLY_LOADED_VIDEO "Last Successfully Loaded Video"
 #define MAX_ENQUEUED_EVENTS 5
 
 /*#include <QItemDelegate>
@@ -107,10 +114,6 @@
 //-TODO: Themable beat meter creation
 //-TODO: Pattern editor allowing drag-n-drop creation or editing of both patterns and sequences of patterns
 
-//!why would you turn this off?
-bool MainWindow::extraVideoSync = true;
-//!how often should we try to re-sync the clock to the video when we first start playing?
-quint16 MainWindow::videoSyncDelay = 500;
 //!honestly, 50ms is pretty high - a musical ear will notice this and anything higher.
 quint8 MainWindow::maxVideoSyncError = 50;
 //!chml file type saves the most data
@@ -147,7 +150,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     playbackLatency(0),
     mainWindowActions(new QList<QAction *>()),
-    buttplugIF(new ButtplugInterface(this))
+    buttplugIF(new ButtplugInterface(this)),
+    stimSignalGenerator(nullptr),
+    stimAudio(nullptr)
 {
     mainWindow = this;
     ui->setupUi(this);
@@ -183,7 +188,8 @@ MainWindow::MainWindow(QWidget *parent) :
     videoPlayer->setVideoOutput(ui->videoGoesHere);
     //ui->videoGoesHere->setAspectRatioMode(Qt::KeepAspectRatioByExpanding);
 
-    if ( ! attemptToSetUpSerial())
+    if ( OptionsDialog::connectToArduino() &&
+         ! attemptToSetUpSerial())
     {
         unableToSetUpSerial();
     }
@@ -237,6 +243,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ButtplugDispatcher * bpDisp = new ButtplugDispatcher(buttplugIF);
     ButtplugDeviceConfigDialog::readInConfigs();
     dispatchers.append(bpDisp);
+
+    if (OptionsDialog::autoLoadLastSession())
+    {
+        QString lastVideo = QSettings().value(PREF_LAST_SUCCESSFULLY_LOADED_VIDEO, QString()).toString();
+        if (!lastVideo.isEmpty())
+        {
+            QString script = getAssociatedFile(lastVideo);
+            if (!script.isEmpty())
+            {
+                loadFile(lastVideo, true);
+                loadFile(script, true);
+            }
+        }
+    }
 }
 
 void MainWindow::createActions()
@@ -331,7 +351,7 @@ MainWindow::~MainWindow()
 {
     stopMotorIdling();
 
-    if (arduinoConnection->isOpen())
+    if (OptionsDialog::connectToArduino() && arduinoConnection->isOpen())
         arduinoConnection->close();
 
     delete buttplugIF;
@@ -440,7 +460,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
           ( ! currentlyPlaying ) &&
             eventsModel->rowCount() > 0 )
      {
-         QVector<int> rows(1);
+         QVector<int> rows(0);
          foreach (QModelIndex index, ui->eventsTable->selectionModel()->selectedRows())
          {
              if (!rows.contains(index.row()))
@@ -700,12 +720,27 @@ void MainWindow::mousePressEvent (QMouseEvent * ev)
 
 void MainWindow::skipForward()
 {
-    seekToTimestamp(currentTimecode() + 5000);
+    long targetTimecode = currentTimecode();
+    if (currentlyPlaying &&
+            !loadedVideo.isEmpty() &&
+            OptionsDialog::syncTimecodeOnSeek())
+    {
+        targetTimecode = videoPlayer->position();
+    }
+    targetTimecode += OptionsDialog::getVideoSeekInterval() * 1000;
+    seekToTimestamp(targetTimecode);
 }
 
 void MainWindow::skipBackward()
 {
-    long targetTimecode = currentTimecode() - 5000;
+    long targetTimecode = currentTimecode();
+    if (currentlyPlaying &&
+            !loadedVideo.isEmpty() &&
+            OptionsDialog::syncTimecodeOnSeek())
+    {
+        targetTimecode = videoPlayer->position();
+    }
+    targetTimecode -= OptionsDialog::getVideoSeekInterval() * 1000;
     if (targetTimecode < 0)
         targetTimecode = 0;
     seekToTimestamp(targetTimecode);
@@ -730,6 +765,18 @@ bool MainWindow::launchEditor()
     editor->setBeatTimestamps(eventsProxyModel,ui->eventsTable->selectionModel()->selectedIndexes());
 
     return true;
+}
+
+QAudioFormat MainWindow::getEstimAudioFormat()
+{
+    QAudioFormat format;
+    format.setSampleRate(OptionsDialog::getEstimSamplingRate());
+    format.setChannelCount(2);
+    format.setSampleSize(16);
+    format.setCodec("audio/pcm");
+    format.setByteOrder(QAudioFormat::LittleEndian);
+    format.setSampleType(QAudioFormat::SignedInt);
+    return format;
 }
 
 void MainWindow::removeDuplicateEvents()
@@ -758,6 +805,17 @@ void MainWindow::clearEventsList()
     int totalRows = eventsModel->rowCount();
     for (int i = 0; i < totalRows; ++i)
         eventsModel->removeRow(0);
+}
+
+#define LAST_OPENED_LOCATION "Last opened location"
+void MainWindow::setLastOpenedLocation(const QString path)
+{
+    settings.setValue(LAST_OPENED_LOCATION, path);
+}
+
+QString MainWindow::getLastOpenedLocation()
+{
+    return settings.value(LAST_OPENED_LOCATION).toString();
 }
 
 void MainWindow::jumpToTime()
@@ -861,8 +919,7 @@ bool MainWindow::attemptToSetUpSerial()
             }
         }
     }
-    return false;// <-- should be
-    //return true; // <-- can be used to silence warning window, but probably not The Right Way(TM) to do it (see below)
+    return false;
 }
 
 void MainWindow::unableToSetUpSerial()
@@ -873,9 +930,27 @@ void MainWindow::unableToSetUpSerial()
     {
         QMessageBox::warning(this,
                              tr("Arduino not found"),
-                             tr("Could not find Arduino board attached to a serial port. Sadface."));
+                             tr("Could not find Arduino board attached to a serial port. Cannot use it to control Hitachi Magic Wand, inflatable butt plug, etc. Sadface."));
         alreadyWarned = true;
 
+    }
+}
+
+void MainWindow::setVideoOutputDevice()
+{
+    if (!OptionsDialog::useDefaultAudioDeviceForVideo())
+    {
+        QMediaService *svc = videoPlayer->service();
+        if (svc != nullptr)
+        {
+            QAudioOutputSelectorControl *out = qobject_cast<QAudioOutputSelectorControl *>
+                    (svc->requestControl(QAudioOutputSelectorControl_iid));
+            if (out != nullptr)
+            {
+                out->setActiveOutput(OptionsDialog::getVideoAudioOutputDeviceName());
+                svc->releaseControl(out);
+            }
+        }
     }
 }
 
@@ -927,16 +1002,21 @@ bool MainWindow::triggerEvent(Event & eventToTrigger)
     {
         dispatcher->dispatch(eventToTrigger);
     }
-    if ((arduinoConnection != NULL && arduinoConnection->isWritable()) || attemptToSetUpSerial())
+    if (OptionsDialog::connectToArduino())
     {
-        arduinoConnection->write(eventToTrigger.toAsciiString().toLatin1());
-        return true;
+        if ((arduinoConnection != NULL && arduinoConnection->isWritable()) || attemptToSetUpSerial())
+        {
+            arduinoConnection->write(eventToTrigger.toAsciiString().toLatin1());
+            return true;
+        }
+        else
+        {
+            unableToSetUpSerial();
+            return false;
+        }
     }
-    else
-    {
-        unableToSetUpSerial();
-        return false;
-    }
+    //if we're not connecting to the arduino, just return true and assume event triggered sucessfully
+    return true;
 }
 
 void MainWindow::on_triggerButton_pressed()
@@ -975,13 +1055,14 @@ void MainWindow::play()
 {
     ui->startButton->setText(tr("Pause"));
     ui->stopButton->setText(tr("Pause"));
+    setVideoOutputDevice();
     videoPlayer->setPosition(currentTimecode());//IMPORTANT: Due to the way currentTimecode works, and the way it interacts with syncToVideo() this MUST occur BEFORE startTimer()
     videoPlayer->play();
     currentlyPlaying = true; //IMPORTANT: This MUST occur BEFORE startTimer() but after videoPlayer->setPosition(currentTimecode());
     startTimer();
     if (OptionsDialog::emitEstimSignal())
         startEstimSignal();
-    if (extraVideoSync &&
+    if (OptionsDialog::syncTimecodeOnPlay() &&
             loadedVideo.isEmpty() == false)
         scheduleVideoSync();
     if (OptionsDialog::connectToHandy())
@@ -998,7 +1079,8 @@ void MainWindow::syncToVideo()
     QNetworkRequest handySyncRequest(QUrl(OptionsDialog::getHandyApiBase() + "syncAdjustTimestamp"));
     if (! currentlyPlaying)
         return;
-    if (abs(currentTimecode() - videoPlayer->position()) > maxVideoSyncError)
+    bool outOfSync = abs(currentTimecode() - videoPlayer->position()) > maxVideoSyncError;
+    if (outOfSync)
         scheduleVideoSync();
 
     timecodeLastStopped = videoPlayer->position();
@@ -1006,11 +1088,16 @@ void MainWindow::syncToVideo()
     sendSerialTimecodeSync();
     if (OptionsDialog::connectToHandy())
         sendHandyTimecodeSync(true);
+    if (OptionsDialog::emitEstimSignal() && OptionsDialog::syncEstimWithTimecode())
+    {
+        stopEstimSignal();
+        startEstimSignal();
+    }
 }
 
 void MainWindow::scheduleVideoSync()
 {
-    QTimer::singleShot(videoSyncDelay,this,SLOT(syncToVideo()));
+    QTimer::singleShot(OptionsDialog::getTimecodeSyncInterval(),this,SLOT(syncToVideo()));
 }
 
 void MainWindow::pause()
@@ -1023,10 +1110,11 @@ void MainWindow::pause()
     cancelScheduledEvent();
     if (motorIdleTimer->isActive())
         motorIdleTimer->start(10 * 1000);
-    if (arduinoConnection != NULL && arduinoConnection->isWritable())
+    if (OptionsDialog::connectToArduino() && arduinoConnection != NULL && arduinoConnection->isWritable())
         arduinoConnection->write("r.");
     if (OptionsDialog::connectToHandy())
         stopHandySync();
+    stopEstimSignal();
 }
 
 void MainWindow::stop()
@@ -1047,9 +1135,11 @@ void MainWindow::stop()
 void MainWindow::startTimer()
 {
     timecode->start();
-    refreshTimer->start(37);
+//    refreshTimer->start(37);
+    refreshTimer->start(17);
 
-    if ( ((arduinoConnection != NULL && arduinoConnection->isWritable()) || attemptToSetUpSerial()) == false)
+    if ( OptionsDialog::connectToArduino() &&
+         ((arduinoConnection != NULL && arduinoConnection->isWritable()) || attemptToSetUpSerial()) == false)
         unableToSetUpSerial();
 
     sendSerialTimecodeSync();
@@ -1059,12 +1149,66 @@ void MainWindow::startTimer()
 
 void MainWindow::startEstimSignal()
 {
-    //TODO: this doesn't work yet...
+    if (!OptionsDialog::currentEstimDeviceIsAvailable())
+        return;
+
+    QAudioFormat format = getEstimAudioFormat();
+
+    QAudioDeviceInfo info = OptionsDialog::getEstimOutputDeviceInfo();
+    if (!info.isFormatSupported(format)) {
+        qWarning() << "Raw audio format not supported by backend, cannot play estim signal.";
+        for (auto thing : info.supportedCodecs())
+        {
+            qDebug() << "supported codec: " << thing;
+        }
+        for (auto thing : info.supportedByteOrders())
+        {
+            qDebug() << "supported endian: " << thing;
+        }
+        for (auto thing : info.supportedSampleRates())
+        {
+            qDebug() << "supported rate: " << thing;
+        }
+        for (auto thing : info.supportedSampleSizes())
+        {
+            qDebug() << "supported sample size: " << thing;
+        }
+        for (auto thing : info.supportedSampleTypes())
+        {
+            qDebug() << "supported sample type: " << thing;
+        }
+        for (auto thing : info.supportedChannelCounts())
+        {
+            qDebug() << "supported channel count: " << thing;
+        }
+        return;
+    }
+
+    stimSignalGenerator = new StimSignalGenerator(format, this);
+
+    stimSignalGenerator->open(QIODevice::ReadOnly);
+    stimSignalGenerator->setGenerateFrom(currentTimecode());
+
+    stimAudio = new QAudioOutput(OptionsDialog::getEstimOutputDeviceInfo(), format, this);
+    connect(stimAudio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleEstimAudioStateChanged(QAudio::State)));
+    stimAudio->start(stimSignalGenerator);
+}
+
+void MainWindow::stopEstimSignal()
+{
+    if (stimAudio != nullptr && stimAudio->state() == QAudio::ActiveState)
+    {
+        disconnect(stimAudio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleEstimAudioStateChanged(QAudio::State)));
+        stimAudio->stop();
+        stimSignalGenerator->close();
+        delete stimAudio;
+        stimAudio = nullptr;
+    }
 }
 
 void MainWindow::sendSerialTimecodeSync()
 {
-    if (arduinoConnection != NULL && arduinoConnection->isWritable())
+    if (OptionsDialog::connectToArduino() && arduinoConnection != NULL && arduinoConnection->isWritable())
     {
     qDebug() <<"Serial Syncing...";
         arduinoConnection->write("r");
@@ -1203,8 +1347,11 @@ void MainWindow::on_saveButton_clicked()
     if (ui->eventsTable->model()->rowCount() == 0)
         return; //don't save empty file
 
+    QString lastOpenedLocation = getLastOpenedLocation();
+    if (lastOpenedLocation.isEmpty())
+        lastOpenedLocation = QDir::toNativeSeparators(QDir::homePath());
     QString filenameToSave = QFileDialog::getSaveFileName(this, tr("Save Wand Events"),
-                                                "~/Documents",
+                                                lastOpenedLocation,
                                                 tr("Cock Hero Markup Language file - includes metadata (*.chml);;Wand Controller ASCII file - human readable (*.wca);;Wand Controller Binary file - smaller (*.wcb))"));
     if (filenameToSave.isEmpty())
         return; //save cancelled
@@ -1609,14 +1756,19 @@ void MainWindow::addExtraCsvEvents(int eventIndex, int holdLocation, int upLocat
 
 void MainWindow::on_loadButton_clicked()
 {
+    QString lastOpenedLocation = getLastOpenedLocation();
+    if (lastOpenedLocation.isEmpty())
+        lastOpenedLocation = QDir::toNativeSeparators(QDir::homePath());
     QString filename = QFileDialog::getOpenFileName(this,
                                             tr("Load File"),
-                                            QDir::toNativeSeparators(QDir::homePath()), //TODO: remember last load location and use that instead?
+                                            lastOpenedLocation, //TODO: remember last load location and use that instead?
                                             tr("All Openable Files (*.chml *.wca *.wcb *.mid *.funscript *.wmv *.mov *.avi *.mpg *.mp4 *.flv *.m4v *.wav);;All Wand Controller Event Files (*.chml *.wca *.wcb);;Cock Hero Markup Language files (*.chml);;Wand Controller ASCII files (*.wca);;Wand Controller Binary Files (*.wcb);;MIDI Files (*.mid);;Funscripts (*.funscripts);;Movie Files (*.wmv *.mov *.avi *.mpg *.mp4 *.flv *.m4v);;Sound Files (*.wav)"));
 
     if (filename.isEmpty())
         return;
 
+    if (!QFileInfo(filename).path().isEmpty())
+        setLastOpenedLocation(QFileInfo(filename).path());
     loadFile(filename);
 }
 
@@ -1764,6 +1916,7 @@ void MainWindow::loadCHML(QString filename)
 void MainWindow::loadVideo(QString video)
 {
     loadedVideo = video;
+    QSettings().setValue(PREF_LAST_SUCCESSFULLY_LOADED_VIDEO, video);
     videoPlayer->setMedia(QUrl::fromLocalFile(video));
     updateAssociatedVideoIfAppropriate();
 }
@@ -1783,7 +1936,7 @@ void MainWindow::updateAssociatedScriptIfAppropriate()
                                                        QMessageBox::Yes,
                                                        QMessageBox::No)
                  )
-                )
+            )
         {
             associateFiles(loadedVideo, loadedScript);
         }
@@ -2293,6 +2446,8 @@ void MainWindow::on_actionExport_To_MIDI_File_triggered()
 
 void MainWindow::startMotorIdling()
 {
+    if ( ! OptionsDialog::connectToArduino())
+        return;
     if ((arduinoConnection != NULL && arduinoConnection->isWritable()) || attemptToSetUpSerial())
     {
         arduinoConnection->write("i1");
@@ -2305,6 +2460,8 @@ void MainWindow::startMotorIdling()
 
 void MainWindow::stopMotorIdling()
 {
+    if ( ! OptionsDialog::connectToArduino())
+        return;
     if (arduinoConnection != NULL && arduinoConnection->isWritable())
     {
         arduinoConnection->write("i0");
@@ -2353,6 +2510,53 @@ Event * MainWindow::getLastEventBefore(long timestamp, bool includeCurrent)
     }
     return retVal;
 }
+
+//!
+//! \brief MainWindow::getIntervalAtTimestamp
+//! 		Get the interval that's active at the given timestamp
+//! \param timestamp where are we right now?
+//! \param preferNext if we're exactly on a beat, do we want the next interval (true) or the last one (false) if there is one
+//! \return the interval at the given timestamp, or NULL if we're outside the time range of existing timestamps (or there are none)
+//!
+//! EDIT: TODO: This method doesn't work because beatIntervals only exists when the editor is open
+//BeatInterval *MainWindow::getIntervalAtTimestamp(long timestamp, bool preferNext)
+//{
+//    BeatInterval * retVal = nullptr;
+//    //TODO: The beatTimestamps length check is there to cover a bug where we have intervals but no timestamps.
+//    //Steps to reproduce: Record some beats, optimise them in editor, close the editor, play estim.
+//    for (int i = 0; i < beatIntervals.length() && i < beatTimestamps.length(); ++i)
+//    {
+//        if (beatIntervals[i].startsAtTimestamp() > timestamp)
+//            //we've gone too far and we didn't find anything (this should happen if we request an interval before the start)
+//            break;
+
+//        if (beatIntervals[i].endsAtTimestamp() < timestamp)
+//            //we've not gone far enough yet - our timestsamp is after the end of this interval. Keep going...
+//            continue;
+
+//        //now we have an interval that starts at or before the requested timestamp
+//        if (beatIntervals[i].startsAtTimestamp() == timestamp)
+//        {
+//            //we're exactly on a beat, so honour the 'preferNext' parameter if possible
+//            if (preferNext || i == 0)
+//            {
+//                //corner case: 2 or more events on the same timestamp
+//                if (beatIntervals[i].getLength() == 0)
+//                    continue;
+
+//                return &beatIntervals[i];
+//            }
+//            else //prefer previous interval
+//                 //the 'if' above filters out i==0, so there must be one
+//            {
+//                return &beatIntervals[i-1];
+//            }
+//        }
+//        //otherwise, this is simply the first interval that conatins the requested timestamp, so...
+//        return &beatIntervals[i];
+//    }
+//    return retVal; //nullptr at time of writing
+//}
 
 Event *MainWindow::getNextEventAfter(long timestamp, bool includeCurrent)
 {
@@ -2832,29 +3036,191 @@ void MainWindow::on_actionDisconnect_from_Buttplug_Server_triggered()
     buttplugIF->closeSocket();
 }
 
-#include <QAudioOutput>
 void MainWindow::on_actionNope_triggered()
 {
-    QAudioFormat format;
-    format.setSampleRate(44100);
-    format.setChannelCount(2);
-    format.setSampleSize(16);
-    format.setCodec("audio/pcm");
-    format.setByteOrder(QAudioFormat::LittleEndian);
-    format.setSampleType(QAudioFormat::SignedInt);
+    QAudioFormat format = getEstimAudioFormat();
 
-    QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-    if (!info.isFormatSupported(format)) {
-        qWarning() << "Raw audio format not supported by backend, cannot play audio.";
+    if ( ! OptionsDialog::currentEstimDeviceIsAvailable())
+    {
+        qDebug() << "Cannot play estim signal because output device is unavailable: " << OptionsDialog::getEstimOutputDeviceName();
+        return;
+    }
+    QAudioDeviceInfo deviceInfo = OptionsDialog::getEstimOutputDeviceInfo();
+    if (!deviceInfo.isFormatSupported(format)) {
+        qWarning() << "Raw audio format not supported by " << OptionsDialog::getEstimOutputDeviceName() << ", cannot play audio.";
         return;
     }
 
-    static StimSignalGenerator * gen = new StimSignalGenerator(200, format, this);
+    stimSignalGenerator = new StimSignalGenerator(format, this);
 
-    gen->open(QIODevice::ReadOnly);
-    gen->seek(currentTimecode());
+    stimSignalGenerator->open(QIODevice::ReadOnly);
+    stimSignalGenerator->setGenerateFrom(currentTimecode());
 
-    static QAudioOutput * audio = new QAudioOutput(format, this);
-    //connect(audio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleStateChanged(QAudio::State)));
-    audio->start(gen);
+    stimAudio = new QAudioOutput(deviceInfo, format, this);
+    connect(stimAudio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleEstimAudioStateChanged(QAudio::State)));
+    stimAudio->start(stimSignalGenerator);
+}
+
+void MainWindow::handleEstimAudioStateChanged(QAudio::State newState)
+{
+    switch (newState) {
+        case QAudio::IdleState:
+            // Finished playing (no more data)
+            qDebug() << "Estim Audio finished playing normally";
+            stimAudio->stop();
+            stimSignalGenerator->close();
+            delete stimAudio;
+            break;
+
+        case QAudio::StoppedState:
+            // Stopped for other reasons
+            if (stimAudio->error() != QAudio::NoError) {
+                qDebug() << "Audio finished playing ABnormally!";
+                switch (stimAudio->error())
+                {
+                case QAudio::UnderrunError:
+                    qDebug() << "UnderrunError";
+                    break;
+                case QAudio::IOError:
+                    qDebug() << "IOError";
+                    break;
+                case QAudio::OpenError:
+                    qDebug() << "OpenError";
+                    break;
+                case QAudio::FatalError:
+                    qDebug() << "FatalError";
+                    break;
+                default:
+                    break;
+                }
+            }
+            break;
+
+        default:
+//            qDebug() << "Another thing!";
+            break;
+    }
+}
+
+void MainWindow::on_actionExport_E_Stim_Track_triggered()
+{
+    if (ui->eventsTable->model()->rowCount() == 0)
+        return; //don't save empty file
+
+    QString lastOpenedLocation = getLastOpenedLocation();
+    if (lastOpenedLocation.isEmpty())
+        lastOpenedLocation = QDir::toNativeSeparators(QDir::homePath());
+    QString exportFilename = QFileDialog::getSaveFileName(this, tr("Export E-Stim Signal"),
+                                                lastOpenedLocation,
+                                                tr("WAV file (sorry - mp3 not supported yet - support me?) (*.wav))"));
+    if (exportFilename.isEmpty())
+        return; //save cancelled
+
+    if (exportFilename.contains('.') == false)
+        exportFilename.append(".wav");
+
+    QFile wavFile(exportFilename);
+    bool success = wavFile.open(QIODevice::WriteOnly);
+    if (!success)
+    {
+        qDebug() << "Couldn't open file for writing!";
+        return;
+    }
+    QByteArray header(44, '\0');
+    char * ptr = header.data();
+    strcpy(ptr, "RIFF");
+    ptr += 4;
+    strcpy(ptr, "____");
+    ptr += 4;
+    strcpy(ptr, "WAVE");
+    ptr += 4;
+    strcpy(ptr, "fmt "); //or space?
+    ptr += 4;
+    qToLittleEndian((uint32_t) 16, ptr); // Size of data section above
+    ptr += 4;
+    qToLittleEndian((uint16_t) 1, ptr); //PCM
+    ptr += 2;
+    qToLittleEndian((uint16_t) 2, ptr); //No. Channels
+    ptr += 2;
+    qToLittleEndian((uint32_t) OptionsDialog::getEstimSamplingRate(), ptr);
+    ptr += 4;
+    uint32_t bytesPerSecond = OptionsDialog::getEstimSamplingRate() * /* bytes per sample */ 2 * /* channels*/  2;
+    qToLittleEndian((uint32_t) bytesPerSecond, ptr);
+    ptr += 4;
+    qToLittleEndian((uint16_t) 4, ptr); //byes per 'frame'
+    ptr += 2;
+    qToLittleEndian((uint16_t) 16, ptr); // bits per (mono) sample
+    ptr += 2;
+    strcpy(ptr, "data");
+    ptr += 4;
+    strcpy(ptr, "____");
+    wavFile.write(header);
+
+//    QDataStream stream(&header, QIODevice::WriteOnly);
+//    stream.writeRawData("RIFF", 4); //wav is a sort of riff
+//    stream.writeRawData("SIZE", 4); //total file sixe - overwrite later with 32-bit file size
+//    stream.writeRawData("WAVE", 4); //it's a wav file
+//    stream.writeRawData("fmt ", 4); //fixed string (including null byte)
+//    stream << qToLittleEndian((uint32_t) 16); // Size of data section above
+//    stream << qToLittleEndian((uint16_t) 1); //PCM
+//    stream << qToLittleEndian((uint16_t) 2); //No. Channels
+//    stream << qToLittleEndian((uint32_t) OptionsDialog::getEstimSamplingRate());
+//    uint32_t bytesPerSecond = OptionsDialog::getEstimSamplingRate() * /* bytes per sample */ 2 * /* channels*/  2;
+//    stream << qToLittleEndian((uint32_t) bytesPerSecond);
+//    stream << qToLittleEndian((uint16_t) 4); //byes per 'frame'
+//    stream << qToLittleEndian((uint16_t) 16); // bits per (mono) sample
+//    stream.writeRawData("data", 4); //fixed string
+//    stream.writeRawData("SIZE", 4); //data section size - overwrite later with 32-bit number
+
+//    wavFile.write(header);
+
+    QAudioFormat format = getEstimAudioFormat();
+
+    stimSignalGenerator = new StimSignalGenerator(format, this);
+
+    stimSignalGenerator->open(QIODevice::ReadOnly);
+
+    int bytesWritten = 0;
+
+    QByteArray buffer(bytesPerSecond, '\0');
+    qint64 bytesRead = 0;
+    do
+    {
+        bytesRead = stimSignalGenerator->read(buffer.data(), bytesPerSecond);
+        wavFile.write(buffer.data(), bytesRead);
+        bytesWritten += bytesRead;
+//        qDebug() << "Files seems to be " << wavFile.size();
+//        qDebug() << "Bytes we think we've written " << bytesWritten;
+    }
+    //not ideal - this logic relies on the knowledge that the generator will
+    //always give you ask much data as you ask for until there's no more, and then stop.
+    //Consider looking for EOF?
+    while (bytesRead == bytesPerSecond);
+
+    //finished writing data - write sizes
+    QByteArray dataSize;
+    QDataStream dataSizeStream(&dataSize, QIODevice::WriteOnly);
+//    int32_t ourDataCalculation = bytesWritten;
+//    int32_t fileBasedData = wavFile.size() - 44;
+//    if (ourDataCalculation != fileBasedData)
+//        qDebug() << "There's a problem with the data size!";
+
+    dataSizeStream << qToLittleEndian((int32_t) bytesWritten);
+    wavFile.seek(40); //that's where the data section size is
+    wavFile.write(dataSize);
+
+    //total file size is data section plus 44 bytes for the header
+//    int32_t ourFileCalculation = bytesWritten + 36;
+//    int32_t fileBasedFile = wavFile.size() - 8;
+//    if (ourFileCalculation != fileBasedFile)
+//        qDebug() << "There's a problem with the file size!";
+    bytesWritten += 44;
+    bytesWritten -= 8; //the first 8 bytes for 'RIFF####' don't count
+    QByteArray fileSize;
+    QDataStream fileSizeStream(&fileSize, QIODevice::WriteOnly);
+    fileSizeStream << qToLittleEndian((int32_t) bytesWritten);
+    wavFile.seek(4); //that's where the file size is
+    wavFile.write(dataSize);
+
+    wavFile.close();
 }

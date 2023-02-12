@@ -27,11 +27,15 @@
 #include <math.h>
 #include <QGraphicsScene>
 #include <QGraphicsEllipseItem>
+#include <QGraphicsRectItem>
 #include <QVariant>
 #include "adddialog.h"
 #include "adjustdialog.h"
 #include "deletedialog.h"
 #include "splitdialog.h"
+#include "optionsdialog.h"
+#include "beatmeter/editorgridline.h"
+#include "enableidentifyintervalsdialog.h"
 
 EditorWindow::EditorWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -40,6 +44,8 @@ EditorWindow::EditorWindow(QWidget *parent) :
     controllingWidget(NULL),
     adjustValueValidator(NULL),
     strokeMeterScene(NULL),
+    nowMarker(NULL),
+    nowAnchor(NULL),
     undoStackBookmark(0),
     beatsTabWasAutoSelected(false),
     beatModel(new BeatDataModel(this)),
@@ -72,7 +78,7 @@ EditorWindow::EditorWindow(QWidget *parent) :
     strokeMeterScene = new QGraphicsScene(this);
     ui->strokeMeter->setScene(strokeMeterScene);
     connect(strokeMeterScene, SIGNAL(selectionChanged()),this,SLOT(on_selectedStrokeMarkersChanged()));
-    connect(refreshTimer, SIGNAL(timeout()), this, SLOT(scrollStrokeMeterToTimestamp()));
+    connect(refreshTimer, SIGNAL(timeout()), this, SLOT(handleTimerTick()));
 }
 
 EditorWindow::~EditorWindow()
@@ -120,6 +126,14 @@ void EditorWindow::clear()
     connect(ui->beatsTable->selectionModel(),SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),this,SLOT(on_currentBeatTimestampChanged(const QModelIndex &, const QModelIndex &)));
     connect(ui->beatsTable->selectionModel(),SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),this,SLOT(on_selectedBeatTimestampsChanged()));
 
+    while (!strokeMarkers.isEmpty())
+    {
+        QAbstractGraphicsShapeItem * removeMe = strokeMarkers.last();
+        strokeMeterScene->removeItem(removeMe);
+        strokeMarkers.removeLast();
+        delete removeMe;
+    }
+
     if (ui->intervalsTable->model())
     {
         QAbstractItemModel * toDelete = ui->intervalsTable->model();
@@ -150,6 +164,7 @@ void EditorWindow::clear()
         valueModel = NULL;
     }
 
+    clearGridLines();
     BeatAnalysis::Configuration::tempoEstablished = false;
 
     ui->analyseButton->setEnabled(false);
@@ -351,6 +366,7 @@ void EditorWindow::on_currentBeatTimestampChanged(const QModelIndex & current, c
     {
         ui->centralStack->setCurrentWidget(ui->videoPage);
         seekToTimestamp(current.data().toLongLong());
+        updateNowMarkers();
         scrollStrokeMeterToTimestamp();
         ui->intervalsTable->selectRow(current.row());
     }
@@ -373,6 +389,7 @@ void EditorWindow::on_currentBeatIntervalChanged(const QModelIndex & current, co
         {
             ui->centralStack->setCurrentWidget(ui->videoPage);
             seekToTimestamp(startingIndex.data().toLongLong());
+            updateNowMarkers();
             scrollStrokeMeterToTimestamp();
         }
         ui->beatsTable->selectionModel()->select(startingIndex,QItemSelectionModel::Clear | QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
@@ -413,6 +430,7 @@ void EditorWindow::on_currentPatternChanged(const QModelIndex & current, const Q
         ui->intervalsTable->scrollTo(intervalIndex);
 
         seekToTimestamp(timestampIndex.data().toLongLong());
+        updateNowMarkers();
         scrollStrokeMeterToTimestamp();
         ui->centralStack->setCurrentWidget(ui->videoPage);
 
@@ -1514,40 +1532,49 @@ void EditorWindow::on_adjustIntervalButton_clicked()
     autoReanalyse();
 }
 
-void EditorWindow::scrollStrokeMeterToTimestamp()
+qreal EditorWindow::getXCoordinateForTimestamp(long timestamp)
 {
-    ui->strokeMeter->centerOn(currentTimecode() / STROKE_METER_SCALE_DIVISOR,0);
+    return (timestamp * OptionsDialog::getBeatMeterSpeed()) / 1000;
+}
+
+void EditorWindow::centerItemOnTimestamp(QAbstractGraphicsShapeItem * item, long timestamp)
+{
+    qreal xCoordinate = getXCoordinateForTimestamp(timestamp);
+    xCoordinate -= (item->boundingRect().height()) / 2;
+    qreal yCoordinate = 0;
+    yCoordinate -= (item->boundingRect().width()) / 2;
+    item->setPos(xCoordinate, yCoordinate);
 }
 
 void EditorWindow::refreshStrokeMeter()
 {
+    //make sure we have the right number of markers
     while (strokeMarkers.size() != beatModel->rowCount())
     {
         if (strokeMarkers.size() > beatModel->rowCount())
         {
-            QGraphicsEllipseItem * removeMe = strokeMarkers.last();
+            //remove one
+            QAbstractGraphicsShapeItem * removeMe = strokeMarkers.last();
             strokeMeterScene->removeItem(removeMe);
             strokeMarkers.removeLast();
             delete removeMe;
         }
         else
         {
-            QGraphicsEllipseItem * ellie = new QGraphicsEllipseItem(QRectF(0,0,STROKE_MARKER_DIAMETER,STROKE_MARKER_DIAMETER));
-            QPen pen;
-            pen.setWidth(2);
-            ellie->setPen(pen);
-            QBrush brush{QColor(Qt::lightGray)};
-            ellie->setBrush(brush);
-            ellie->setFlag(QGraphicsItem::ItemIsSelectable);
-            strokeMarkers.append(ellie);
-            strokeMeterScene->addItem(ellie);
+            //add one
+            QAbstractGraphicsShapeItem * marker = createStrokeMarker();
+            strokeMarkers.append(marker);
+            strokeMeterScene->addItem(marker);
         }
     }
 
+    //set the markers to the correct locations
     for (int i = 0; i < strokeMarkers.size(); ++i)
     {
-        strokeMarkers.at(i)->setPos(beatTimestamps[i].eventData.timestamp / STROKE_METER_SCALE_DIVISOR ,0);
+        centerItemOnTimestamp(strokeMarkers.at(i), beatTimestamps[i].eventData.timestamp);
     }
+
+    //colour markers
     if (intervalModel && intervalModel->rowCount() > 0 /*== strokeMarkers.size() - 1*/)
     {
         for (int i = 0; i < strokeMarkers.size(); ++i)
@@ -1587,11 +1614,83 @@ void EditorWindow::refreshStrokeMeter()
         }
     }
 
+    //set appropriate scene size
     QRectF bounds = strokeMeterScene->itemsBoundingRect();
     bounds.setLeft(bounds.left() - ui->strokeMeter->size().width());
     bounds.setRight(bounds.right() + ui->strokeMeter->size().width());
     strokeMeterScene->setSceneRect(bounds);
+
+    if (currentlyPlaying)
+    {
+        updateNowMarkers();
+        clearGridLines();
+        ensureGridLineCount();
+    }
+
     strokeMeterScene->update();
+}
+
+#define NOW_MARKER_PULSE_TIME 125
+void EditorWindow::updateNowMarkers()
+{
+    if (nowAnchor == nullptr)
+    {
+        nowAnchor = createNowAnchor();
+        strokeMeterScene->addItem(nowAnchor);
+    }
+    if (nowMarker == nullptr)
+    {
+        nowMarker = createNowMarker();
+        strokeMeterScene->addItem(nowMarker);
+    }
+    qreal width = OptionsDialog::getNowMarkerWidth();
+    qreal height = OptionsDialog::getNowMarkerHeight();
+    qreal pulse = OptionsDialog::getNowMarkerPulseAmount();
+    auto lastEvent = mainWindow->getLastEventBefore(currentTimecode());
+    qreal proximity = 0;
+    if (currentlyPlaying && lastEvent)
+    {
+        int timeSinceLastEvent = currentTimecode() - lastEvent->timestamp;
+        if (timeSinceLastEvent < NOW_MARKER_PULSE_TIME)
+            proximity = 1 - ((qreal) timeSinceLastEvent / NOW_MARKER_PULSE_TIME);
+    }
+    width += proximity * pulse;
+    height += proximity * pulse;
+    if (QGraphicsEllipseItem * ellie = dynamic_cast<QGraphicsEllipseItem *>(nowMarker)) {
+        auto rect = ellie->rect();
+        rect.setWidth(width);
+        rect.setHeight(height);
+        ellie->setRect(rect);
+    }
+    else if (QGraphicsRectItem * squarie = dynamic_cast<QGraphicsRectItem *>(nowMarker)) {
+        auto rect = squarie->rect();
+        rect.setWidth(width);
+        rect.setHeight(height);
+        squarie->setRect(rect);
+    }
+
+    centerItemOnTimestamp(nowAnchor, currentTimecode());
+    centerItemOnTimestamp(nowMarker, currentTimecode());
+    if (false == BeatAnalysis::Configuration::tempoEstablished)
+        clearGridLines();
+    else if (gridLines.isEmpty())
+        ensureGridLineCount();
+
+//    for (auto gridLine: gridLines)
+//    {
+//		  does anything need doing here?
+//    }
+}
+
+void EditorWindow::handleTimerTick()
+{
+    updateNowMarkers();
+    scrollStrokeMeterToTimestamp();
+}
+
+void EditorWindow::scrollStrokeMeterToTimestamp(long timestamp)
+{
+    ui->strokeMeter->centerOn(getXCoordinateForTimestamp(timestamp),0);
 }
 
 void EditorWindow::on_selectedStrokeMarkersChanged()
@@ -1605,7 +1704,7 @@ void EditorWindow::on_selectedStrokeMarkersChanged()
         QList<QGraphicsItem *> selectedItems = strokeMeterScene->selectedItems();
         if (selectedItems.size() == 0)
             return;
-        QGraphicsEllipseItem * selectedItem = (QGraphicsEllipseItem *)(selectedItems[0]);
+        QAbstractGraphicsShapeItem * selectedItem = (QAbstractGraphicsShapeItem *)(selectedItems[0]);
         int selectedIndex = -1;
         for (int i = 0; i < strokeMarkers.size(); ++i)
         {
@@ -1620,6 +1719,7 @@ void EditorWindow::on_selectedStrokeMarkersChanged()
         ui->beatsTable->selectionModel()->select(beatIndex,QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current | QItemSelectionModel::Rows);
         ui->beatsTable->selectionModel()->setCurrentIndex(beatIndex,QItemSelectionModel::Current);
         seekToTimestamp(beatIndex.data().toInt());
+        updateNowMarkers();
         scrollStrokeMeterToTimestamp();
         if (intervalModel)
         {
@@ -1808,6 +1908,7 @@ void EditorWindow::on_actionSkip_to_First_Event_triggered()
     if (!beatTimestamps.isEmpty())
     {
         seekToTimestamp(beatTimestamps.first().eventData.timestamp);
+        updateNowMarkers();
         scrollStrokeMeterToTimestamp();
     }
 }
@@ -1817,7 +1918,146 @@ void EditorWindow::on_actionSkip_to_Last_Event_triggered()
     if (!beatTimestamps.isEmpty())
     {
         seekToTimestamp(beatTimestamps.last().eventData.timestamp);
+        updateNowMarkers();
         scrollStrokeMeterToTimestamp();
+    }
+}
+
+QAbstractGraphicsShapeItem *EditorWindow::createStrokeMarker()
+{
+    QAbstractGraphicsShapeItem * marker;
+    QRectF rect(0,0,OptionsDialog::getBeatMarkerWidth(),OptionsDialog::getBeatMarkerHeight());
+    if (OptionsDialog::useSquareBeatMarkers())
+        marker = new QGraphicsRectItem(rect);
+    else
+        marker = new QGraphicsEllipseItem(rect);
+    QPen pen;
+    pen.setWidth(2);
+    marker->setPen(pen);
+    QBrush brush{QColor(Qt::lightGray)};
+    marker->setBrush(brush);
+    marker->setFlag(QGraphicsItem::ItemIsSelectable);
+    return marker;
+}
+
+QAbstractGraphicsShapeItem *EditorWindow::createNowMarker()
+{
+    QAbstractGraphicsShapeItem * marker;
+    QRectF rect(0,0,OptionsDialog::getNowMarkerWidth(),OptionsDialog::getNowMarkerHeight());
+    if (OptionsDialog::useSquareNowMarker())
+        marker = new QGraphicsRectItem(rect);
+    else
+        marker = new QGraphicsEllipseItem(rect);
+    QPen pen;
+    pen.setWidth(OptionsDialog::getNowMarkerOutlineWidth());
+    marker->setPen(pen);
+    QBrush brush{QColor(Qt::white)};
+    brush.setStyle(Qt::NoBrush);
+    marker->setBrush(brush);
+    marker->setZValue(1);
+    return marker;
+}
+
+QAbstractGraphicsShapeItem *EditorWindow::createNowAnchor()
+{
+    QAbstractGraphicsShapeItem * anchor;
+    QRectF rect(-1,-1,1,1);
+    anchor = new QGraphicsEllipseItem(rect);
+    QPen pen;
+    pen.setWidth(0);
+    QColor color(Qt::transparent);
+    pen.setColor(color);
+    anchor->setPen(pen);
+    QBrush brush{QColor(Qt::transparent)};
+    brush.setStyle(Qt::NoBrush);
+    anchor->setBrush(brush);
+    anchor->setZValue(-1);
+    qDebug() << "The anchor's width is " << anchor->boundingRect().width();
+//    anchor->setOpacity(0); //don't do this - it hides all the children which are anchored on this
+    return anchor;
+}
+
+qreal EditorWindow::convertPixelsToBeats(int pixels)
+{
+    //how many seconds for that many pixels?
+    qreal seconds = (qreal) pixels / OptionsDialog::getBeatMeterSpeed();
+    qreal beatLength = 500;
+    if (BeatAnalysis::Configuration::tempoEstablished)
+        beatLength = BeatAnalysis::Configuration::tempoInterval();
+    return (seconds * 1000) / beatLength;
+}
+
+void EditorWindow::clearGridLines()
+{
+    while ( ! gridLines.isEmpty())
+    {
+        auto * removeMe = gridLines.last();
+        strokeMeterScene->removeItem(removeMe);
+        gridLines.removeLast();
+        delete removeMe;
+    }
+}
+
+bool EditorWindow::alreadyHaveGridLineForValue(qreal value)
+{
+    for (auto line : gridLines)
+    {
+        if (line->value() == (float) value)
+            return true;
+    }
+    return false;
+}
+
+QVector<int> getDivisorList()
+{
+    QVector<int> retVal{};
+    retVal.append(2);
+//    retVal.append(2);
+//    retVal.append(2);
+//    retVal.append(2);
+    return retVal;
+}
+
+void EditorWindow::ensureGridLineCount()
+{
+    qreal opacity = 1;
+    int divisor = 1;
+    addGridlinesAtIntervals(divisor, opacity);
+    for (int subdivision : getDivisorList())
+    {
+        divisor *= subdivision;
+        opacity /= subdivision;
+        addGridlinesAtIntervals(divisor, opacity);
+    }
+}
+
+void EditorWindow::addGridlinesAtIntervals(qreal divisor, qreal opacity)
+{
+    int availableWidth = OptionsDialog::getBeatMeterWidth();
+    qreal beatsEitherSide = convertPixelsToBeats(availableWidth) / 2;
+    //add beats before
+    qreal beatsFromNow = 0;
+    for (int numerator = 0; abs(beatsFromNow) < beatsEitherSide; --numerator)
+    {
+        beatsFromNow = (qreal) numerator / divisor;
+        if (! alreadyHaveGridLineForValue(beatsFromNow))
+        {
+            EditorGridLine * line = new EditorGridLine(beatsFromNow, opacity, nowAnchor);
+            line->setZValue(-1);
+            gridLines.append(line);
+        }
+    }
+    //add beats after
+    beatsFromNow = 0;
+    for (int numerator = 0; abs(beatsFromNow) < beatsEitherSide; ++numerator)
+    {
+        beatsFromNow = (qreal) numerator / divisor;
+        if (! alreadyHaveGridLineForValue(beatsFromNow))
+        {
+            EditorGridLine * line = new EditorGridLine(beatsFromNow, opacity, nowAnchor);
+            line->setZValue(-1);
+            gridLines.append(line);
+        }
     }
 }
 
@@ -1829,4 +2069,18 @@ void EditorWindow::clearUndoStack()
     }
     undoStack.clear();
     undoStackBookmark = 0;
+}
+
+void EditorWindow::on_actionIdentify_Enable_interval_triggered()
+{
+    if (ui->intervalsTable->selectionModel()->selectedRows().isEmpty())
+        return;
+    float tempo = BeatAnalysis::Configuration::currentBPM;
+    if (!BeatAnalysis::Configuration::tempoEstablished)
+        tempo = 120;
+
+    int index = ui->intervalsTable->selectionModel()->selectedRows().first().row();
+    int length = beatIntervals[index].getIntLength();
+    EnableIdentifyIntervalsDialog dialog(length, tempo, this);
+    dialog.exec();
 }

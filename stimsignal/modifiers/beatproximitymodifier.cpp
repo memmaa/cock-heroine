@@ -2,20 +2,34 @@
 #include "mainwindow.h"
 #include "globals.h"
 #include "../stimsignalgenerator.h"
+#include "optionsdialog.h"
 
-int getStimFadeInTime()
+int BeatProximityModifier::getFadeInTime()
 {
-    return DEFAULT_STIM_FADE_IN_LENGTH;
+    return fadeInTime;
 }
 
-int getStimFadeOutTime()
+int BeatProximityModifier::getFadeInAnticipation()
 {
-    return DEFAULT_STIM_FADE_OUT_LENGTH;
+    return fadeInAnticipation;
+}
+
+int BeatProximityModifier::getFadeOutTime()
+{
+    return fadeOutTime;
+}
+
+int BeatProximityModifier::getFadeOutDelay()
+{
+    return fadeOutDelay;
 }
 
 BeatProximityModifier::BeatProximityModifier()
 {
-
+    fadeInTime = OptionsDialog::getEstimBeatFadeInTime();
+    fadeInAnticipation = OptionsDialog::getEstimBeatFadeInAnticipationTime();
+    fadeOutTime = OptionsDialog::getEstimBeatFadeOutTime();
+    fadeOutDelay = OptionsDialog::getEstimBeatFadeOutDelay();
 }
 
 void BeatProximityModifier::modify(StimSignalSample &sample)
@@ -26,19 +40,28 @@ void BeatProximityModifier::modify(StimSignalSample &sample)
     if (eventBefore != nullptr)
     {
         qreal spaceBefore = abs(sample.distanceToTimestamp(eventBefore->timestamp));
-        if (spaceBefore <= getStimFadeInTime())
+        if (spaceBefore < getFadeOutDelay())
+            volumeBefore = 1;
+        else
         {
-            volumeBefore = (getStimFadeInTime() - spaceBefore) / getStimFadeInTime();
+            spaceBefore -= getFadeOutDelay();
+            if (spaceBefore <= getFadeOutTime())
+                volumeBefore = (getFadeOutTime() - spaceBefore) / getFadeOutTime();
         }
     }
+    //and how about the next event?
     Event * eventAfter = mainWindow->getNextEventAfter(sample.totalTimestamp());
     qreal volumeAfter = 0;
     if (eventAfter != nullptr)
     {
         qreal spaceAfter = abs(sample.distanceToTimestamp(eventAfter->timestamp));
-        if (spaceAfter <= getStimFadeOutTime())
+        if (spaceAfter <= getFadeInAnticipation())
+            volumeAfter = 1;
+        else
         {
-            volumeAfter = (getStimFadeOutTime() - spaceAfter) / getStimFadeOutTime();
+            spaceAfter -= getFadeInAnticipation();
+            if (spaceAfter <= getFadeInTime())
+                volumeAfter = (getFadeInTime() - spaceAfter) / getFadeInTime();
         }
     }
 

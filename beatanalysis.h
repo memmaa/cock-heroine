@@ -67,6 +67,7 @@ struct BeatAnalysis
     {
         static unsigned char maxUniqueIntervalMergeCycles;
         static float maxPercentAcceptableBeatError;
+        static float badMatchThreshhold;
         static bool allowTripletValues;
         static float minNumberOfBeatsToQualifyAsBreak;
         static bool allowHalfBeatsInBreaks;

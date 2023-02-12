@@ -13,6 +13,15 @@ class BeatProximityModifier : public StimSignalModifier
 public:
     BeatProximityModifier();
     void modify(StimSignalSample &sample) override;
+private:
+    int fadeInTime;
+    int fadeInAnticipation;
+    int fadeOutTime;
+    int fadeOutDelay;
+    int getFadeInTime();
+    int getFadeInAnticipation();
+    int getFadeOutTime();
+    int getFadeOutDelay();
 };
 
 #endif // BEATPROXIMITYMODIFIER_H

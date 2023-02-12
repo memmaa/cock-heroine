@@ -262,7 +262,7 @@
      <x>0</x>
      <y>0</y>
      <width>464</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuPlayback">
@@ -318,6 +318,7 @@
     <addaction name="actionExport_To_FunScript_half_speed_for_Launch"/>
     <addaction name="actionExport_to_Handy_CSV"/>
     <addaction name="actionExport_Beat_Meter"/>
+    <addaction name="actionExport_E_Stim_Track"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -444,6 +445,9 @@
    <property name="text">
     <string>Preferences...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+P</string>
+   </property>
   </action>
   <action name="actionObscure_Beat_Meter">
    <property name="checkable">
@@ -525,6 +529,11 @@
   <action name="actionDisconnect_from_Buttplug_Server">
    <property name="text">
     <string>Disconnect from Buttplug Server</string>
+   </property>
+  </action>
+  <action name="actionExport_E_Stim_Track">
+   <property name="text">
+    <string>Export E-Stim Track</string>
    </property>
   </action>
  </widget>

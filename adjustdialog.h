@@ -21,6 +21,7 @@ class AdjustDialog : public QDialog
 
 public:
     explicit AdjustDialog(QWidget *parent = nullptr);
+    AdjustDialog(BeatValue presetValue, QWidget *parent = nullptr);
     ~AdjustDialog();
 
     virtual void accept() override;
@@ -46,6 +47,7 @@ private:
     void setLabels();
     void showEditorAdjustPage();
     void populateValues();
+    void populateSingleValue(BeatValue value);
     void clearValues();
     void setButtonState();
     QVector<QShortcut *> valueShortcuts;

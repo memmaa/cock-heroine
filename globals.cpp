@@ -7,6 +7,7 @@
 #include <QMediaPlayer>
 #include <QLCDNumber>
 #include "mainwindow.h"
+#include "optionsdialog.h"
 
 //For standard english QWERTY keyboard. Change here for QWERTZ, AZERTY, or whatever...
 const char * defaultValueShortcuts[2][10] = {{"1","2","3","4","5","6","7","8","9","0"},{"Q","W","E","R","T","Y","U","I","O","P"}};
@@ -51,10 +52,13 @@ long currentTimecode()
 void seekToTimestamp(long seekTo)
 {
     timecodeLastStopped = seekTo;
+    bool syncEstim = OptionsDialog::emitEstimSignal();
     if (currentlyPlaying)
     {
         mainWindow->cancelScheduledEvent();
         timecode->restart();
+        if (syncEstim)
+            mainWindow->stopEstimSignal();
     }
 
     videoPlayer->setPosition(currentTimecode());
@@ -63,6 +67,10 @@ void seekToTimestamp(long seekTo)
     {
         mainWindow->scheduleVideoSync();
         mainWindow->scheduleEvent();
+        if (syncEstim)
+            mainWindow->startEstimSignal();
+        if (OptionsDialog::syncTimecodeOnSeek())
+            mainWindow->scheduleVideoSync();
     }
     else
         videoPlayer->pause();
@@ -110,7 +118,20 @@ BeatValue * getBeatValueByName(const QString & name)
     return returnValue;
 }
 
-BeatValue * getBeatValueFromIntLength(int length)
+BeatValue * getBeatValueFromLengthInBeats(float length)
+{
+    BeatValue * returnValue = nullptr;
+    for (int i = 0; i < beatValues.size(); ++i) {
+        if (int(beatValues[i].value()) == length)
+        {
+            returnValue = &beatValues[i];
+            break;
+        }
+    }
+    return returnValue;
+}
+
+BeatValue * getBeatValueFromMsLength(int length)
 {
     BeatValue * returnValue = nullptr;
     for (int i = 0; i < beatValues.size(); ++i) {
@@ -130,14 +151,13 @@ BeatValue * getBeatValueFromDropdownEntry(const QString & entry)
     if (nameMatch.hasMatch()) {
         QString name = nameMatch.captured(1);
         return getBeatValueByName(name);
-    } else {
-        QRegularExpression expWithoutName("\\d+");
-        QRegularExpressionMatch numberwang = expWithoutName.match(entry);
-        if (numberwang.hasMatch()) {
-            QString lengthString = numberwang.captured();
-            int length = lengthString.toInt();
-            return getBeatValueFromIntLength(length);
-        }
+    }
+    QRegularExpression expWithoutName("\\d+");
+    QRegularExpressionMatch numberwang = expWithoutName.match(entry);
+    if (numberwang.hasMatch()) {
+        QString lengthString = numberwang.captured();
+        int length = lengthString.toInt();
+        return getBeatValueFromMsLength(length);
     }
     return nullptr;
 }
@@ -149,3 +169,13 @@ QVector<BeatInterval> beatIntervals;
 QList<UniqueBeatInterval> uniqueBeatIntervals;
 QVector<BeatPattern> beatPatterns;
 QVector<EventDispatcher *> dispatchers;
+
+double tempoToBeatLength(double tempo)
+{
+    return 60000.0 / tempo;
+}
+
+double beatLengthToTempo(double beatLength)
+{
+    return 60000.0 / beatLength;
+}

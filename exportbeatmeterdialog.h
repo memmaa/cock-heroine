@@ -5,7 +5,7 @@
 #include "globals.h"
 
 class QGraphicsScene;
-class QGraphicsEllipseItem;
+class QAbstractGraphicsShapeItem;
 
 namespace Ui {
 class ExportBeatMeterDialog;
@@ -27,7 +27,7 @@ private slots:
 private:
     Ui::ExportBeatMeterDialog *ui;
     QGraphicsScene * scene;
-    QVector<QGraphicsEllipseItem *> strokeMarkers;
+    QVector<QAbstractGraphicsShapeItem *> strokeMarkers;
     QColor getColor(Event event);
 
     void updateScene();

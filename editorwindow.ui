@@ -149,7 +149,7 @@ in time with the music as possible)</string>
      <x>0</x>
      <y>0</y>
      <width>1398</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuActions">
@@ -161,6 +161,7 @@ in time with the music as possible)</string>
     <addaction name="actionAdjust"/>
     <addaction name="actionDelete"/>
     <addaction name="actionDelete_timestamp_only"/>
+    <addaction name="actionIdentify_Enable_interval"/>
    </widget>
    <widget class="QMenu" name="menuSelect">
     <property name="title">
@@ -1020,6 +1021,11 @@ following interval</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Right</string>
+   </property>
+  </action>
+  <action name="actionIdentify_Enable_interval">
+   <property name="text">
+    <string>Identify/Enable interval</string>
    </property>
   </action>
  </widget>

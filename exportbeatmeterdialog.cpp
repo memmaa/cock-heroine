@@ -1,6 +1,7 @@
 #include "exportbeatmeterdialog.h"
 #include "ui_exportbeatmeterdialog.h"
 #include <QGraphicsEllipseItem>
+#include <QGraphicsRectItem>
 #include "event.h"
 #include "optionsdialog.h"
 #include <QFileDialog>
@@ -28,25 +29,31 @@ void ExportBeatMeterDialog::updateScene()
 {
     while (!strokeMarkers.isEmpty())
     {
-        QGraphicsEllipseItem * removeMe = strokeMarkers.last();
+        QAbstractGraphicsShapeItem * removeMe = strokeMarkers.last();
         scene->removeItem(removeMe);
         strokeMarkers.removeLast();
         delete removeMe;
     }
 
-    int diameter = OptionsDialog::getBeatMarkerDiameter();
+    int markerHeight = OptionsDialog::getBeatMarkerHeight();
+    int markerWidth = OptionsDialog::getBeatMarkerWidth();
     for (Event event : events) {
-        int hOffset = (event.timestamp * OptionsDialog::getBeatMeterSpeed()) / 1000;
-        int vOffset = 0 - (diameter / 2); //offset by half the diameter so the markers are centered vertically on 0
-        QGraphicsEllipseItem * ellie = new QGraphicsEllipseItem(QRectF(hOffset,vOffset,diameter,diameter));
+        int hOffset = ((event.timestamp * OptionsDialog::getBeatMeterSpeed()) / 1000) - markerWidth / 2;//offset by half the width so the markers are centered horizontally on their timestamps
+        int vOffset = 0 - (markerHeight / 2); //offset by half the height so the markers are centered vertically on 0
+        QRectF rectLocation(hOffset,vOffset,markerWidth,markerHeight);
+        QAbstractGraphicsShapeItem * marker;
+        if (OptionsDialog::useSquareBeatMarkers())
+            marker = new QGraphicsRectItem(rectLocation);
+        else
+            marker = new QGraphicsEllipseItem(rectLocation);
         QPen pen;
         pen.setWidth(2);
-        ellie->setPen(pen);
+        marker->setPen(pen);
         QColor color = getColor(event);
         QBrush brush(color);
-        ellie->setBrush(brush);
-        strokeMarkers.append(ellie);
-        scene->addItem(ellie);
+        marker->setBrush(brush);
+        strokeMarkers.append(marker);
+        scene->addItem(marker);
     }
 
     int width = OptionsDialog::getBeatMeterWidth();

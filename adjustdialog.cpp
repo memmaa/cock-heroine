@@ -19,6 +19,19 @@ AdjustDialog::AdjustDialog(QWidget *parent) :
     setButtonState();
 }
 
+AdjustDialog::AdjustDialog(BeatValue presetValue, QWidget *parent)
+    :
+    QDialog(parent),
+    ui(new Ui::AdjustDialog)
+{
+    ui->setupUi(this);
+    populateSingleValue(presetValue);
+    setShortcuts();
+    setLabels();
+    showEditorAdjustPage();
+    setButtonState();
+}
+
 void AdjustDialog::populateValues()
 {
     QVector<BeatValue *> values;
@@ -52,6 +65,15 @@ void AdjustDialog::populateValues()
             ++widgetsAdded;
         }
     }
+}
+
+void AdjustDialog::populateSingleValue(BeatValue value)
+{
+    BeatValueWidget * valueWidget = new BeatValueWidget(ui->valuesFrame, value, BeatValueWidget::SingleSelection);
+    connect(valueWidget, SIGNAL(selected(BeatValue *)), this, SLOT(newValueSelected(BeatValue *)));
+    connect(valueWidget, SIGNAL(selected()), this, SLOT(ensureSingleSelection()));
+    ui->gridLayout->addWidget(valueWidget, 1, 1);
+    newValueSelected(&value);
 }
 
 void AdjustDialog::clearValues()

@@ -7,9 +7,6 @@
 #include <QStack>
 #include "beattimestamp.h"
 
-#define STROKE_MARKER_DIAMETER 20
-#define STROKE_METER_SCALE_DIVISOR 6
-
 class BeatDataModel;
 class IntervalDataModel;
 class PatternDataModel;
@@ -19,7 +16,9 @@ class QTableView;
 class QComboBox;
 class QIntValidator;
 class QGraphicsScene;
+class QAbstractGraphicsShapeItem;
 class QGraphicsEllipseItem;
+class EditorGridLine;
 class BeatPattern;
 
 namespace Ui {
@@ -121,8 +120,11 @@ private slots:
 
     void on_adjustIntervalButton_clicked();
 
-    void scrollStrokeMeterToTimestamp();
+    void centerItemOnTimestamp(QAbstractGraphicsShapeItem *item, long timestamp);
     void refreshStrokeMeter();
+    void updateNowMarkers();
+    void handleTimerTick();
+    void scrollStrokeMeterToTimestamp(long timestamp = currentTimecode());
     void on_selectedStrokeMarkersChanged();
 
     void on_actionAdd_triggered();
@@ -153,14 +155,28 @@ private slots:
 
     void on_actionSkip_to_Last_Event_triggered();
 
+    void on_actionIdentify_Enable_interval_triggered();
+
 private:
+    qreal getXCoordinateForTimestamp(long timestamp);
     Ui::EditorWindow *ui;
     ValueTableKeyboardEventHandler * valueTableKeyboardHandler;
     QWidget * controllingWidget;
     QStack<QComboBox *> stackOfComboBoxes;
     QIntValidator * adjustValueValidator;
     QGraphicsScene * strokeMeterScene;
-    QVector<QGraphicsEllipseItem *> strokeMarkers;
+    QAbstractGraphicsShapeItem * createStrokeMarker();
+    QAbstractGraphicsShapeItem * createNowMarker();
+    QAbstractGraphicsShapeItem * createNowAnchor();
+    QVector<QAbstractGraphicsShapeItem *> strokeMarkers;
+    QAbstractGraphicsShapeItem * nowMarker;
+    QAbstractGraphicsShapeItem * nowAnchor;
+    QVector<EditorGridLine *> gridLines;
+    qreal convertPixelsToBeats(int pixels);
+    void clearGridLines();
+    bool alreadyHaveGridLineForValue(qreal value);
+    void ensureGridLineCount();
+    void addGridlinesAtIntervals(qreal divisor, qreal opacity);
     void clearTimestampBasedModelSelections();
     QStack<EditorWin::RollbackSnapshot> undoStack;
     int undoStackBookmark;

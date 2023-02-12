@@ -11,6 +11,7 @@
 
 unsigned char BeatAnalysis::Configuration::maxUniqueIntervalMergeCycles = 3;
 float BeatAnalysis::Configuration::maxPercentAcceptableBeatError = 20;
+float BeatAnalysis::Configuration::badMatchThreshhold = 40;
 bool BeatAnalysis::Configuration::allowTripletValues = false;
 float BeatAnalysis::Configuration::minNumberOfBeatsToQualifyAsBreak = 8.25;
 bool BeatAnalysis::Configuration::allowHalfBeatsInBreaks = false;

@@ -13,8 +13,10 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
+    abstractnewbeatvaluewidget.cpp \
     adddialog.cpp \
     adjustdialog.cpp \
+    beatmeter/editorgridline.cpp \
     beatvaluewidget.cpp \
     buttplug/buttplugdevice.cpp \
     buttplug/buttplugdevicefeature.cpp \
@@ -24,15 +26,24 @@ SOURCES += main.cpp\
     buttplugfeatureparams.cpp \
     customeventaction.cpp \
     deletedialog.cpp \
+    enableidentifyintervalsdialog.cpp \
     eventdispatcher.cpp \
     exportbeatmeterdialog.cpp \
     funscriptwriter.cpp \
     handycsvwriter.cpp \
         mainwindow.cpp \
     event.cpp \
+    newbeatvaluewidget.cpp \
+    newcustombeatvaluewidget.cpp \
     seektotimecodedialog.cpp \
     splitdialog.cpp \
+    stimsignal/modifiers/channelbalancemodifier.cpp \
     stimsignal/modifiers/beatproximitymodifier.cpp \
+    stimsignal/modifiers/boostfaststrokesmodifier.cpp \
+    stimsignal/modifiers/breaksoftenermodifier.cpp \
+    stimsignal/modifiers/fadefromcoldmodifier.cpp \
+    stimsignal/modifiers/phaseinvertermodifier.cpp \
+    stimsignal/modifiers/progressincreasemodifier.cpp \
     stimsignal/modifiers/triphasemodifier.cpp \
     stimsignal/stimsignalgenerator.cpp \
     stimsignal/stimsignalmodifier.cpp \
@@ -71,8 +82,10 @@ SOURCES += main.cpp\
     keyboardshortcutsdialog.cpp
 
 HEADERS  += mainwindow.h \
+    abstractnewbeatvaluewidget.h \
     adddialog.h \
     adjustdialog.h \
+    beatmeter/editorgridline.h \
     beatvaluewidget.h \
     buttplug/buttplugdevice.h \
     buttplug/buttplugdevicefeature.h \
@@ -82,14 +95,23 @@ HEADERS  += mainwindow.h \
     buttplugfeatureparams.h \
     customeventaction.h \
     deletedialog.h \
+    enableidentifyintervalsdialog.h \
     event.h \
     eventdispatcher.h \
     exportbeatmeterdialog.h \
     funscriptwriter.h \
     handycsvwriter.h \
+    newbeatvaluewidget.h \
+    newcustombeatvaluewidget.h \
     seektotimecodedialog.h \
     splitdialog.h \
+    stimsignal/modifiers/channelbalancemodifier.h \
     stimsignal/modifiers/beatproximitymodifier.h \
+    stimsignal/modifiers/boostfaststrokesmodifier.h \
+    stimsignal/modifiers/breaksoftenermodifier.h \
+    stimsignal/modifiers/fadefromcoldmodifier.h \
+    stimsignal/modifiers/phaseinvertermodifier.h \
+    stimsignal/modifiers/progressincreasemodifier.h \
     stimsignal/modifiers/triphasemodifier.h \
     stimsignal/stimsignalgenerator.h \
     stimsignal/stimsignalmodifier.h \
@@ -133,6 +155,7 @@ FORMS    += mainwindow.ui \
     adjustdialog.ui \
     buttplugdeviceconfigdialog.ui \
     deletedialog.ui \
+    enableidentifyintervalsdialog.ui \
     exportbeatmeterdialog.ui \
     seektotimecodedialog.ui \
     editorwindow.ui \

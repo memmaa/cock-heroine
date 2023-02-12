@@ -6,36 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>419</width>
-    <height>627</height>
+    <width>451</width>
+    <height>479</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Preferences</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0">
-    <widget class="QLabel" name="obscureBottomScreenPortionWidthLabel">
-     <property name="text">
-      <string>Hide Bottom of Image</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="0">
-    <widget class="QLabel" name="AnchorToBottomLabel">
-     <property name="text">
-      <string>Anchor to bottom</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="bottomOfRangeLabel">
-     <property name="text">
-      <string>Bottom of range</string>
-     </property>
-    </widget>
-   </item>
-   <item row="19" column="1" colspan="2">
+   <item row="34" column="2" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -45,436 +24,1432 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="startingIntensityLabel">
-     <property name="text">
-      <string>Starting Intensity</string>
+   <item row="0" column="0" colspan="4">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
+     <widget class="QWidget" name="miscTab">
+      <attribute name="title">
+       <string>Video</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="3" column="2">
+          <widget class="QSpinBox" name="seekIntervalSpinBox">
+           <property name="toolTip">
+            <string>lower values may cause problems for videos with long buffering times</string>
+           </property>
+           <property name="suffix">
+            <string>s</string>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>30</number>
+           </property>
+           <property name="value">
+            <number>5</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QDoubleSpinBox" name="obscureBottomScreenPortionWidthSpinBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="suffix">
+            <string>%</string>
+           </property>
+           <property name="minimum">
+            <double>2.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>33.329999999999998</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+           <property name="value">
+            <double>6.670000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="3">
+          <widget class="QCheckBox" name="useDefaultVideoAudioDeviceCheckBox">
+           <property name="text">
+            <string>Use default audio device for video sound output</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="obscureBottomScreenPortionCheckBox">
+           <property name="text">
+            <string>Hide Bottom of Video</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" colspan="2">
+          <widget class="QComboBox" name="alternativeVideoAudioDeviceComboBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>This is experimental and may not be applied</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="3">
+          <widget class="QCheckBox" name="performExtraTimecodeSyncOnPlayCheckBox">
+           <property name="toolTip">
+            <string>Repeatedly nudge the timecode to match the video after pressing play. Accounts for buffering time of the video.</string>
+           </property>
+           <property name="text">
+            <string>Perform extra timecode sync after playback starts</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" colspan="3">
+          <widget class="QCheckBox" name="performExtraTimecodeSyncOnSeekCheckBox">
+           <property name="toolTip">
+            <string>Repeatedly nudge the timecode to match the video after skipping forwards or backwards. Accounts for buffering time of the video, but may cause stuttering.</string>
+           </property>
+           <property name="text">
+            <string>Perform extra timecode sync when seeking within video</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="syncIntervalLabel">
+           <property name="text">
+            <string>Sync interval</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSlider" name="obscureBottomScreenPortionWidthSlider">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimum">
+            <number>200</number>
+           </property>
+           <property name="maximum">
+            <number>3333</number>
+           </property>
+           <property name="value">
+            <number>667</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="alternativeVideoAudioDeviceLabel">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>This is experimental and may not be applied</string>
+           </property>
+           <property name="text">
+            <string>Alternative device (experimental):</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0" colspan="3">
+          <widget class="QCheckBox" name="performExtraEstimSyncCheckBox">
+           <property name="toolTip">
+            <string>Re-sync estim signal with timecode when performing video playback changes (play and seek). The signal may take longer to begin after these opeartions.</string>
+           </property>
+           <property name="text">
+            <string>Also perform extra estim signal sync when syncing timecode with video</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1" colspan="2">
+          <widget class="QSpinBox" name="syncIntervalSpinBox">
+           <property name="suffix">
+            <string>ms</string>
+           </property>
+           <property name="minimum">
+            <number>50</number>
+           </property>
+           <property name="maximum">
+            <number>5000</number>
+           </property>
+           <property name="singleStep">
+            <number>50</number>
+           </property>
+           <property name="value">
+            <number>200</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <widget class="QLabel" name="seekIntervalLabel">
+           <property name="text">
+            <string>Seek forwards or backwards through the video in jumps of:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0" colspan="3">
+          <widget class="QCheckBox" name="autoLoadLastCheckBox">
+           <property name="text">
+            <string>Try to load most recent video and script when application starts</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="arduinoTab">
+      <attribute name="title">
+       <string>Aduino Companion</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="2" column="0">
+        <widget class="QLabel" name="endingIntensityLabel">
+         <property name="text">
+          <string>Ending Intensity</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="2">
+        <widget class="QSpinBox" name="endingIntensitySpinBox">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>1023</number>
+         </property>
+         <property name="value">
+          <number>414</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QSpinBox" name="startingIntensitySpinBox">
+         <property name="maximum">
+          <number>1022</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSlider" name="startingIntensitySlider">
+         <property name="maximum">
+          <number>1022</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QSlider" name="endingIntensitySlider">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>1023</number>
+         </property>
+         <property name="value">
+          <number>414</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="startingIntensityLabel">
+         <property name="text">
+          <string>Starting Intensity</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="3">
+        <widget class="QCheckBox" name="connectToArduinoCheckBox">
+         <property name="toolTip">
+          <string>Search serial/USB ports for the Arduino companion, which can control Hitachi magic wands, inflatable butt plugs and more...</string>
+         </property>
+         <property name="text">
+          <string>Attempt to connect to Arduino companion</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="beatMeterTab">
+      <attribute name="title">
+       <string>Beat Meter</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="10" column="0">
+        <widget class="QLabel" name="meterPulseNowMarkerLabel">
+         <property name="text">
+          <string>Pulse now marker on beat</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="meterPixelsPerSecondLabel">
+         <property name="text">
+          <string>Speed</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="meterHeightLabel">
+         <property name="text">
+          <string>Height</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="1">
+        <widget class="QRadioButton" name="meterNowMarkerRoundRadioButton">
+         <property name="text">
+          <string>Round</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QRadioButton" name="meterMarkerRoundRadioButton">
+         <property name="text">
+          <string>Round</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="1" colspan="2">
+        <widget class="QLabel" name="meterColouringModeTbdLabel">
+         <property name="text">
+          <string>Sorry - not done yet. Consider supporting me!</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="1" colspan="2">
+        <widget class="QSpinBox" name="meterPulseNowMarkerSpinBox">
+         <property name="suffix">
+          <string> px</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>5000</number>
+         </property>
+         <property name="value">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0">
+        <widget class="QLabel" name="meterNowMarkerShapeLabel">
+         <property name="text">
+          <string>Beat marker shape</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" colspan="2">
+        <widget class="QSpinBox" name="meterSpeedSpinBox">
+         <property name="suffix">
+          <string> px/s</string>
+         </property>
+         <property name="minimum">
+          <number>20</number>
+         </property>
+         <property name="maximum">
+          <number>5000</number>
+         </property>
+         <property name="value">
+          <number>167</number>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1" colspan="2">
+        <widget class="QSpinBox" name="meterNowMarkerWidthSpinBox">
+         <property name="suffix">
+          <string> px</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>5000</number>
+         </property>
+         <property name="value">
+          <number>28</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" colspan="2">
+        <widget class="QDoubleSpinBox" name="meterFrameRateSpinBox">
+         <property name="prefix">
+          <string/>
+         </property>
+         <property name="suffix">
+          <string> fps</string>
+         </property>
+         <property name="minimum">
+          <double>10.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>240.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.030000000000000</double>
+         </property>
+         <property name="value">
+          <double>29.969999999999999</double>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QRadioButton" name="meterMarkerSquareRadioButton">
+         <property name="text">
+          <string>Square</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1" colspan="2">
+        <widget class="QSpinBox" name="meterMarkerHeightSpinBox">
+         <property name="suffix">
+          <string> px</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>5000</number>
+         </property>
+         <property name="value">
+          <number>20</number>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="2">
+        <widget class="QRadioButton" name="meterNowMarkerSquareRadioButton">
+         <property name="text">
+          <string>Square</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="meterMarkerHeightLabel">
+         <property name="text">
+          <string>Beat marker height</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1" colspan="2">
+        <widget class="QSpinBox" name="meterNowMarkerHeightSpinBox">
+         <property name="suffix">
+          <string> px</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>5000</number>
+         </property>
+         <property name="value">
+          <number>28</number>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="meterMarkerWidthLabel">
+         <property name="text">
+          <string>Beat marker width</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1" colspan="2">
+        <widget class="QSpinBox" name="meterMarkerWidthSpinBox">
+         <property name="suffix">
+          <string> px</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>5000</number>
+         </property>
+         <property name="value">
+          <number>20</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" colspan="2">
+        <widget class="QSpinBox" name="meterHeightSpinBox">
+         <property name="suffix">
+          <string> px</string>
+         </property>
+         <property name="minimum">
+          <number>10</number>
+         </property>
+         <property name="maximum">
+          <number>50000</number>
+         </property>
+         <property name="singleStep">
+          <number>5</number>
+         </property>
+         <property name="value">
+          <number>35</number>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="meterNowMarkerWidthLabel">
+         <property name="text">
+          <string>Now marker width</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="meterMarkerShapeLabel">
+         <property name="text">
+          <string>Beat marker shape</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="meterWidthLabel">
+         <property name="text">
+          <string>Width</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="0">
+        <widget class="QLabel" name="meterColouringModeLabel">
+         <property name="text">
+          <string>Colouring mode</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="2">
+        <widget class="QSpinBox" name="meterWidthSpinBox">
+         <property name="suffix">
+          <string> px</string>
+         </property>
+         <property name="minimum">
+          <number>50</number>
+         </property>
+         <property name="maximum">
+          <number>100000</number>
+         </property>
+         <property name="singleStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>1920</number>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="meterFrameRateLabel">
+         <property name="text">
+          <string>Frame rate (frames per second)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="meterNowMarkerHeightLabel">
+         <property name="text">
+          <string>Now marker height</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="meterNowMarkerColourLabel">
+         <property name="text">
+          <string>Now marker colour</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="1">
+        <widget class="QFrame" name="nowMarkerColourFrame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="2">
+        <widget class="QPushButton" name="meterChooseNowMarkerColourButton">
+         <property name="text">
+          <string>Choose...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="strokerFunscriptTab">
+      <attribute name="title">
+       <string>Stroker/Funscript</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="2" column="1">
+        <widget class="QSlider" name="bottomOfRangeSlider">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="1">
+        <widget class="QRadioButton" name="fullStrokeRadioButton">
+         <property name="text">
+          <string>Full (up-and-down) stroke</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QSlider" name="rangeAnchorSlider">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="syncOffsetLabel">
+         <property name="text">
+          <string>Sync Offset</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="2">
+        <widget class="QSpinBox" name="handyStrokeDurationSpinBox">
+         <property name="suffix">
+          <string>ms</string>
+         </property>
+         <property name="minimum">
+          <number>100</number>
+         </property>
+         <property name="maximum">
+          <number>60000</number>
+         </property>
+         <property name="value">
+          <number>420</number>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="2">
+        <widget class="QLabel" name="constantSpeedLabel">
+         <property name="toolTip">
+          <string>Move the stroker at a constant speed, shortening strokes as needed</string>
+         </property>
+         <property name="text">
+          <string>Relative length</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="2">
+        <widget class="QRadioButton" name="halfStrokeRadioButton">
+         <property name="text">
+          <string>Half stroke</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="2">
+        <widget class="QLineEdit" name="handyKeyEdit">
+         <property name="inputMask">
+          <string/>
+         </property>
+         <property name="text">
+          <string>Connection key</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="AnchorToBottomLabel">
+         <property name="text">
+          <string>Anchor to bottom</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QLabel" name="AnchorToTopLabel">
+         <property name="text">
+          <string>Anchor to top</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0" colspan="2">
+        <widget class="QLabel" name="handyStrokeDurationLabel">
+         <property name="text">
+          <string>Duration of full up-and-down stroke</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="connectToHandyCheckBox">
+         <property name="text">
+          <string>Connect to Handy</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QSpinBox" name="topOfRangeSpinBox">
+         <property name="suffix">
+          <string>%</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="topOfRangeLabel">
+         <property name="text">
+          <string>Top of range</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSlider" name="syncOffsetSlider">
+         <property name="minimum">
+          <number>-1000</number>
+         </property>
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QSlider" name="topOfRangeSlider">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="bottomOfRangeLabel">
+         <property name="text">
+          <string>Bottom of range</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QSlider" name="handyScalingProportionSlider">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QSpinBox" name="syncOffsetSpinBox">
+         <property name="suffix">
+          <string>ms</string>
+         </property>
+         <property name="minimum">
+          <number>-1000</number>
+         </property>
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QSpinBox" name="bottomOfRangeSpinBox">
+         <property name="suffix">
+          <string>%</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="strokeTypeLabel">
+         <property name="text">
+          <string>For each beat:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="consistentLengthLabel">
+         <property name="toolTip">
+          <string>Try to keep all strokes the same length, increasing speed as needed</string>
+         </property>
+         <property name="text">
+          <string>Consistent length</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="1">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="estimTab">
+      <attribute name="title">
+       <string>E-Stim</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="3" column="2">
+        <widget class="QSpinBox" name="estimStartPlaybackFadeInTimeSpinBox">
+         <property name="toolTip">
+          <string>Ramp up the amplitude over this time so that the shock isn't too sudden when playback starts in the middle of a pattern</string>
+         </property>
+         <property name="suffix">
+          <string>ms</string>
+         </property>
+         <property name="maximum">
+          <number>30000</number>
+         </property>
+         <property name="singleStep">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>1500</number>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="0" colspan="3">
+        <layout class="QHBoxLayout" name="estimSignalPanHorizontalLayout">
+         <item>
+          <widget class="QLabel" name="estimSignalPanLabel">
+           <property name="toolTip">
+            <string>Adjust the balance of the signal between the left and right channels to achieve the best sensation.</string>
+           </property>
+           <property name="text">
+            <string>Pan Signal</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="estimSignalPanHorizontalSlider">
+           <property name="toolTip">
+            <string>Adjust the balance of the signal between the left and right channels to achieve the best sensation.</string>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="minimum">
+            <number>-100</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>0</number>
+           </property>
+           <property name="tracking">
+            <bool>false</bool>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBothSides</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="estimSignalPanDescriptionLabel">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Adjust the balance of the signal between the left and right channels to achieve the best sensation.</string>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="text">
+            <string>Centred</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="6" column="0" colspan="2">
+        <widget class="QLabel" name="estimTotalSignalGrowthLabel">
+         <property name="toolTip">
+          <string>Increase signal strength by this amount over the course of the game to account for loss in sensitivity (in effect, this lowers the starting volume, use larger values for longer games)</string>
+         </property>
+         <property name="text">
+          <string>Percentage amplitude increase over duration of game</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="estimEnabledCheckBox">
+         <property name="toolTip">
+          <string>Enable the output of an electrical stimulation signal to the selected audio output</string>
+         </property>
+         <property name="text">
+          <string>Emit E-Stim Signal</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0" colspan="3">
+        <layout class="QHBoxLayout" name="estimCompressorHorizontalLayout">
+         <item>
+          <widget class="QLabel" name="estimLowerAmplitudeByLabel">
+           <property name="toolTip">
+            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+           </property>
+           <property name="text">
+            <string>Lower amplitude by</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="estimCompressorStrengthSpinBox">
+           <property name="toolTip">
+            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+           </property>
+           <property name="suffix">
+            <string>%</string>
+           </property>
+           <property name="maximum">
+            <number>30</number>
+           </property>
+           <property name="value">
+            <number>5</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="estimInBreaksOfOverLabel">
+           <property name="toolTip">
+            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+           </property>
+           <property name="text">
+            <string>in breaks of over</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="estimCompressorBiteTimeSpinBox">
+           <property name="toolTip">
+            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+           </property>
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="minimum">
+            <double>0.500000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>600.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.500000000000000</double>
+           </property>
+           <property name="value">
+            <double>10.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="estimSecondsLabel">
+           <property name="toolTip">
+            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+           </property>
+           <property name="text">
+            <string>seconds</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="8" column="0" colspan="2">
+        <widget class="QLabel" name="estimBoostShortStrokesLabel">
+         <property name="toolTip">
+          <string>Short strokes can feel less intense than longer strokes of the same amplitude. To compensate, slightly increase the amplitude of strokes shorter than the stroke duration specified above.</string>
+         </property>
+         <property name="text">
+          <string>Boost strength of faster strokes by up to</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QLabel" name="estimStartPlaybackFadeInTimeLabel">
+         <property name="toolTip">
+          <string>Ramp up the amplitude over this time so that the shock isn't too sudden when playback starts in the middle of a pattern</string>
+         </property>
+         <property name="text">
+          <string>Initial fade-in time at start of playback</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="3">
+        <layout class="QHBoxLayout" name="estimBeatFadeInHorizontalLayout">
+         <item>
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Fade in over</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="estimBeatFadeInTimeSpinBox">
+           <property name="toolTip">
+            <string>This is how long it will take to ramp up the signal when coming up to a beat.</string>
+           </property>
+           <property name="suffix">
+            <string>ms</string>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+           <property name="singleStep">
+            <number>50</number>
+           </property>
+           <property name="value">
+            <number>1000</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>to reach full amplitude</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="estimBeatFadeInAnticipationTimeSpinBox">
+           <property name="toolTip">
+            <string>Full stimulation will be reached this long before the beat.</string>
+           </property>
+           <property name="suffix">
+            <string>ms</string>
+           </property>
+           <property name="maximum">
+            <number>30000</number>
+           </property>
+           <property name="singleStep">
+            <number>50</number>
+           </property>
+           <property name="value">
+            <number>500</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>before each beat</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="7" column="2">
+        <widget class="QSpinBox" name="estimMaxStrokeLengthSpinBox">
+         <property name="toolTip">
+          <string>The maximum time for one full 'up-and-down stroke'. Beats which are further apart than this will not have the stroke length stretched to fill the gap. Also used in calculations for boosting faster strokes.</string>
+         </property>
+         <property name="suffix">
+          <string>ms</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>30000</number>
+         </property>
+         <property name="singleStep">
+          <number>25</number>
+         </property>
+         <property name="value">
+          <number>500</number>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="0">
+        <spacer name="verticalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="0" colspan="3">
+        <layout class="QHBoxLayout" name="estimFrequencyHorizontalLayout">
+         <item>
+          <widget class="QLabel" name="estimStartingFrequencyLabel">
+           <property name="toolTip">
+            <string>Carrier frequency of the e-stim signal at the start of the game</string>
+           </property>
+           <property name="text">
+            <string>Starting frequency</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="estimStartingFrequencySpinbox">
+           <property name="toolTip">
+            <string>Carrier frequency of the e-stim signal at the start of the game</string>
+           </property>
+           <property name="suffix">
+            <string>Hz</string>
+           </property>
+           <property name="minimum">
+            <number>50</number>
+           </property>
+           <property name="maximum">
+            <number>8000</number>
+           </property>
+           <property name="singleStep">
+            <number>10</number>
+           </property>
+           <property name="value">
+            <number>500</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="estimEndingFrequencyLabel">
+           <property name="toolTip">
+            <string>Carrier frequency of the e-stim signal at the start of the game (lower frequencies are more intense)</string>
+           </property>
+           <property name="text">
+            <string>Ending frequency</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="estimEndingFrequencySpinbox">
+           <property name="toolTip">
+            <string>Carrier frequency of the e-stim signal at the start of the game (lower frequencies are more intense)</string>
+           </property>
+           <property name="suffix">
+            <string>Hz</string>
+           </property>
+           <property name="minimum">
+            <number>50</number>
+           </property>
+           <property name="maximum">
+            <number>8000</number>
+           </property>
+           <property name="singleStep">
+            <number>10</number>
+           </property>
+           <property name="value">
+            <number>400</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="5" column="0" colspan="3">
+        <layout class="QHBoxLayout" name="estimBeatFadeOutHorizontalLayout">
+         <item>
+          <widget class="QLabel" name="label_16">
+           <property name="text">
+            <string>Fade out over</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="estimBeatFadeOutTimeSpinBox">
+           <property name="toolTip">
+            <string>This is how long it takes to ramp down the signal again after a beat.</string>
+           </property>
+           <property name="suffix">
+            <string>ms</string>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+           <property name="singleStep">
+            <number>50</number>
+           </property>
+           <property name="value">
+            <number>1000</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>starting</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="estimBeatFadeOutDelaySpinBox">
+           <property name="toolTip">
+            <string>The signal will start fading away this long after the beat.</string>
+           </property>
+           <property name="suffix">
+            <string>ms</string>
+           </property>
+           <property name="maximum">
+            <number>30000</number>
+           </property>
+           <property name="singleStep">
+            <number>50</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>after each beat</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="8" column="2">
+        <widget class="QSpinBox" name="estimBoostShortStrokesSpinBox">
+         <property name="toolTip">
+          <string>Short strokes can feel less intense than longer strokes of the same amplitude. To compensate, slightly increase the amplitude of strokes shorter than the stroke duration specified above.</string>
+         </property>
+         <property name="suffix">
+          <string>%</string>
+         </property>
+         <property name="maximum">
+          <number>20</number>
+         </property>
+         <property name="value">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0" colspan="3">
+        <layout class="QHBoxLayout" name="estimCompressorHorizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="estimRaiseItDuringLabel">
+           <property name="toolTip">
+            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+           </property>
+           <property name="text">
+            <string>Then slowly raise it again during the first</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="estimCompressorReleaseSpinBox">
+           <property name="toolTip">
+            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+           </property>
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="minimum">
+            <double>0.500000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>120.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.500000000000000</double>
+           </property>
+           <property name="value">
+            <double>10.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="estimSecondsAfterTheBreakLabel">
+           <property name="toolTip">
+            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+           </property>
+           <property name="text">
+            <string>seconds after the break</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="6" column="2">
+        <widget class="QSpinBox" name="estimTotalSignalGrowthSpinBox">
+         <property name="toolTip">
+          <string>Increase signal strength by this amount over the course of the game to account for loss in sensitivity (in effect, this lowers the starting volume, use larger values for longer games)</string>
+         </property>
+         <property name="suffix">
+          <string>%</string>
+         </property>
+         <property name="maximum">
+          <number>500</number>
+         </property>
+         <property name="singleStep">
+          <number>5</number>
+         </property>
+         <property name="value">
+          <number>50</number>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0" colspan="3">
+        <layout class="QHBoxLayout" name="estimStrokeStyleHorizontalLayout">
+         <item>
+          <widget class="QLabel" name="estimStrokeStyleLabel">
+           <property name="toolTip">
+            <string>Choose the 'style' of stroking that should be simulated.</string>
+           </property>
+           <property name="text">
+            <string>Stroke style</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="estimUpDownBeatRadioButton">
+           <property name="toolTip">
+            <string>A full up-and-down stroke is timed so that it finishes on the beat. It will pause at the bottom of the stroke if there is no beat shortly after.</string>
+           </property>
+           <property name="text">
+            <string>up-down-beat</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="estimDownBeatUpRadioButton">
+           <property name="toolTip">
+            <string>A full down-and-up stroke is timed so that the bottom of the stroke falls on the beat. After the up-stroke, it will pause at the top of the stroke if there is no beat shortly after.</string>
+           </property>
+           <property name="text">
+            <string>down-beat-up</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="estimInvertStrokesCheckBox">
+           <property name="toolTip">
+            <string>Adjust the phase of the signal so that the sensations seem 'upside down'. Useful for a different sensation, or if the electrode positions are swapped.</string>
+           </property>
+           <property name="text">
+            <string>Invert strokes</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="7" column="0" colspan="2">
+        <widget class="QLabel" name="estimMaxStrokeLengthLabel">
+         <property name="toolTip">
+          <string>The maximum time for one full 'up-and-down stroke'. Beats which are further apart than this will not have the stroke length stretched to fill the gap. Also used in calculations for boosting faster strokes.</string>
+         </property>
+         <property name="text">
+          <string>Max Stroke duration</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="2">
+        <widget class="QComboBox" name="estimDeviceComboBox">
+         <property name="toolTip">
+          <string>Select the device where the signal will be sent</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="estimSampleRateLabel">
+         <property name="text">
+          <string>E-Stim Signal Sample Rate</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" colspan="2">
+        <widget class="QComboBox" name="estimSampleRateComboBox"/>
+       </item>
+      </layout>
+     </widget>
     </widget>
-   </item>
-   <item row="10" column="0" colspan="2">
-    <widget class="QLabel" name="handyStrokeDurationLabel">
-     <property name="text">
-      <string>Duration of full up-and-down stroke</string>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="0">
-    <widget class="QLabel" name="strokeTypeLabel">
-     <property name="text">
-      <string>For each beat:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="2">
-    <widget class="QRadioButton" name="halfStrokeRadioButton">
-     <property name="text">
-      <string>Half stroke</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <widget class="QDoubleSpinBox" name="obscureBottomScreenPortionWidthSpinBox">
-     <property name="suffix">
-      <string>%</string>
-     </property>
-     <property name="minimum">
-      <double>2.000000000000000</double>
-     </property>
-     <property name="maximum">
-      <double>33.329999999999998</double>
-     </property>
-     <property name="singleStep">
-      <double>0.050000000000000</double>
-     </property>
-     <property name="value">
-      <double>6.670000000000000</double>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="syncOffsetLabel">
-     <property name="text">
-      <string>Sync Offset</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QSpinBox" name="endingIntensitySpinBox">
-     <property name="minimum">
-      <number>1</number>
-     </property>
-     <property name="maximum">
-      <number>1023</number>
-     </property>
-     <property name="value">
-      <number>414</number>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="2">
-    <widget class="QSpinBox" name="bottomOfRangeSpinBox">
-     <property name="suffix">
-      <string>%</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="2">
-    <widget class="QSpinBox" name="topOfRangeSpinBox">
-     <property name="suffix">
-      <string>%</string>
-     </property>
-     <property name="minimum">
-      <number>1</number>
-     </property>
-     <property name="maximum">
-      <number>100</number>
-     </property>
-     <property name="value">
-      <number>100</number>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QSlider" name="startingIntensitySlider">
-     <property name="maximum">
-      <number>1022</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QSpinBox" name="startingIntensitySpinBox">
-     <property name="maximum">
-      <number>1022</number>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="1">
-    <widget class="QRadioButton" name="fullStrokeRadioButton">
-     <property name="text">
-      <string>Full (up-and-down) stroke</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QSlider" name="obscureBottomScreenPortionWidthSlider">
-     <property name="minimum">
-      <number>200</number>
-     </property>
-     <property name="maximum">
-      <number>3333</number>
-     </property>
-     <property name="value">
-      <number>667</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="1">
-    <widget class="QSlider" name="bottomOfRangeSlider">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="2">
-    <widget class="QLabel" name="AnchorToTopLabel">
-     <property name="text">
-      <string>Anchor to top</string>
-     </property>
-    </widget>
-   </item>
-   <item row="18" column="0">
-    <widget class="QCheckBox" name="estimEnabledCheckBox">
-     <property name="text">
-      <string>Emit Estim Signal</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QSlider" name="endingIntensitySlider">
-     <property name="minimum">
-      <number>1</number>
-     </property>
-     <property name="maximum">
-      <number>1023</number>
-     </property>
-     <property name="value">
-      <number>414</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="2">
-    <widget class="QLabel" name="constantSpeedLabel">
-     <property name="toolTip">
-      <string>Move the stroker at a constant speed, shortening strokes as needed</string>
-     </property>
-     <property name="text">
-      <string>Relative length</string>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="0">
-    <widget class="QLabel" name="consistentLengthLabel">
-     <property name="toolTip">
-      <string>Try to keep all strokes the same length, increasing speed as needed</string>
-     </property>
-     <property name="text">
-      <string>Consistent length</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1" colspan="2">
-    <widget class="QLineEdit" name="handyKeyEdit">
-     <property name="inputMask">
-      <string/>
-     </property>
-     <property name="text">
-      <string>Connection key</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="connectToHandyCheckBox">
-     <property name="text">
-      <string>Connect to Handy</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="2">
-    <widget class="QSpinBox" name="syncOffsetSpinBox">
-     <property name="suffix">
-      <string>ms</string>
-     </property>
-     <property name="minimum">
-      <number>-1000</number>
-     </property>
-     <property name="maximum">
-      <number>1000</number>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="topOfRangeLabel">
-     <property name="text">
-      <string>Top of range</string>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="0" colspan="3">
-    <widget class="QGroupBox" name="beatMeterOptionsGroup">
-     <property name="title">
-      <string>Beat Meter</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="4" column="1">
-       <widget class="QSpinBox" name="meterMarkerDiameterSpinBox">
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <number>5000</number>
-        </property>
-        <property name="value">
-         <number>20</number>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="meterPixelsPerSecondLabel">
-        <property name="text">
-         <string>Speed (pixels per second)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QLabel" name="meterColouringModeTbdLabel">
-        <property name="text">
-         <string>Sorry - not done yet. Consider supporting me!</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="meterColouringModeLabel">
-        <property name="text">
-         <string>Colouring mode</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="meterHeightLabel">
-        <property name="text">
-         <string>Height (pixels)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="meterWidthLabel">
-        <property name="text">
-         <string>Width (pixels)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QSpinBox" name="meterSpeedSpinBox">
-        <property name="minimum">
-         <number>20</number>
-        </property>
-        <property name="maximum">
-         <number>5000</number>
-        </property>
-        <property name="value">
-         <number>167</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QSpinBox" name="meterWidthSpinBox">
-        <property name="minimum">
-         <number>50</number>
-        </property>
-        <property name="maximum">
-         <number>100000</number>
-        </property>
-        <property name="singleStep">
-         <number>10</number>
-        </property>
-        <property name="value">
-         <number>1920</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QSpinBox" name="meterHeightSpinBox">
-        <property name="minimum">
-         <number>10</number>
-        </property>
-        <property name="maximum">
-         <number>50000</number>
-        </property>
-        <property name="singleStep">
-         <number>5</number>
-        </property>
-        <property name="value">
-         <number>25</number>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="meterMarkerDiameterLabel">
-        <property name="text">
-         <string>Beat marker diameter (pixels)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="meterFrameRateLabel">
-        <property name="text">
-         <string>Frame rate (frames per second)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QDoubleSpinBox" name="meterFrameRateSpinBox">
-        <property name="minimum">
-         <double>10.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>240.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.030000000000000</double>
-        </property>
-        <property name="value">
-         <double>29.969999999999999</double>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="10" column="2">
-    <widget class="QSpinBox" name="handyStrokeDurationSpinBox">
-     <property name="suffix">
-      <string>ms</string>
-     </property>
-     <property name="minimum">
-      <number>100</number>
-     </property>
-     <property name="maximum">
-      <number>60000</number>
-     </property>
-     <property name="value">
-      <number>420</number>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="1">
-    <widget class="QSlider" name="rangeAnchorSlider">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="endingIntensityLabel">
-     <property name="text">
-      <string>Ending Intensity</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QSlider" name="syncOffsetSlider">
-     <property name="minimum">
-      <number>-1000</number>
-     </property>
-     <property name="maximum">
-      <number>1000</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="1">
-    <widget class="QSlider" name="handyScalingProportionSlider">
-     <property name="maximum">
-      <number>100</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="1">
-    <widget class="QSlider" name="topOfRangeSlider">
-     <property name="minimum">
-      <number>1</number>
-     </property>
-     <property name="maximum">
-      <number>100</number>
-     </property>
-     <property name="value">
-      <number>100</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="18" column="1" colspan="2">
-    <widget class="QComboBox" name="estimDeviceComboBox"/>
    </item>
   </layout>
  </widget>
