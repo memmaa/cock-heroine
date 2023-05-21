@@ -34,18 +34,19 @@
 #include "buttplugdispatcher.h"
 #include <QWebSocket>
 #include "buttplugdeviceconfigdialog.h"
-#include "stimsignal/stimsignalgenerator.h"
+#include "stimsignal/triphasesignalgenerator.h"
 #include "beatinterval.h"
 #include <QtEndian>
 #include <stdio.h> //strcpy
 #include <QAudioOutput>
 #include <QAudioOutputSelectorControl>
 #include <QMediaService>
+#include <QProgressDialog>
 
 //how many events should we 'buffer' by sending them to the arduino hardware ahead of real time?
 //this lets it spin up motors in advance, or enqueue or ramp up its internal events for most accurate timings.
-#define PREF_LAST_SUCCESSFULLY_LOADED_VIDEO "Last Successfully Loaded Video"
 #define MAX_ENQUEUED_EVENTS 5
+#define PREF_LAST_SUCCESSFULLY_LOADED_VIDEO "Last Successfully Loaded Video"
 
 /*#include <QItemDelegate>
 #include <QItemEditorFactory>*/
@@ -97,9 +98,9 @@
 // DONE: add tap tempo input
 //-DONE: make funscript export a separate menu action
 //-DONE: add support for setting stroke intensity with a gamepad axis (can use right trigger on gamecube controller)
+//-DONE: optionally unload current events before loading new file
 //-TODO: add support for edging control with a gamepad button
 //-TODO: add support for selecting gamepad axis and buttons
-//-TODO: optionally unload current events before loading new file
 //-TODO: request save before exit
 //-TODO: add butt plugin support
 //-TODO: add UI support for configuring automatic pattern naming
@@ -152,7 +153,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mainWindowActions(new QList<QAction *>()),
     buttplugIF(new ButtplugInterface(this)),
     stimSignalGenerator(nullptr),
-    stimAudio(nullptr)
+    stimAudio(nullptr),
+    progressDialog(nullptr)
 {
     mainWindow = this;
     ui->setupUi(this);
@@ -954,6 +956,25 @@ void MainWindow::setVideoOutputDevice()
     }
 }
 
+void MainWindow::updateUiButtonLabels(QMediaPlayer::State state)
+{
+    switch (state)
+    {
+    case QMediaPlayer::StoppedState:
+        ui->startButton->setText(tr("Start"));
+        ui->stopButton->setText(tr("Stop"));
+        break;
+    case QMediaPlayer::PlayingState:
+        ui->startButton->setText(tr("Pause"));
+        ui->stopButton->setText(tr("Pause"));
+        break;
+    case QMediaPlayer::PausedState:
+        ui->stopButton->setText(tr("Reset"));
+        ui->startButton->setText(tr("Play"));
+        break;
+    }
+}
+
 void MainWindow::updateTimerDisplay()
 {
     setLcdDisplay(timecode->elapsed() + (int)timecodeLastStopped);
@@ -1051,10 +1072,16 @@ void MainWindow::pressPlay()
     on_startButton_pressed();
 }
 
+void MainWindow::updateProgress(int progress, int outOf)
+{
+    progressDialog->setMaximum(outOf);
+    progressDialog->setValue(progress);
+    QCoreApplication::processEvents();
+}
+
 void MainWindow::play()
 {
-    ui->startButton->setText(tr("Pause"));
-    ui->stopButton->setText(tr("Pause"));
+    updateUiButtonLabels(QMediaPlayer::PlayingState);
     setVideoOutputDevice();
     videoPlayer->setPosition(currentTimecode());//IMPORTANT: Due to the way currentTimecode works, and the way it interacts with syncToVideo() this MUST occur BEFORE startTimer()
     videoPlayer->play();
@@ -1105,8 +1132,7 @@ void MainWindow::pause()
     currentlyPlaying = false;
     videoPlayer->pause();
     stopTimer();
-    ui->stopButton->setText(tr("Reset"));
-    ui->startButton->setText(tr("Play"));
+    updateUiButtonLabels(QMediaPlayer::PausedState);
     cancelScheduledEvent();
     if (motorIdleTimer->isActive())
         motorIdleTimer->start(10 * 1000);
@@ -1125,8 +1151,7 @@ void MainWindow::stop()
     setLcdDisplay(0);
     timecodeLastStopped = 0;
     videoPlayer->stop();
-    ui->startButton->setText(tr("Start"));
-    ui->stopButton->setText(tr("Stop"));
+    updateUiButtonLabels(QMediaPlayer::StoppedState);
     stopMotorIdling();
     if (OptionsDialog::connectToHandy() || handyIsPlaying)
         stopHandySync();
@@ -1184,7 +1209,7 @@ void MainWindow::startEstimSignal()
         return;
     }
 
-    stimSignalGenerator = new StimSignalGenerator(format, this);
+    stimSignalGenerator = new TriphaseSignalGenerator(format, this);
 
     stimSignalGenerator->open(QIODevice::ReadOnly);
     stimSignalGenerator->setGenerateFrom(currentTimecode());
@@ -1761,7 +1786,7 @@ void MainWindow::on_loadButton_clicked()
         lastOpenedLocation = QDir::toNativeSeparators(QDir::homePath());
     QString filename = QFileDialog::getOpenFileName(this,
                                             tr("Load File"),
-                                            lastOpenedLocation, //TODO: remember last load location and use that instead?
+                                            lastOpenedLocation,
                                             tr("All Openable Files (*.chml *.wca *.wcb *.mid *.funscript *.wmv *.mov *.avi *.mpg *.mp4 *.flv *.m4v *.wav);;All Wand Controller Event Files (*.chml *.wca *.wcb);;Cock Hero Markup Language files (*.chml);;Wand Controller ASCII files (*.wca);;Wand Controller Binary Files (*.wcb);;MIDI Files (*.mid);;Funscripts (*.funscripts);;Movie Files (*.wmv *.mov *.avi *.mpg *.mp4 *.flv *.m4v);;Sound Files (*.wav)"));
 
     if (filename.isEmpty())
@@ -1846,6 +1871,44 @@ void MainWindow::loadFile(QString filename, bool isAssociatedFile)
     }
 
     QFileInfo fileToLoad(filename);
+    //check if this might result in an unwanted merge of events...
+    if (!isVideoFileSuffix(fileToLoad.suffix()) && fileToLoad.suffix() != "wav")
+    {
+        //this is a data file. Could it overwrite something?
+        if (!events.isEmpty())
+        {
+
+            QMessageBox handleMergeOrReplaceQuestionBox;
+            handleMergeOrReplaceQuestionBox.setWindowTitle("Replace Loaded Event Data?");
+            handleMergeOrReplaceQuestionBox.setText(tr("You are about to load event data, but you already have some event data loaded.\n\n"
+
+                                                       "Select 'Replace' if you would like to remove the current data (without saving it) before loading new data.\n"
+                                                       "Select 'Merge' if you would like to add the new data to the current data.\n"
+                                                       "Select 'Cancel' to abort loading new data (e.g. if you want to save the current data)."));
+            QPushButton * replaceButton = handleMergeOrReplaceQuestionBox.addButton(tr("Replace"),QMessageBox::YesRole);
+            QPushButton * mergeButton = handleMergeOrReplaceQuestionBox.addButton(tr("Merge"),QMessageBox::NoRole);
+            handleMergeOrReplaceQuestionBox.addButton(QMessageBox::Cancel);
+            handleMergeOrReplaceQuestionBox.setDefaultButton(replaceButton);
+            handleMergeOrReplaceQuestionBox.exec();
+            if (handleMergeOrReplaceQuestionBox.clickedButton() == replaceButton)
+            {
+                clearEventsList();
+            }
+            else if (handleMergeOrReplaceQuestionBox.clickedButton() == mergeButton)
+            {
+                //no action needed, continue to load files below
+            }
+            else
+            {
+                //the user cancelled, so don't load any data
+                return;
+            }
+
+            bool replaceEvents = (handleMergeOrReplaceQuestionBox.clickedButton() == replaceButton);
+            bool importFullStrokes = (handleMergeOrReplaceQuestionBox.clickedButton() == fullStrokesButton);
+        }
+
+    }
     //based on file extension, call appropriate loader
     if      (fileToLoad.suffix() == "wca")
         loadWCA(filename);
@@ -3051,7 +3114,7 @@ void MainWindow::on_actionNope_triggered()
         return;
     }
 
-    stimSignalGenerator = new StimSignalGenerator(format, this);
+    stimSignalGenerator = new TriphaseSignalGenerator(format, this);
 
     stimSignalGenerator->open(QIODevice::ReadOnly);
     stimSignalGenerator->setGenerateFrom(currentTimecode());
@@ -3176,9 +3239,11 @@ void MainWindow::on_actionExport_E_Stim_Track_triggered()
 
     QAudioFormat format = getEstimAudioFormat();
 
-    stimSignalGenerator = new StimSignalGenerator(format, this);
+    stimSignalGenerator = new TriphaseSignalGenerator(format, this);
 
     stimSignalGenerator->open(QIODevice::ReadOnly);
+    progressDialog = new QProgressDialog(tr("Exporting E-Stim Track..."),tr("Cancel"),0,totalPlayTime(),this);
+    connect(stimSignalGenerator, SIGNAL(progressed(int, int)), this, SLOT(updateProgress(int, int)));
 
     int bytesWritten = 0;
 
@@ -3191,11 +3256,17 @@ void MainWindow::on_actionExport_E_Stim_Track_triggered()
         bytesWritten += bytesRead;
 //        qDebug() << "Files seems to be " << wavFile.size();
 //        qDebug() << "Bytes we think we've written " << bytesWritten;
+        if (progressDialog->wasCanceled())
+            break;
     }
     //not ideal - this logic relies on the knowledge that the generator will
-    //always give you ask much data as you ask for until there's no more, and then stop.
+    //always give you as much data as you ask for until there's no more, and then stop.
     //Consider looking for EOF?
     while (bytesRead == bytesPerSecond);
+
+    progressDialog->setValue(progressDialog->maximum());
+    disconnect(stimSignalGenerator, SIGNAL(progressed(int, int)), this, SLOT(updateProgress(int, int)));
+    progressDialog->deleteLater();
 
     //finished writing data - write sizes
     QByteArray dataSize;

@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>451</width>
-    <height>479</height>
+    <width>477</width>
+    <height>960</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Preferences</string>
@@ -27,7 +33,7 @@
    <item row="0" column="0" colspan="4">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="miscTab">
       <attribute name="title">
@@ -865,26 +871,483 @@
        <string>E-Stim</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="3" column="2">
-        <widget class="QSpinBox" name="estimStartPlaybackFadeInTimeSpinBox">
-         <property name="toolTip">
-          <string>Ramp up the amplitude over this time so that the shock isn't too sudden when playback starts in the middle of a pattern</string>
+       <item row="19" column="0" colspan="3">
+        <widget class="QGroupBox" name="estimRightChannelSettingsBox">
+         <property name="title">
+          <string>Generation Settings (Right Channel)</string>
          </property>
-         <property name="suffix">
-          <string>ms</string>
-         </property>
-         <property name="maximum">
-          <number>30000</number>
-         </property>
-         <property name="singleStep">
-          <number>100</number>
-         </property>
-         <property name="value">
-          <number>1500</number>
+         <layout class="QGridLayout" name="gridLayout_21">
+          <item row="1" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="estimRightChannelStrokeStyleHorizontalLayout">
+            <item>
+             <widget class="QLabel" name="estimLeftChannelStrokeStyleLabel">
+              <property name="toolTip">
+               <string>Choose the 'style' of stroking that should be simulated.</string>
+              </property>
+              <property name="text">
+               <string>Stroke style</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="estimRightChannelCycleStartsOnBeatRadioButton">
+              <property name="toolTip">
+               <string>A full up-and-down stroke is timed so that it finishes on the beat. It will pause at the bottom of the stroke if there is no beat shortly after.</string>
+              </property>
+              <property name="text">
+               <string>Cylce ends on the beat</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="estimRightChannelCycleEndsOnBeatRadioButton">
+              <property name="toolTip">
+               <string>A full down-and-up stroke is timed so that the bottom of the stroke falls on the beat. After the up-stroke, it will pause at the top of the stroke if there is no beat shortly after.</string>
+              </property>
+              <property name="text">
+               <string>Cycle starts on the beat</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="estimRightChannelFrequencyHorizontalLayout">
+            <item>
+             <widget class="QLabel" name="estimRightChannelStartingFrequencyLabel">
+              <property name="toolTip">
+               <string>Carrier frequency of the e-stim signal at the start of the game</string>
+              </property>
+              <property name="text">
+               <string>Starting frequency</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="estimRightChannelStartingFrequencySpinbox">
+              <property name="toolTip">
+               <string>Carrier frequency of the e-stim signal at the start of the game</string>
+              </property>
+              <property name="suffix">
+               <string>Hz</string>
+              </property>
+              <property name="minimum">
+               <number>50</number>
+              </property>
+              <property name="maximum">
+               <number>8000</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
+              </property>
+              <property name="value">
+               <number>500</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="estimRightChannelEndingFrequencyLabel">
+              <property name="toolTip">
+               <string>Carrier frequency of the e-stim signal at the start of the game (lower frequencies are more intense)</string>
+              </property>
+              <property name="text">
+               <string>Ending frequency</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="estimRightChannelEndingFrequencySpinbox">
+              <property name="toolTip">
+               <string>Carrier frequency of the e-stim signal at the start of the game (lower frequencies are more intense)</string>
+              </property>
+              <property name="suffix">
+               <string>Hz</string>
+              </property>
+              <property name="minimum">
+               <number>50</number>
+              </property>
+              <property name="maximum">
+               <number>8000</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
+              </property>
+              <property name="value">
+               <number>400</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="estimRightChannelBackgroundLevelLabel">
+            <property name="text">
+             <string>Between peaks, drop intensity to</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSpinBox" name="estimRightChannelBackgroundLevelSpinBox">
+            <property name="toolTip">
+             <string>Increase signal strength by this amount over the course of the game to account for loss in sensitivity (in effect, this lowers the starting volume, use larger values for longer games)</string>
+            </property>
+            <property name="suffix">
+             <string>%</string>
+            </property>
+            <property name="maximum">
+             <number>99</number>
+            </property>
+            <property name="singleStep">
+             <number>5</number>
+            </property>
+            <property name="value">
+             <number>75</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="estimRightChannelPeakWithinCycleLayout">
+            <item>
+             <widget class="QLabel" name="estimRightChannelPeakWithinCycleLabel">
+              <property name="toolTip">
+               <string>Adjust the balance of the signal between the left and right channels to achieve the best sensation.</string>
+              </property>
+              <property name="text">
+               <string>Peak position within cycle</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSlider" name="estimRightChannelPeakWithinCycleSlider">
+              <property name="toolTip">
+               <string>Adjust the balance of the signal between the left and right channels to achieve the best sensation.</string>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="minimum">
+               <number>0</number>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="value">
+               <number>50</number>
+              </property>
+              <property name="tracking">
+               <bool>false</bool>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="invertedAppearance">
+               <bool>true</bool>
+              </property>
+              <property name="tickPosition">
+               <enum>QSlider::TicksBothSides</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Estim Mode</string>
          </property>
         </widget>
        </item>
-       <item row="13" column="0" colspan="3">
+       <item row="2" column="0" colspan="3">
+        <widget class="QLabel" name="estimFilenameDescription">
+         <property name="text">
+          <string>Select an estim track below and this will be played at the same time as the video plays</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="3">
+        <layout class="QHBoxLayout" name="estimFilenameLayout">
+         <item>
+          <widget class="QLabel" name="estimFilenameLabel">
+           <property name="text">
+            <string>E-Stim File</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="estimFilenameLineEdit"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="estimFilenameBrowseButton">
+           <property name="text">
+            <string>Browse...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="17" column="0" colspan="3">
+        <widget class="QGroupBox" name="estimTriphaseSettingsBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="title">
+          <string>Generation Settings (Triphase)</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_9">
+          <item row="1" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="estimTriphaseFrequencyHorizontalLayout">
+            <item>
+             <widget class="QLabel" name="estimTriphaseStartingFrequencyLabel">
+              <property name="toolTip">
+               <string>Carrier frequency of the e-stim signal at the start of the game</string>
+              </property>
+              <property name="text">
+               <string>Starting frequency</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="estimTriphaseStartingFrequencySpinbox">
+              <property name="toolTip">
+               <string>Carrier frequency of the e-stim signal at the start of the game</string>
+              </property>
+              <property name="suffix">
+               <string>Hz</string>
+              </property>
+              <property name="minimum">
+               <number>50</number>
+              </property>
+              <property name="maximum">
+               <number>8000</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
+              </property>
+              <property name="value">
+               <number>500</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="estimTriphaseEndingFrequencyLabel">
+              <property name="toolTip">
+               <string>Carrier frequency of the e-stim signal at the start of the game (lower frequencies are more intense)</string>
+              </property>
+              <property name="text">
+               <string>Ending frequency</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="estimTriphaseEndingFrequencySpinbox">
+              <property name="toolTip">
+               <string>Carrier frequency of the e-stim signal at the start of the game (lower frequencies are more intense)</string>
+              </property>
+              <property name="suffix">
+               <string>Hz</string>
+              </property>
+              <property name="minimum">
+               <number>50</number>
+              </property>
+              <property name="maximum">
+               <number>8000</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
+              </property>
+              <property name="value">
+               <number>400</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="estimBeatFadeInHorizontalLayout">
+            <item>
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>Fade in over</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="estimBeatFadeInTimeSpinBox">
+              <property name="toolTip">
+               <string>This is how long it will take to ramp up the signal when coming up to a beat.</string>
+              </property>
+              <property name="suffix">
+               <string>ms</string>
+              </property>
+              <property name="maximum">
+               <number>10000</number>
+              </property>
+              <property name="singleStep">
+               <number>50</number>
+              </property>
+              <property name="value">
+               <number>1000</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>to reach full amplitude</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="estimBeatFadeInAnticipationTimeSpinBox">
+              <property name="toolTip">
+               <string>Full stimulation will be reached this long before the beat.</string>
+              </property>
+              <property name="suffix">
+               <string>ms</string>
+              </property>
+              <property name="maximum">
+               <number>30000</number>
+              </property>
+              <property name="singleStep">
+               <number>50</number>
+              </property>
+              <property name="value">
+               <number>500</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>before each beat</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="10" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="estimTriphaseStrokeStyleHorizontalLayout">
+            <item>
+             <widget class="QLabel" name="estimTriphaseStrokeStyleLabel">
+              <property name="toolTip">
+               <string>Choose the 'style' of stroking that should be simulated.</string>
+              </property>
+              <property name="text">
+               <string>Stroke style</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="estimUpDownBeatRadioButton">
+              <property name="toolTip">
+               <string>A full up-and-down stroke is timed so that it finishes on the beat. It will pause at the bottom of the stroke if there is no beat shortly after.</string>
+              </property>
+              <property name="text">
+               <string>up-down-beat</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="estimDownBeatUpRadioButton">
+              <property name="toolTip">
+               <string>A full down-and-up stroke is timed so that the bottom of the stroke falls on the beat. After the up-stroke, it will pause at the top of the stroke if there is no beat shortly after.</string>
+              </property>
+              <property name="text">
+               <string>down-beat-up</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="estimInvertStrokesCheckBox">
+              <property name="toolTip">
+               <string>Adjust the phase of the signal so that the sensations seem 'upside down'. Useful for a different sensation, or if the electrode positions are swapped.</string>
+              </property>
+              <property name="text">
+               <string>Invert strokes</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="estimBeatFadeOutHorizontalLayout">
+            <item>
+             <widget class="QLabel" name="label_16">
+              <property name="text">
+               <string>Fade out over</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="estimBeatFadeOutTimeSpinBox">
+              <property name="toolTip">
+               <string>This is how long it takes to ramp down the signal again after a beat.</string>
+              </property>
+              <property name="suffix">
+               <string>ms</string>
+              </property>
+              <property name="maximum">
+               <number>10000</number>
+              </property>
+              <property name="singleStep">
+               <number>50</number>
+              </property>
+              <property name="value">
+               <number>1000</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_15">
+              <property name="text">
+               <string>starting</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="estimBeatFadeOutDelaySpinBox">
+              <property name="toolTip">
+               <string>The signal will start fading away this long after the beat.</string>
+              </property>
+              <property name="suffix">
+               <string>ms</string>
+              </property>
+              <property name="maximum">
+               <number>30000</number>
+              </property>
+              <property name="singleStep">
+               <number>50</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_14">
+              <property name="text">
+               <string>after each beat</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="20" column="0" colspan="3">
         <layout class="QHBoxLayout" name="estimSignalPanHorizontalLayout">
          <item>
           <widget class="QLabel" name="estimSignalPanLabel">
@@ -951,14 +1414,43 @@
          </item>
         </layout>
        </item>
-       <item row="6" column="0" colspan="2">
-        <widget class="QLabel" name="estimTotalSignalGrowthLabel">
-         <property name="toolTip">
-          <string>Increase signal strength by this amount over the course of the game to account for loss in sensitivity (in effect, this lowers the starting volume, use larger values for longer games)</string>
-         </property>
-         <property name="text">
-          <string>Percentage amplitude increase over duration of game</string>
-         </property>
+       <item row="1" column="1" colspan="2">
+        <widget class="QComboBox" name="estimModeComboBox">
+         <item>
+          <property name="text">
+           <string>Play From File</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Generate In Advance (Single Channel)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Generate In Advance (Dual Channel)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Generate In Advance (Triphase)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Generate On-The-Fly (Single Channel)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Generate On-The-Fly (Dual Channel)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Generate On-The-Fly (Triphase)</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item row="0" column="0">
@@ -974,184 +1466,458 @@
          </property>
         </widget>
        </item>
-       <item row="9" column="0" colspan="3">
-        <layout class="QHBoxLayout" name="estimCompressorHorizontalLayout">
-         <item>
-          <widget class="QLabel" name="estimLowerAmplitudeByLabel">
-           <property name="toolTip">
-            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
-           </property>
-           <property name="text">
-            <string>Lower amplitude by</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="estimCompressorStrengthSpinBox">
-           <property name="toolTip">
-            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
-           </property>
-           <property name="suffix">
-            <string>%</string>
-           </property>
-           <property name="maximum">
-            <number>30</number>
-           </property>
-           <property name="value">
-            <number>5</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="estimInBreaksOfOverLabel">
-           <property name="toolTip">
-            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
-           </property>
-           <property name="text">
-            <string>in breaks of over</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="estimCompressorBiteTimeSpinBox">
-           <property name="toolTip">
-            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
-           </property>
-           <property name="decimals">
-            <number>1</number>
-           </property>
-           <property name="minimum">
-            <double>0.500000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>600.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.500000000000000</double>
-           </property>
-           <property name="value">
-            <double>10.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="estimSecondsLabel">
-           <property name="toolTip">
-            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
-           </property>
-           <property name="text">
-            <string>seconds</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="8" column="0" colspan="2">
-        <widget class="QLabel" name="estimBoostShortStrokesLabel">
-         <property name="toolTip">
-          <string>Short strokes can feel less intense than longer strokes of the same amplitude. To compensate, slightly increase the amplitude of strokes shorter than the stroke duration specified above.</string>
+       <item row="5" column="0" colspan="3">
+        <widget class="QGroupBox" name="estimGeneralSettingsBox">
+         <property name="title">
+          <string>Generation Settings (General)</string>
          </property>
-         <property name="text">
-          <string>Boost strength of faster strokes by up to</string>
+         <layout class="QGridLayout" name="gridLayout_11">
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="estimTotalSignalGrowthSpinBox">
+            <property name="toolTip">
+             <string>Increase signal strength by this amount over the course of the game to account for loss in sensitivity (in effect, this lowers the starting volume, use larger values for longer games)</string>
+            </property>
+            <property name="suffix">
+             <string>%</string>
+            </property>
+            <property name="maximum">
+             <number>500</number>
+            </property>
+            <property name="singleStep">
+             <number>5</number>
+            </property>
+            <property name="value">
+             <number>50</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="estimStartPlaybackFadeInTimeLabel">
+            <property name="toolTip">
+             <string>Ramp up the amplitude over this time so that the shock isn't too sudden when playback starts in the middle of a pattern</string>
+            </property>
+            <property name="text">
+             <string>Initial fade-in time at start of playback</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QSpinBox" name="estimBoostShortStrokesSpinBox">
+            <property name="toolTip">
+             <string>Short strokes can feel less intense than longer strokes of the same amplitude. To compensate, slightly increase the amplitude of strokes shorter than the stroke duration specified above.</string>
+            </property>
+            <property name="suffix">
+             <string>%</string>
+            </property>
+            <property name="maximum">
+             <number>20</number>
+            </property>
+            <property name="value">
+             <number>5</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="estimMaxStrokeLengthLabel">
+            <property name="toolTip">
+             <string>The maximum time for one full 'up-and-down stroke'. Beats which are further apart than this will not have the stroke length stretched to fill the gap. Also used in calculations for boosting faster strokes.</string>
+            </property>
+            <property name="text">
+             <string>Max Stroke duration</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="estimSampleRateComboBox"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="estimTotalSignalGrowthLabel">
+            <property name="toolTip">
+             <string>Increase signal strength by this amount over the course of the game to account for loss in sensitivity (in effect, this lowers the starting volume, use larger values for longer games)</string>
+            </property>
+            <property name="text">
+             <string>Percentage amplitude increase over duration of game</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSpinBox" name="estimMaxStrokeLengthSpinBox">
+            <property name="toolTip">
+             <string>The maximum time for one full 'up-and-down stroke'. Beats which are further apart than this will not have the stroke length stretched to fill the gap. Also used in calculations for boosting faster strokes.</string>
+            </property>
+            <property name="suffix">
+             <string>ms</string>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>30000</number>
+            </property>
+            <property name="singleStep">
+             <number>25</number>
+            </property>
+            <property name="value">
+             <number>500</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="estimSampleRateLabel">
+            <property name="text">
+             <string>E-Stim Signal Sample Rate</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="estimCompressorHorizontalLayout">
+            <item>
+             <widget class="QLabel" name="estimLowerAmplitudeByLabel">
+              <property name="toolTip">
+               <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+              </property>
+              <property name="text">
+               <string>Lower amplitude by</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="estimCompressorStrengthSpinBox">
+              <property name="toolTip">
+               <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+              </property>
+              <property name="suffix">
+               <string>%</string>
+              </property>
+              <property name="maximum">
+               <number>30</number>
+              </property>
+              <property name="value">
+               <number>5</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="estimInBreaksOfOverLabel">
+              <property name="toolTip">
+               <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+              </property>
+              <property name="text">
+               <string>in breaks of over</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="estimCompressorBiteTimeSpinBox">
+              <property name="toolTip">
+               <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>0.500000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>600.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.500000000000000</double>
+              </property>
+              <property name="value">
+               <double>10.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="estimSecondsLabel">
+              <property name="toolTip">
+               <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+              </property>
+              <property name="text">
+               <string>seconds</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="estimStartPlaybackFadeInTimeSpinBox">
+            <property name="toolTip">
+             <string>Ramp up the amplitude over this time so that the shock isn't too sudden when playback starts in the middle of a pattern</string>
+            </property>
+            <property name="suffix">
+             <string>ms</string>
+            </property>
+            <property name="maximum">
+             <number>30000</number>
+            </property>
+            <property name="singleStep">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>1500</number>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="estimBoostShortStrokesLabel">
+            <property name="toolTip">
+             <string>Short strokes can feel less intense than longer strokes of the same amplitude. To compensate, slightly increase the amplitude of strokes shorter than the stroke duration specified above.</string>
+            </property>
+            <property name="text">
+             <string>Boost strength of faster strokes by up to</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="estimCompressorHorizontalLayout_2">
+            <item>
+             <widget class="QLabel" name="estimRaiseItDuringLabel">
+              <property name="toolTip">
+               <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+              </property>
+              <property name="text">
+               <string>Then slowly raise it again during the first</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="estimCompressorReleaseSpinBox">
+              <property name="toolTip">
+               <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>0.500000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>120.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.500000000000000</double>
+              </property>
+              <property name="value">
+               <double>10.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="estimSecondsAfterTheBreakLabel">
+              <property name="toolTip">
+               <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
+              </property>
+              <property name="text">
+               <string>seconds after the break</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="2">
+        <widget class="QComboBox" name="estimDeviceComboBox">
+         <property name="toolTip">
+          <string>Select the device where the signal will be sent</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QLabel" name="estimStartPlaybackFadeInTimeLabel">
-         <property name="toolTip">
-          <string>Ramp up the amplitude over this time so that the shock isn't too sudden when playback starts in the middle of a pattern</string>
+       <item row="18" column="0" colspan="3">
+        <widget class="QGroupBox" name="estimLeftChannelSettingsBox">
+         <property name="title">
+          <string>Generation Settings (Single/Left Channel)</string>
          </property>
-         <property name="text">
-          <string>Initial fade-in time at start of playback</string>
-         </property>
+         <layout class="QGridLayout" name="gridLayout_10">
+          <item row="1" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="estimStrokeStyleHorizontalLayout_2">
+            <item>
+             <widget class="QLabel" name="estimStrokeStyleLabel_2">
+              <property name="toolTip">
+               <string>Choose the 'style' of stroking that should be simulated.</string>
+              </property>
+              <property name="text">
+               <string>Stroke style</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="estimLeftChannelCycleStartsOnBeatRadioButton">
+              <property name="toolTip">
+               <string>A full up-and-down stroke is timed so that it finishes on the beat. It will pause at the bottom of the stroke if there is no beat shortly after.</string>
+              </property>
+              <property name="text">
+               <string>Cylce ends on the beat</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="estimLeftChannelCycleEndsOnBeatRadioButton">
+              <property name="toolTip">
+               <string>A full down-and-up stroke is timed so that the bottom of the stroke falls on the beat. After the up-stroke, it will pause at the top of the stroke if there is no beat shortly after.</string>
+              </property>
+              <property name="text">
+               <string>Cycle starts on the beat</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="estimLeftChannelFrequencyHorizontalLayout">
+            <item>
+             <widget class="QLabel" name="estimLeftChannelStartingFrequencyLabel">
+              <property name="toolTip">
+               <string>Carrier frequency of the e-stim signal at the start of the game</string>
+              </property>
+              <property name="text">
+               <string>Starting frequency</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="estimLeftChannelStartingFrequencySpinbox">
+              <property name="toolTip">
+               <string>Carrier frequency of the e-stim signal at the start of the game</string>
+              </property>
+              <property name="suffix">
+               <string>Hz</string>
+              </property>
+              <property name="minimum">
+               <number>50</number>
+              </property>
+              <property name="maximum">
+               <number>8000</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
+              </property>
+              <property name="value">
+               <number>500</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="estimLeftChannelEndingFrequencyLabel">
+              <property name="toolTip">
+               <string>Carrier frequency of the e-stim signal at the start of the game (lower frequencies are more intense)</string>
+              </property>
+              <property name="text">
+               <string>Ending frequency</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="estimLeftChannelEndingFrequencySpinbox">
+              <property name="toolTip">
+               <string>Carrier frequency of the e-stim signal at the start of the game (lower frequencies are more intense)</string>
+              </property>
+              <property name="suffix">
+               <string>Hz</string>
+              </property>
+              <property name="minimum">
+               <number>50</number>
+              </property>
+              <property name="maximum">
+               <number>8000</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
+              </property>
+              <property name="value">
+               <number>400</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="estimLeftChannelBackgroundLevelLabel">
+            <property name="text">
+             <string>Between peaks, drop intensity to</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSpinBox" name="estimLeftChannelBackgroundLevelSpinBox">
+            <property name="toolTip">
+             <string>Increase signal strength by this amount over the course of the game to account for loss in sensitivity (in effect, this lowers the starting volume, use larger values for longer games)</string>
+            </property>
+            <property name="suffix">
+             <string>%</string>
+            </property>
+            <property name="maximum">
+             <number>99</number>
+            </property>
+            <property name="singleStep">
+             <number>5</number>
+            </property>
+            <property name="value">
+             <number>50</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="estimLeftChannelPeakWithinCycleLayout">
+            <item>
+             <widget class="QLabel" name="estimLeftChannelPeakWithinCycleLabel">
+              <property name="toolTip">
+               <string>Adjust the balance of the signal between the left and right channels to achieve the best sensation.</string>
+              </property>
+              <property name="text">
+               <string>Peak position within cycle</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSlider" name="estimLeftChannelPeakWithinCycleSlider">
+              <property name="toolTip">
+               <string>Adjust the balance of the signal between the left and right channels to achieve the best sensation.</string>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="minimum">
+               <number>0</number>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="value">
+               <number>0</number>
+              </property>
+              <property name="tracking">
+               <bool>false</bool>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="invertedAppearance">
+               <bool>false</bool>
+              </property>
+              <property name="tickPosition">
+               <enum>QSlider::TicksBothSides</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </item>
-       <item row="4" column="0" colspan="3">
-        <layout class="QHBoxLayout" name="estimBeatFadeInHorizontalLayout">
-         <item>
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>Fade in over</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="estimBeatFadeInTimeSpinBox">
-           <property name="toolTip">
-            <string>This is how long it will take to ramp up the signal when coming up to a beat.</string>
-           </property>
-           <property name="suffix">
-            <string>ms</string>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
-           </property>
-           <property name="singleStep">
-            <number>50</number>
-           </property>
-           <property name="value">
-            <number>1000</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>to reach full amplitude</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="estimBeatFadeInAnticipationTimeSpinBox">
-           <property name="toolTip">
-            <string>Full stimulation will be reached this long before the beat.</string>
-           </property>
-           <property name="suffix">
-            <string>ms</string>
-           </property>
-           <property name="maximum">
-            <number>30000</number>
-           </property>
-           <property name="singleStep">
-            <number>50</number>
-           </property>
-           <property name="value">
-            <number>500</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_13">
-           <property name="text">
-            <string>before each beat</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="7" column="2">
-        <widget class="QSpinBox" name="estimMaxStrokeLengthSpinBox">
-         <property name="toolTip">
-          <string>The maximum time for one full 'up-and-down stroke'. Beats which are further apart than this will not have the stroke length stretched to fill the gap. Also used in calculations for boosting faster strokes.</string>
-         </property>
-         <property name="suffix">
-          <string>ms</string>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>30000</number>
-         </property>
-         <property name="singleStep">
-          <number>25</number>
-         </property>
-         <property name="value">
-          <number>500</number>
-         </property>
-        </widget>
-       </item>
-       <item row="14" column="0">
+       <item row="21" column="0">
         <spacer name="verticalSpacer_5">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -1163,289 +1929,6 @@
           </size>
          </property>
         </spacer>
-       </item>
-       <item row="2" column="0" colspan="3">
-        <layout class="QHBoxLayout" name="estimFrequencyHorizontalLayout">
-         <item>
-          <widget class="QLabel" name="estimStartingFrequencyLabel">
-           <property name="toolTip">
-            <string>Carrier frequency of the e-stim signal at the start of the game</string>
-           </property>
-           <property name="text">
-            <string>Starting frequency</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="estimStartingFrequencySpinbox">
-           <property name="toolTip">
-            <string>Carrier frequency of the e-stim signal at the start of the game</string>
-           </property>
-           <property name="suffix">
-            <string>Hz</string>
-           </property>
-           <property name="minimum">
-            <number>50</number>
-           </property>
-           <property name="maximum">
-            <number>8000</number>
-           </property>
-           <property name="singleStep">
-            <number>10</number>
-           </property>
-           <property name="value">
-            <number>500</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="estimEndingFrequencyLabel">
-           <property name="toolTip">
-            <string>Carrier frequency of the e-stim signal at the start of the game (lower frequencies are more intense)</string>
-           </property>
-           <property name="text">
-            <string>Ending frequency</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="estimEndingFrequencySpinbox">
-           <property name="toolTip">
-            <string>Carrier frequency of the e-stim signal at the start of the game (lower frequencies are more intense)</string>
-           </property>
-           <property name="suffix">
-            <string>Hz</string>
-           </property>
-           <property name="minimum">
-            <number>50</number>
-           </property>
-           <property name="maximum">
-            <number>8000</number>
-           </property>
-           <property name="singleStep">
-            <number>10</number>
-           </property>
-           <property name="value">
-            <number>400</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="5" column="0" colspan="3">
-        <layout class="QHBoxLayout" name="estimBeatFadeOutHorizontalLayout">
-         <item>
-          <widget class="QLabel" name="label_16">
-           <property name="text">
-            <string>Fade out over</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="estimBeatFadeOutTimeSpinBox">
-           <property name="toolTip">
-            <string>This is how long it takes to ramp down the signal again after a beat.</string>
-           </property>
-           <property name="suffix">
-            <string>ms</string>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
-           </property>
-           <property name="singleStep">
-            <number>50</number>
-           </property>
-           <property name="value">
-            <number>1000</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>starting</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="estimBeatFadeOutDelaySpinBox">
-           <property name="toolTip">
-            <string>The signal will start fading away this long after the beat.</string>
-           </property>
-           <property name="suffix">
-            <string>ms</string>
-           </property>
-           <property name="maximum">
-            <number>30000</number>
-           </property>
-           <property name="singleStep">
-            <number>50</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_14">
-           <property name="text">
-            <string>after each beat</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="8" column="2">
-        <widget class="QSpinBox" name="estimBoostShortStrokesSpinBox">
-         <property name="toolTip">
-          <string>Short strokes can feel less intense than longer strokes of the same amplitude. To compensate, slightly increase the amplitude of strokes shorter than the stroke duration specified above.</string>
-         </property>
-         <property name="suffix">
-          <string>%</string>
-         </property>
-         <property name="maximum">
-          <number>20</number>
-         </property>
-         <property name="value">
-          <number>5</number>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0" colspan="3">
-        <layout class="QHBoxLayout" name="estimCompressorHorizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="estimRaiseItDuringLabel">
-           <property name="toolTip">
-            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
-           </property>
-           <property name="text">
-            <string>Then slowly raise it again during the first</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="estimCompressorReleaseSpinBox">
-           <property name="toolTip">
-            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
-           </property>
-           <property name="decimals">
-            <number>1</number>
-           </property>
-           <property name="minimum">
-            <double>0.500000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>120.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.500000000000000</double>
-           </property>
-           <property name="value">
-            <double>10.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="estimSecondsAfterTheBreakLabel">
-           <property name="toolTip">
-            <string>Sensitivity can increase during long periods of no stimulation. To avoid discomfort when the signal starts again, temporarily lower the amplitude immediately following these breaks.</string>
-           </property>
-           <property name="text">
-            <string>seconds after the break</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="6" column="2">
-        <widget class="QSpinBox" name="estimTotalSignalGrowthSpinBox">
-         <property name="toolTip">
-          <string>Increase signal strength by this amount over the course of the game to account for loss in sensitivity (in effect, this lowers the starting volume, use larger values for longer games)</string>
-         </property>
-         <property name="suffix">
-          <string>%</string>
-         </property>
-         <property name="maximum">
-          <number>500</number>
-         </property>
-         <property name="singleStep">
-          <number>5</number>
-         </property>
-         <property name="value">
-          <number>50</number>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="0" colspan="3">
-        <layout class="QHBoxLayout" name="estimStrokeStyleHorizontalLayout">
-         <item>
-          <widget class="QLabel" name="estimStrokeStyleLabel">
-           <property name="toolTip">
-            <string>Choose the 'style' of stroking that should be simulated.</string>
-           </property>
-           <property name="text">
-            <string>Stroke style</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="estimUpDownBeatRadioButton">
-           <property name="toolTip">
-            <string>A full up-and-down stroke is timed so that it finishes on the beat. It will pause at the bottom of the stroke if there is no beat shortly after.</string>
-           </property>
-           <property name="text">
-            <string>up-down-beat</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="estimDownBeatUpRadioButton">
-           <property name="toolTip">
-            <string>A full down-and-up stroke is timed so that the bottom of the stroke falls on the beat. After the up-stroke, it will pause at the top of the stroke if there is no beat shortly after.</string>
-           </property>
-           <property name="text">
-            <string>down-beat-up</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="estimInvertStrokesCheckBox">
-           <property name="toolTip">
-            <string>Adjust the phase of the signal so that the sensations seem 'upside down'. Useful for a different sensation, or if the electrode positions are swapped.</string>
-           </property>
-           <property name="text">
-            <string>Invert strokes</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="7" column="0" colspan="2">
-        <widget class="QLabel" name="estimMaxStrokeLengthLabel">
-         <property name="toolTip">
-          <string>The maximum time for one full 'up-and-down stroke'. Beats which are further apart than this will not have the stroke length stretched to fill the gap. Also used in calculations for boosting faster strokes.</string>
-         </property>
-         <property name="text">
-          <string>Max Stroke duration</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1" colspan="2">
-        <widget class="QComboBox" name="estimDeviceComboBox">
-         <property name="toolTip">
-          <string>Select the device where the signal will be sent</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="estimSampleRateLabel">
-         <property name="text">
-          <string>E-Stim Signal Sample Rate</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1" colspan="2">
-        <widget class="QComboBox" name="estimSampleRateComboBox"/>
        </item>
       </layout>
      </widget>

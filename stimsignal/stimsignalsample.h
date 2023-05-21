@@ -12,7 +12,7 @@ public:
 //private:
     qlonglong wholeTimestamp; //in ms
     qreal fractionalTimestamp; //also in ms (may be larger than 1)
-    qreal totalTimestamp() {return wholeTimestamp + fractionalTimestamp;}
+    qreal totalTimestamp() const {return wholeTimestamp + fractionalTimestamp;}
     qreal primaryAmplitude;
     qreal secondaryAmplitude;
 

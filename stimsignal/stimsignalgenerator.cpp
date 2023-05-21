@@ -1,26 +1,14 @@
 #include "stimsignalgenerator.h"
+#include "stimsignalmodifier.h"
 #include "stimsignalsample.h"
 #include "qmath.h"
-#include "modifiers/triphasemodifier.h"
-#include "modifiers/beatproximitymodifier.h"
-#include "modifiers/progressincreasemodifier.h"
-#include "modifiers/boostfaststrokesmodifier.h"
-#include "modifiers/phaseinvertermodifier.h"
-#include "modifiers/fadefromcoldmodifier.h"
-#include "modifiers/breaksoftenermodifier.h"
-#include "modifiers/channelbalancemodifier.h"
 #include <QAudioFormat>
 #include <QtEndian>
 #include <QDebug>
 #include "globals.h"
 #include "mainwindow.h"
-#include "optionsdialog.h"
+#include "multithreadedsamplepipelineprocessor.h"
 
-
-int StimSignalGenerator::getCurrentFrequency()
-{
-    return currentFrequency;
-}
 
 bool isPCM(const QAudioFormat &format)
 {
@@ -42,53 +30,45 @@ StimSignalGenerator::StimSignalGenerator(QAudioFormat audioFormat, QObject *pare
 {
     Q_ASSERT(isPCMS16LE(audioFormat));
 
-    modifiers.append(new TriphaseModifier());
-    modifiers.append(new BeatProximityModifier());
-    modifiers.append(new ProgressIncreaseModifier());
-    modifiers.append(new BoostFastStrokesModifier());
-    if (OptionsDialog::getEstimInvertStrokes())
-        modifiers.append(new PhaseInverterModifier());
-    modifiers.append(new FadeFromColdModifier());
-    modifiers.append(new BreakSoftenerModifier());
-    if (OptionsDialog::getEstimSignalPan())
-        modifiers.append(new ChannelBalanceModifier());
-
-    startingFrequency = OptionsDialog::getEstimStartingFrequency();
-    endingFrequency = OptionsDialog::getEstimEndingFrequency();
     setGenerateFrom(0);
 }
 
 qint64 StimSignalGenerator::generate(char *data, qint64 maxlen)
 {
+    if (modifiers.isEmpty())
+        setModifiers();
+
     qint64 bytesGenerated = 0;
     const int bytesPerChannel = audioFormat.sampleSize() / 8;
     const int bytesPerSample = audioFormat.channelCount() * bytesPerChannel;
 
     int samplesToGenerate = maxlen / bytesPerSample;
-    qreal primaryPhaseIncreasePerSample = (qreal) getCurrentFrequency() / audioFormat.sampleRate();
     char *ptr = reinterpret_cast<char *>(data);
 
-    long stopAt = mainWindow->totalPlayTime() + OptionsDialog::getEstimBeatFadeOutDelay() + OptionsDialog::getEstimBeatFadeOutTime();
+    long stopAt = getStopTimestamp();
     if (generateFromTimestamp > stopAt)
     {
 //        qDebug() << "Not generating any more data because we're trying to generate from " << generateFromTimestamp;
         samplesToGenerate = 0;
     }
 
+    QList<StimSignalSample *> sampleVector;
     for (int i = 0; i < samplesToGenerate; ++i)
     {
         qreal fractionalSecond = (sampleCounter * 1.0f) / (float) audioFormat.sampleRate();
         if (fractionalSecond > stopAt)
             break;
-        StimSignalSample sample(generateFromTimestamp, fractionalSecond * 1000);
-        sample.setPrimaryPhase(sampleCounter * primaryPhaseIncreasePerSample);
-        for (auto modifier : modifiers)
-        {
-            modifier->modify(sample);
-        }
-        qToLittleEndian<qint16>(sample.primaryPcm(), ptr);
+        StimSignalSample * sample = new StimSignalSample(generateFromTimestamp, fractionalSecond * 1000);
+        sampleVector.append(sample);
+    }
+    MultithreadedSamplePipelineProcessor processor(&sampleVector, &modifiers, this);
+    processor.processAll();
+
+    for (int i = 0; i < sampleVector.length(); ++i)
+    {
+        qToLittleEndian<qint16>(sampleVector[i]->primaryPcm(), ptr);
         ptr += bytesPerChannel;
-        qToLittleEndian<qint16>(sample.secondaryPcm(), ptr);
+        qToLittleEndian<qint16>(sampleVector[i]->secondaryPcm(), ptr);
         ptr += bytesPerChannel;
         bytesGenerated += bytesPerSample;
         Q_ASSERT(ptr <= (data + maxlen));
@@ -101,6 +81,7 @@ qint64 StimSignalGenerator::generate(char *data, qint64 maxlen)
     }
     //if (bytesGenerated)
         //emit readyRead();
+    emit progressed(generateFromTimestamp, stopAt);
     return bytesGenerated;
 }
 

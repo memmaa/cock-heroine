@@ -31,6 +31,7 @@ class CustomEventAction;
 class SyncFileWriter;
 class QAudioOutput;
 class StimSignalGenerator;
+class QProgressDialog;
 
 namespace Ui {
 class MainWindow;
@@ -88,6 +89,7 @@ public slots:
     void toggleFullscreen();
     void httpResponseReceived(QNetworkReply *);
     void pressPlay();
+    void updateProgress(int progress, int outOf);
 
 signals:
     void obscureMeterToggled(bool enabled);
@@ -107,6 +109,7 @@ private:
     void unableToSetUpSerial();
 
     void setVideoOutputDevice();
+    void updateUiButtonLabels(QMediaPlayer::State state);
     void play();
     void pause();
     void stop();
@@ -229,6 +232,7 @@ private:
 
     StimSignalGenerator * stimSignalGenerator;
     QAudioOutput * stimAudio;
+    QProgressDialog * progressDialog;
 
 private slots:
 

@@ -28,6 +28,7 @@ public:
     static int getMaxTriphaseStrokeLength();
 
     explicit StimSignalGenerator(QAudioFormat audioFormat, QObject *parent = nullptr);
+    //TODO: destructor to delete modifiers
 
     qint64 generate(char *data, qint64 maxlen);
 
@@ -38,7 +39,9 @@ public:
     bool isSequential() const override;
     void setGenerateFrom(long from);
 
-private:
+protected:
+    virtual void setModifiers() = 0;
+    virtual long getStopTimestamp() = 0;
     int sampleCounter;
     QAudioFormat audioFormat;
     long generateFromTimestamp = 0;
@@ -46,10 +49,10 @@ private:
     int endingFrequency;
     void calculateCurrentFrequency();
     int currentFrequency;
-    int getCurrentFrequency();
     QList<StimSignalModifier *> modifiers;
 
 signals:
+    void progressed(int progress, int outOf);
 
 };
 

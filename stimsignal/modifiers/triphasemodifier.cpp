@@ -7,7 +7,7 @@
 TriphaseModifier::TriphaseModifier()
 {
     strokeLength = OptionsDialog::getEstimMaxStrokeLength();
-    if (OptionsDialog::getEstimStrokeStyle() == PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE)
+    if (OptionsDialog::getEstimTriphaseStrokeStyle() == PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE)
         style = UP_DOWN_BEAT;
     else
         style = DOWN_BEAT_UP;

@@ -65,11 +65,19 @@
 #define DEFAULT_PREF_ESTIM_ENABLED false
 #define PREF_ESTIM_OUTPUT_DEVICE "Estim Output Device"
 #define DEFAULT_PREF_ESTIM_OUTPUT_DEVICE ""
+#define PREF_ESTIM_MODE "Estim Mode"
+#define DEFAULT_PREF_ESTIM_MODE ""
+#define PREF_ESTIM_INPUT_FILE "User-selected file for Estim signal"
+#define DEFAULT_PREF_ESTIM_INPUT_FILE ""
 #define PREF_ESTIM_SAMPLE_RATE "Estim Sample Rate"
 #define DEFAULT_PREF_ESTIM_SAMPLE_RATE "11025"
-#define PREF_ESTIM_FREQUENCY_START "Estim Frequency At Start"
+#define PREF_ESTIM_TRIPHASE_FREQUENCY_START "Triphase Estim Frequency At Start"
+#define PREF_ESTIM_LEFT_FREQUENCY_START "Left Channel Estim Frequency At Start"
+#define PREF_ESTIM_RIGHT_FREQUENCY_START "Right Channel Estim Frequency At Start"
 #define DEFAULT_PREF_ESTIM_FREQUENCY_START 500
-#define PREF_ESTIM_FREQUENCY_END "Estim Frequency At End"
+#define PREF_ESTIM_TRIPHASE_FREQUENCY_END "Triphase Estim Frequency At End"
+#define PREF_ESTIM_LEFT_FREQUENCY_END "Left Channel Estim Frequency At End"
+#define PREF_ESTIM_RIGHT_FREQUENCY_END "Right Channel Estim Frequency At End"
 #define DEFAULT_PREF_ESTIM_FREQUENCY_END 400
 #define PREF_ESTIM_VOL_INCREASE "Estim Overall Volume Increase"
 #define DEFAULT_PREF_ESTIM_VOL_INCREASE 50
@@ -85,8 +93,15 @@
 #define DEFAULT_PREF_ESTIM_BEAT_FADE_OUT_DELAY 0
 #define PREF_ESTIM_SHORT_STROKES_BOOST "Estim Short Strokes Boost Amount"
 #define DEFAULT_PREF_ESTIM_SHORT_STROKES_BOOST 5
-#define PREF_ESTIM_STROKE_STYLE "Estim Stroke Style"
-#define DEFAULT_PREF_ESTIM_STROKE_STYLE PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE
+#define PREF_ESTIM_TRIPHASE_STROKE_STYLE "Triphase Estim Stroke Style"
+#define DEFAULT_PREF_ESTIM_TRIPHASE_STROKE_STYLE PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE
+//#define PREF_ESTIM_MONO_STROKE_STYLE "Single Channel Estim Stroke Style"
+#define PREF_ESTIM_STARTS_ON_BEAT_STYLE "Cycle Starts on the Beat"
+#define PREF_ESTIM_ENDS_ON_BEAT_STYLE "Cycle Ends on the Beat"
+#define PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE "Left Channel Estim Stroke Style"
+#define PREF_ESTIM_RIGHT_CHANNEL_STROKE_STYLE "Right Channel Estim Stroke Style"
+#define DEFAULT_PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE PREF_ESTIM_STARTS_ON_BEAT_STYLE
+#define DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_STROKE_STYLE PREF_ESTIM_ENDS_ON_BEAT_STYLE
 #define PREF_ESTIM_INVERT_STROKES "Invert Estim Strokes"
 #define DEFAULT_PREF_ESTIM_INVERT_STROKES false
 #define PREF_ESTIM_START_FADE_IN_TIME "Estim Fade-In Time On Playback Start"
@@ -99,6 +114,62 @@
 #define DEFAULT_PREF_ESTIM_COMPRESSOR_STRENGTH 5
 #define PREF_ESTIM_COMPRESSOR_RELEASE_TIME "Estim Compressor Release Time"
 #define DEFAULT_PREF_ESTIM_COMPRESSOR_RELEASE_TIME 10.0
+#define PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE "Left Channel Estim Peaks at Position in Cycle"
+#define DEFAULT_PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE 0
+#define PREF_ESTIM_LEFT_CHANNEL_TROUGH_VALUE "Left Channel Estim Value at Troughs Between Peaks"
+#define DEFAULT_PREF_ESTIM_LEFT_CHANNEL_TROUGH_VALUE 50
+#define PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE "Right Channel Estim Peaks at Position in Cycle"
+#define DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE 50
+#define PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE "Right Channel Estim Value at Troughs Between Peaks"
+#define DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE 75
+
+OptionsDialog::OptionsDialog(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::OptionsDialog),
+    triggeringWidget(NULL)
+{
+    ui->setupUi(this);
+    populateUi();
+    setControlsFromPreferences();
+    //following line possibly not needed if the sloot is triggered by the setting of controls above
+    on_estimModeComboBox_currentTextChanged(ui->estimModeComboBox->currentText());
+
+    adjustSize(); //do this after the ui is finished being set up, as not all the estim widgets are
+                  //shown at the same time, so the dialog doesn't need to be unnecessarily tall
+}
+
+OptionsDialog::~OptionsDialog()
+{
+    delete ui;
+}
+
+void OptionsDialog::populateUi()
+{
+    const auto deviceInfos = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
+    for (const QAudioDeviceInfo &deviceInfo : deviceInfos)
+    {
+        ui->estimDeviceComboBox->addItem(deviceInfo.deviceName());
+        ui->alternativeVideoAudioDeviceComboBox->addItem(deviceInfo.deviceName());
+    }
+    QString savedDeviceName = getEstimOutputDeviceName();
+    if (!isAvailableAudioDevice(savedDeviceName))
+    {
+        ui->estimDeviceComboBox->addItem(makeUnavailableName(savedDeviceName));
+    }
+    ui->estimSampleRateComboBox->addItem("8000");
+    ui->estimSampleRateComboBox->addItem("11025");
+    ui->estimSampleRateComboBox->addItem("16000");
+    ui->estimSampleRateComboBox->addItem("22050");
+    ui->estimSampleRateComboBox->addItem("44100");
+    ui->estimSampleRateComboBox->addItem("48000");
+}
+
+const QString OptionsDialog::unavailableSuffix = QObject::tr(" (unavailable)");
+
+QString OptionsDialog::makeUnavailableName(QString deviceName)
+{
+    return deviceName + unavailableSuffix;
+}
 
 QString OptionsDialog::cleanDeviceName(QString name)
 {
@@ -122,49 +193,6 @@ bool OptionsDialog::isAvailableAudioDevice(QString deviceName)
             return true;
     }
     return false;
-}
-
-OptionsDialog::OptionsDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::OptionsDialog),
-    triggeringWidget(NULL)
-{
-    ui->setupUi(this);
-    populateUi();
-    setControlsFromPreferences();
-}
-
-OptionsDialog::~OptionsDialog()
-{
-    delete ui;
-}
-
-const QString OptionsDialog::unavailableSuffix = QObject::tr(" (unavailable)");
-
-QString OptionsDialog::makeUnavailableName(QString deviceName)
-{
-    return deviceName + unavailableSuffix;
-}
-
-void OptionsDialog::populateUi()
-{
-    const auto deviceInfos = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
-    for (const QAudioDeviceInfo &deviceInfo : deviceInfos)
-    {
-        ui->estimDeviceComboBox->addItem(deviceInfo.deviceName());
-        ui->alternativeVideoAudioDeviceComboBox->addItem(deviceInfo.deviceName());
-    }
-    QString savedDeviceName = getEstimOutputDeviceName();
-    if (!isAvailableAudioDevice(savedDeviceName))
-    {
-        ui->estimDeviceComboBox->addItem(makeUnavailableName(savedDeviceName));
-    }
-    ui->estimSampleRateComboBox->addItem("8000");
-    ui->estimSampleRateComboBox->addItem("11025");
-    ui->estimSampleRateComboBox->addItem("16000");
-    ui->estimSampleRateComboBox->addItem("22050");
-    ui->estimSampleRateComboBox->addItem("44100");
-    ui->estimSampleRateComboBox->addItem("48000");
 }
 
 void OptionsDialog::setControlsFromPreferences()
@@ -228,11 +256,14 @@ void OptionsDialog::setControlsFromPreferences()
     if (!isAvailableAudioDevice(deviceName))
         deviceName = makeUnavailableName(deviceName);
     ui->estimDeviceComboBox->setCurrentText(deviceName);
+    ui->estimModeComboBox->setCurrentText(settings.value(PREF_ESTIM_MODE,DEFAULT_PREF_ESTIM_MODE).toString());
+    ui->estimFilenameLineEdit->setText(settings.value(PREF_ESTIM_INPUT_FILE, DEFAULT_PREF_ESTIM_INPUT_FILE).toString());
+    //general and triphase (because I programmed those first)
     int sampleRate = settings.value(PREF_ESTIM_SAMPLE_RATE, DEFAULT_PREF_ESTIM_SAMPLE_RATE).toInt();
     QString sampleRateString = QString::number(sampleRate);
     ui->estimSampleRateComboBox->setCurrentText(sampleRateString);
-    ui->estimStartingFrequencySpinbox->setValue(settings.value(PREF_ESTIM_FREQUENCY_START, DEFAULT_PREF_ESTIM_FREQUENCY_START).toInt());
-    ui->estimEndingFrequencySpinbox->setValue(settings.value(PREF_ESTIM_FREQUENCY_END, DEFAULT_PREF_ESTIM_FREQUENCY_END).toInt());
+    ui->estimTriphaseStartingFrequencySpinbox->setValue(settings.value(PREF_ESTIM_TRIPHASE_FREQUENCY_START, DEFAULT_PREF_ESTIM_FREQUENCY_START).toInt());
+    ui->estimTriphaseEndingFrequencySpinbox->setValue(settings.value(PREF_ESTIM_TRIPHASE_FREQUENCY_END, DEFAULT_PREF_ESTIM_FREQUENCY_END).toInt());
     ui->estimTotalSignalGrowthSpinBox->setValue(settings.value(PREF_ESTIM_VOL_INCREASE, DEFAULT_PREF_ESTIM_VOL_INCREASE).toInt());
     ui->estimMaxStrokeLengthSpinBox->setValue(settings.value(PREF_ESTIM_MAX_STROKE_DURATION, DEFAULT_PREF_ESTIM_MAX_STROKE_DURATION).toInt());
     ui->estimBeatFadeInTimeSpinBox->setValue(settings.value(PREF_ESTIM_BEAT_FADE_IN_TIME, DEFAULT_PREF_ESTIM_BEAT_FADE_IN_TIME).toInt());
@@ -240,7 +271,7 @@ void OptionsDialog::setControlsFromPreferences()
     ui->estimBeatFadeOutTimeSpinBox->setValue(settings.value(PREF_ESTIM_BEAT_FADE_OUT_TIME, DEFAULT_PREF_ESTIM_BEAT_FADE_OUT_TIME).toInt());
     ui->estimBeatFadeOutDelaySpinBox->setValue(settings.value(PREF_ESTIM_BEAT_FADE_OUT_DELAY, DEFAULT_PREF_ESTIM_BEAT_FADE_OUT_DELAY).toInt());
     ui->estimBoostShortStrokesSpinBox->setValue(settings.value(PREF_ESTIM_SHORT_STROKES_BOOST, DEFAULT_PREF_ESTIM_SHORT_STROKES_BOOST).toInt());
-    if (settings.value(PREF_ESTIM_STROKE_STYLE, DEFAULT_PREF_ESTIM_STROKE_STYLE).toString() == PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE)
+    if (settings.value(PREF_ESTIM_TRIPHASE_STROKE_STYLE, DEFAULT_PREF_ESTIM_TRIPHASE_STROKE_STYLE).toString() == PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE)
     {
         ui->estimUpDownBeatRadioButton->setChecked(true);
         ui->estimDownBeatUpRadioButton->setChecked(false);
@@ -257,6 +288,43 @@ void OptionsDialog::setControlsFromPreferences()
     ui->estimCompressorStrengthSpinBox->setValue(settings.value(PREF_ESTIM_COMPRESSOR_STRENGTH, DEFAULT_PREF_ESTIM_COMPRESSOR_STRENGTH).toInt());
     ui->estimCompressorReleaseSpinBox->setValue(settings.value(PREF_ESTIM_COMPRESSOR_RELEASE_TIME, DEFAULT_PREF_ESTIM_COMPRESSOR_RELEASE_TIME).toDouble());
 
+    //left channel
+    ui->estimLeftChannelStartingFrequencySpinbox->setValue(settings.value(PREF_ESTIM_LEFT_FREQUENCY_START, DEFAULT_PREF_ESTIM_FREQUENCY_START).toInt());
+    ui->estimLeftChannelEndingFrequencySpinbox->setValue(settings.value(PREF_ESTIM_LEFT_FREQUENCY_END, DEFAULT_PREF_ESTIM_FREQUENCY_END).toInt());
+    if (settings.value(PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE).toString() == PREF_ESTIM_STARTS_ON_BEAT_STYLE)
+    {
+        ui->estimLeftChannelCycleStartsOnBeatRadioButton->setChecked(true);
+        ui->estimLeftChannelCycleEndsOnBeatRadioButton->setChecked(false);
+        ui->estimLeftChannelPeakWithinCycleSlider->setInvertedAppearance(false);
+    }
+    else
+    {
+        ui->estimLeftChannelCycleStartsOnBeatRadioButton->setChecked(false);
+        ui->estimLeftChannelCycleEndsOnBeatRadioButton->setChecked(true);
+        ui->estimLeftChannelPeakWithinCycleSlider->setInvertedAppearance(true);
+    }
+    ui->estimLeftChannelPeakWithinCycleSlider->setValue(settings.value(PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE).toInt());
+    ui->estimLeftChannelBackgroundLevelSpinBox->setValue(settings.value(PREF_ESTIM_LEFT_CHANNEL_TROUGH_VALUE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_TROUGH_VALUE).toInt());
+
+    //right channel
+    ui->estimRightChannelStartingFrequencySpinbox->setValue(settings.value(PREF_ESTIM_RIGHT_FREQUENCY_START, DEFAULT_PREF_ESTIM_FREQUENCY_START).toInt());
+    ui->estimRightChannelEndingFrequencySpinbox->setValue(settings.value(PREF_ESTIM_RIGHT_FREQUENCY_END, DEFAULT_PREF_ESTIM_FREQUENCY_END).toInt());
+    if (settings.value(PREF_ESTIM_RIGHT_CHANNEL_STROKE_STYLE, DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_STROKE_STYLE).toString() == PREF_ESTIM_STARTS_ON_BEAT_STYLE)
+    {
+        ui->estimRightChannelCycleStartsOnBeatRadioButton->setChecked(true);
+        ui->estimRightChannelCycleEndsOnBeatRadioButton->setChecked(false);
+        ui->estimRightChannelPeakWithinCycleSlider->setInvertedAppearance(false);
+    }
+    else
+    {
+        ui->estimRightChannelCycleStartsOnBeatRadioButton->setChecked(false);
+        ui->estimRightChannelCycleEndsOnBeatRadioButton->setChecked(true);
+        ui->estimRightChannelPeakWithinCycleSlider->setInvertedAppearance(true);
+    }
+    ui->estimRightChannelPeakWithinCycleSlider->setValue(settings.value(PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE, DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE).toInt());
+    ui->estimRightChannelBackgroundLevelSpinBox->setValue(settings.value(PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE, DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE).toInt());
+
+    //general
     ui->tabWidget->setCurrentIndex(settings.value(CURRENT_PREFS_PAGE, DEFAULT_PREFS_PAGE).toInt());
     settingPrefs = false;
 }
@@ -321,10 +389,14 @@ void OptionsDialog::setPreferencesFromControls()
     //estim page
     settings.setValue(PREF_ESTIM_ENABLED, ui->estimEnabledCheckBox->isChecked());
     settings.setValue(PREF_ESTIM_OUTPUT_DEVICE, cleanDeviceName(ui->estimDeviceComboBox->currentText()));
+    settings.setValue(PREF_ESTIM_MODE, ui->estimModeComboBox->currentText());
+
+    settings.setValue(PREF_ESTIM_INPUT_FILE, ui->estimFilenameLineEdit->text());
+
     QString sampleRate = ui->estimSampleRateComboBox->currentText();
     settings.setValue(PREF_ESTIM_SAMPLE_RATE, sampleRate.toInt());
-    settings.setValue(PREF_ESTIM_FREQUENCY_START, ui->estimStartingFrequencySpinbox->value());
-    settings.setValue(PREF_ESTIM_FREQUENCY_END, ui->estimEndingFrequencySpinbox->value());
+    settings.setValue(PREF_ESTIM_TRIPHASE_FREQUENCY_START, ui->estimTriphaseStartingFrequencySpinbox->value());
+    settings.setValue(PREF_ESTIM_TRIPHASE_FREQUENCY_END, ui->estimTriphaseEndingFrequencySpinbox->value());
     settings.setValue(PREF_ESTIM_VOL_INCREASE, ui->estimTotalSignalGrowthSpinBox->value());
     settings.setValue(PREF_ESTIM_MAX_STROKE_DURATION, ui->estimMaxStrokeLengthSpinBox->value());
     settings.setValue(PREF_ESTIM_BEAT_FADE_IN_TIME, ui->estimBeatFadeInTimeSpinBox->value());
@@ -334,11 +406,11 @@ void OptionsDialog::setPreferencesFromControls()
     settings.setValue(PREF_ESTIM_SHORT_STROKES_BOOST, ui->estimBoostShortStrokesSpinBox->value());
     if (ui->estimUpDownBeatRadioButton->isChecked())
     {
-        settings.setValue(PREF_ESTIM_STROKE_STYLE, PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE);
+        settings.setValue(PREF_ESTIM_TRIPHASE_STROKE_STYLE, PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE);
     }
     else
     {
-        settings.setValue(PREF_ESTIM_STROKE_STYLE, PREF_ESTIM_DOWN_BEAT_UP_STROKE_STYLE);
+        settings.setValue(PREF_ESTIM_TRIPHASE_STROKE_STYLE, PREF_ESTIM_DOWN_BEAT_UP_STROKE_STYLE);
     }
     settings.setValue(PREF_ESTIM_INVERT_STROKES, ui->estimInvertStrokesCheckBox->isChecked());
     settings.setValue(PREF_ESTIM_START_FADE_IN_TIME, ui->estimStartPlaybackFadeInTimeSpinBox->value());
@@ -346,6 +418,34 @@ void OptionsDialog::setPreferencesFromControls()
     settings.setValue(PREF_ESTIM_COMPRESSOR_BITE_TIME, ui->estimCompressorBiteTimeSpinBox->value());
     settings.setValue(PREF_ESTIM_COMPRESSOR_STRENGTH, ui->estimCompressorStrengthSpinBox->value());
     settings.setValue(PREF_ESTIM_COMPRESSOR_RELEASE_TIME, ui->estimCompressorReleaseSpinBox->value());
+
+    //left channel
+    settings.setValue(PREF_ESTIM_LEFT_FREQUENCY_START, ui->estimLeftChannelStartingFrequencySpinbox->value());
+    settings.setValue(PREF_ESTIM_LEFT_FREQUENCY_END, ui->estimLeftChannelEndingFrequencySpinbox->value());
+    if (ui->estimLeftChannelCycleStartsOnBeatRadioButton->isChecked())
+    {
+        settings.setValue(PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE, PREF_ESTIM_STARTS_ON_BEAT_STYLE);
+    }
+    else
+    {
+        settings.setValue(PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE, PREF_ESTIM_ENDS_ON_BEAT_STYLE);
+    }
+    settings.setValue(PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE, ui->estimLeftChannelPeakWithinCycleSlider->value());
+    settings.setValue(PREF_ESTIM_LEFT_CHANNEL_TROUGH_VALUE, ui->estimLeftChannelBackgroundLevelSpinBox->value());
+
+    //right channel
+    settings.setValue(PREF_ESTIM_RIGHT_FREQUENCY_START, ui->estimRightChannelStartingFrequencySpinbox->value());
+    settings.setValue(PREF_ESTIM_RIGHT_FREQUENCY_END, ui->estimRightChannelEndingFrequencySpinbox->value());
+    if (ui->estimRightChannelCycleStartsOnBeatRadioButton->isChecked())
+    {
+        settings.setValue(PREF_ESTIM_RIGHT_CHANNEL_STROKE_STYLE, PREF_ESTIM_STARTS_ON_BEAT_STYLE);
+    }
+    else
+    {
+        settings.setValue(PREF_ESTIM_RIGHT_CHANNEL_STROKE_STYLE, PREF_ESTIM_ENDS_ON_BEAT_STYLE);
+    }
+    settings.setValue(PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE, ui->estimRightChannelPeakWithinCycleSlider->value());
+    settings.setValue(PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE, ui->estimRightChannelBackgroundLevelSpinBox->value());
 }
 
 bool OptionsDialog::autoLoadLastSession()
@@ -718,22 +818,90 @@ QAudioDeviceInfo OptionsDialog::getEstimOutputDeviceInfo()
     return retVal; //this is empty, and not useful
 }
 
+EstimSourceMode OptionsDialog::getEstimSourceMode()
+{
+    QSettings settings;
+    QString text = settings.value(PREF_ESTIM_MODE, DEFAULT_PREF_ESTIM_MODE).toString();
+    if (text == QApplication::translate("OptionsDialog", "Generate In Advance (Single Channel)", nullptr) ||
+        text == QApplication::translate("OptionsDialog", "Generate In Advance (Dual Channel)", nullptr) ||
+        text ==	QApplication::translate("OptionsDialog", "Generate In Advance (Triphase)", nullptr))
+    {
+        return PREGENERATED;
+    }
+    if (text == QApplication::translate("OptionsDialog", "Generate On-The-Fly (Single Channel)", nullptr) ||
+        text == QApplication::translate("OptionsDialog", "Generate On-The-Fly (Dual Channel)", nullptr) ||
+        text ==	QApplication::translate("OptionsDialog", "Generate On-The-Fly (Triphase)", nullptr))
+    {
+        return ON_THE_FLY;
+    }
+    return FROM_FILE;
+}
+
+EstimSignalType OptionsDialog::getEstimSignalType()
+{
+    QSettings settings;
+    QString text = settings.value(PREF_ESTIM_MODE, DEFAULT_PREF_ESTIM_MODE).toString();
+    if (
+        text == QApplication::translate("OptionsDialog", "Generate In Advance (Single Channel)", nullptr) ||
+        text == QApplication::translate("OptionsDialog", "Generate On-The-Fly (Single Channel)", nullptr))
+    {
+        return MONO;
+    }
+    if (
+        text == QApplication::translate("OptionsDialog", "Generate On-The-Fly (Dual Channel)", nullptr) ||
+        text == QApplication::translate("OptionsDialog", "Generate In Advance (Dual Channel)", nullptr))
+    {
+        return STEREO;
+    }
+    if (
+        text ==	QApplication::translate("OptionsDialog", "Generate On-The-Fly (Triphase)", nullptr) ||
+        text ==	QApplication::translate("OptionsDialog", "Generate In Advance (Triphase)", nullptr))
+    {
+        return TRIPHASE;
+    }
+    return UNKNOWN;
+}
+
 int OptionsDialog::getEstimSamplingRate()
 {
     QSettings settings;
     return settings.value(PREF_ESTIM_SAMPLE_RATE, DEFAULT_PREF_ESTIM_SAMPLE_RATE).toInt();
 }
 
-int OptionsDialog::getEstimStartingFrequency()
+int OptionsDialog::getEstimLeftChannelStartingFrequency()
 {
     QSettings settings;
-    return settings.value(PREF_ESTIM_FREQUENCY_START, DEFAULT_PREF_ESTIM_FREQUENCY_START).toInt();
+    return settings.value(PREF_ESTIM_LEFT_FREQUENCY_START, DEFAULT_PREF_ESTIM_FREQUENCY_START).toInt();
 }
 
-int OptionsDialog::getEstimEndingFrequency()
+int OptionsDialog::getEstimLeftChannelEndingFrequency()
 {
     QSettings settings;
-    return settings.value(PREF_ESTIM_FREQUENCY_END, DEFAULT_PREF_ESTIM_FREQUENCY_END).toInt();
+    return settings.value(PREF_ESTIM_LEFT_FREQUENCY_END, DEFAULT_PREF_ESTIM_FREQUENCY_END).toInt();
+}
+
+int OptionsDialog::getEstimRightChannelStartingFrequency()
+{
+    QSettings settings;
+    return settings.value(PREF_ESTIM_RIGHT_FREQUENCY_START, DEFAULT_PREF_ESTIM_FREQUENCY_START).toInt();
+}
+
+int OptionsDialog::getEstimRightChannelEndingFrequency()
+{
+    QSettings settings;
+    return settings.value(PREF_ESTIM_RIGHT_FREQUENCY_END, DEFAULT_PREF_ESTIM_FREQUENCY_END).toInt();
+}
+
+int OptionsDialog::getEstimTriphaseStartingFrequency()
+{
+    QSettings settings;
+    return settings.value(PREF_ESTIM_TRIPHASE_FREQUENCY_START, DEFAULT_PREF_ESTIM_FREQUENCY_START).toInt();
+}
+
+int OptionsDialog::getEstimTriphaseEndingFrequency()
+{
+    QSettings settings;
+    return settings.value(PREF_ESTIM_TRIPHASE_FREQUENCY_END, DEFAULT_PREF_ESTIM_FREQUENCY_END).toInt();
 }
 
 int OptionsDialog::getEstimTotalSignalGrowth()
@@ -778,10 +946,36 @@ int OptionsDialog::getEstimBoostShortStrokes()
     return settings.value(PREF_ESTIM_SHORT_STROKES_BOOST, DEFAULT_PREF_ESTIM_SHORT_STROKES_BOOST).toInt();
 }
 
-QString OptionsDialog::getEstimStrokeStyle()
+QString OptionsDialog::getEstimTriphaseStrokeStyle()
 {
     QSettings settings;
-    return settings.value(PREF_ESTIM_STROKE_STYLE, DEFAULT_PREF_ESTIM_STROKE_STYLE).toString();
+    return settings.value(PREF_ESTIM_TRIPHASE_STROKE_STYLE, DEFAULT_PREF_ESTIM_TRIPHASE_STROKE_STYLE).toString();
+}
+
+QString OptionsDialog::getEstimLeftChannelStrokeStyle()
+{
+    QSettings settings;
+    if (settings.value(PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE).toString() == PREF_ESTIM_STARTS_ON_BEAT_STYLE)
+    {
+        return PREF_ESTIM_STARTS_ON_BEAT_STYLE;
+    }
+    else
+    {
+        return PREF_ESTIM_ENDS_ON_BEAT_STYLE;
+    }
+}
+
+QString OptionsDialog::getEstimRightChannelStrokeStyle()
+{
+    QSettings settings;
+    if (settings.value(PREF_ESTIM_RIGHT_CHANNEL_STROKE_STYLE, DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_STROKE_STYLE).toString() == PREF_ESTIM_STARTS_ON_BEAT_STYLE)
+    {
+        return PREF_ESTIM_STARTS_ON_BEAT_STYLE;
+    }
+    else
+    {
+        return PREF_ESTIM_ENDS_ON_BEAT_STYLE;
+    }
 }
 
 bool OptionsDialog::getEstimInvertStrokes()
@@ -820,12 +1014,57 @@ double OptionsDialog::getEstimCompressorRelease()
     return settings.value(PREF_ESTIM_COMPRESSOR_RELEASE_TIME, DEFAULT_PREF_ESTIM_COMPRESSOR_RELEASE_TIME).toDouble();
 }
 
+double OptionsDialog::getEstimLeftChannelPeakPositionInCycle()
+{
+    QSettings settings;
+    return settings.value(PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE).toFloat() / 100;
+}
+
+double OptionsDialog::getEstimRightChannelPeakPositionInCycle()
+{
+    QSettings settings;
+    return settings.value(PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE, DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE).toFloat() / 100;
+}
+
+double OptionsDialog::getEstimLeftChannelTroughLevel()
+{
+    QSettings settings;
+    return settings.value(PREF_ESTIM_LEFT_CHANNEL_TROUGH_VALUE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_TROUGH_VALUE).toFloat() / 100;
+}
+
+double OptionsDialog::getEstimRightChannelTroughLevel()
+{
+    QSettings settings;
+    return settings.value(PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE, DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE).toFloat() / 100;
+}
+
+QString OptionsDialog::getEstimSettingsFilenameSuffix()
+{
+	return QString("%1HzFrom%2to%3init%4adsr%5-%6-%7-%8inc%9max%10boost%11limit%12in%13then%14style%15%16lr%17")
+            .arg(getEstimSamplingRate())
+            .arg(getEstimTriphaseStartingFrequency())
+            .arg(getEstimTriphaseEndingFrequency())
+            .arg(getEstimStartPlaybackFadeInTime())
+            .arg(getEstimBeatFadeInTime())
+            .arg(getEstimBeatFadeInAnticipationTime())
+            .arg(getEstimBeatFadeOutDelay())
+            .arg(getEstimBeatFadeOutTime())
+            .arg(getEstimTotalSignalGrowth())
+            .arg(getEstimMaxStrokeLength())
+            .arg(getEstimCompressorStrength())
+            .arg(getEstimCompressorBiteTime())
+            .arg(getEstimCompressorRelease())
+            .arg(getEstimTriphaseStrokeStyle() == PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE ? "UDB" : "DBU")
+            .arg(getEstimInvertStrokes() ? "i" : "")
+            .arg(getEstimSignalPan());
+}
+
 void OptionsDialog::on_estimEnabledCheckBox_stateChanged(int checkState)
 {
     bool enabled = (checkState == Qt::Checked);
     ui->estimDeviceComboBox->setEnabled(enabled);
-    ui->estimStartingFrequencySpinbox->setEnabled(enabled);
-    ui->estimEndingFrequencySpinbox->setEnabled(enabled);
+    ui->estimTriphaseStartingFrequencySpinbox->setEnabled(enabled);
+    ui->estimTriphaseEndingFrequencySpinbox->setEnabled(enabled);
     ui->estimTotalSignalGrowthSpinBox->setEnabled(enabled);
     ui->estimMaxStrokeLengthSpinBox->setEnabled(enabled);
     ui->estimBeatFadeInTimeSpinBox->setEnabled(enabled);
@@ -903,4 +1142,16 @@ void OptionsDialog::setNowMarkerColorFrame(QColor & color)
     color.getRgb(&r, &g, &b);
     QString rgbRep = QString("background-color: rgb(%1,%2,%3)").arg(r).arg(g).arg(b);
     ui->nowMarkerColourFrame->setStyleSheet(rgbRep);
+}
+
+void OptionsDialog::on_estimModeComboBox_currentTextChanged(const QString &arg1)
+{
+    ui->estimGeneralSettingsBox->setVisible(arg1.contains("Generate"));
+    ui->estimTriphaseSettingsBox->setVisible(arg1.contains("Triphase"));
+    ui->estimLeftChannelSettingsBox->setVisible(arg1.contains("Channel") || arg1.contains("Mono"));
+    ui->estimRightChannelSettingsBox->setVisible(arg1.contains("Dual"));
+    ui->estimFilenameDescription->setVisible(arg1.contains("File"));
+    ui->estimFilenameLabel->setVisible(arg1.contains("File"));
+    ui->estimFilenameLineEdit->setVisible(arg1.contains("File"));
+    ui->estimFilenameBrowseButton->setVisible(arg1.contains("File"));
 }

@@ -6,10 +6,10 @@ StimSignalSample::StimSignalSample(qlonglong wholeTimestamp, qreal fractionalTim
       QObject(parent),
       wholeTimestamp(wholeTimestamp),
       fractionalTimestamp(fractionalTimestamp),
-      primaryPhase(0),
-      secondaryPhase(0),
       primaryAmplitude(1),
-      secondaryAmplitude(1)
+      secondaryAmplitude(1),
+      primaryPhase(0),
+      secondaryPhase(0)
 {
 
 }
@@ -22,10 +22,7 @@ qreal StimSignalSample::getPrimaryPhase() const
 void StimSignalSample::setPrimaryPhase(const qreal &value)
 {
     primaryPhase = value;
-    while (primaryPhase > 1)
-        primaryPhase -= 1;
-    while (primaryPhase < 0)
-        primaryPhase += 1;
+    primaryPhase -= (int) primaryPhase;
 }
 
 qreal StimSignalSample::getSecondaryPhase() const
@@ -36,10 +33,7 @@ qreal StimSignalSample::getSecondaryPhase() const
 void StimSignalSample::setSecondaryPhase(const qreal &value)
 {
     secondaryPhase = value;
-    while (secondaryPhase > 1)
-        secondaryPhase -= 1;
-    while (secondaryPhase < 0)
-        secondaryPhase += 1;
+    secondaryPhase -= (int) secondaryPhase;
 }
 
 qreal StimSignalSample::primaryValue()

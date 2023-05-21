@@ -35,6 +35,7 @@ SOURCES += main.cpp\
     event.cpp \
     newbeatvaluewidget.cpp \
     newcustombeatvaluewidget.cpp \
+    playbackassociatedaction.cpp \
     seektotimecodedialog.cpp \
     splitdialog.cpp \
     stimsignal/modifiers/channelbalancemodifier.cpp \
@@ -43,11 +44,16 @@ SOURCES += main.cpp\
     stimsignal/modifiers/breaksoftenermodifier.cpp \
     stimsignal/modifiers/fadefromcoldmodifier.cpp \
     stimsignal/modifiers/phaseinvertermodifier.cpp \
+    stimsignal/modifiers/phasesettermodifier.cpp \
     stimsignal/modifiers/progressincreasemodifier.cpp \
     stimsignal/modifiers/triphasemodifier.cpp \
+    stimsignal/multithreadedsamplepipelineprocessor.cpp \
     stimsignal/stimsignalgenerator.cpp \
     stimsignal/stimsignalmodifier.cpp \
     stimsignal/stimsignalsample.cpp \
+    stimsignal/stimsignalsamplefactory.cpp \
+    stimsignal/stimsignalworkpackage.cpp \
+    stimsignal/triphasesignalgenerator.cpp \
     syncfilewriter.cpp \
     vibratorpulsefeatureparams.cpp \
     wavefileexporter.cpp \
@@ -103,6 +109,7 @@ HEADERS  += mainwindow.h \
     handycsvwriter.h \
     newbeatvaluewidget.h \
     newcustombeatvaluewidget.h \
+    playbackassociatedaction.h \
     seektotimecodedialog.h \
     splitdialog.h \
     stimsignal/modifiers/channelbalancemodifier.h \
@@ -111,11 +118,16 @@ HEADERS  += mainwindow.h \
     stimsignal/modifiers/breaksoftenermodifier.h \
     stimsignal/modifiers/fadefromcoldmodifier.h \
     stimsignal/modifiers/phaseinvertermodifier.h \
+    stimsignal/modifiers/phasesettermodifier.h \
     stimsignal/modifiers/progressincreasemodifier.h \
     stimsignal/modifiers/triphasemodifier.h \
+    stimsignal/multithreadedsamplepipelineprocessor.h \
     stimsignal/stimsignalgenerator.h \
     stimsignal/stimsignalmodifier.h \
     stimsignal/stimsignalsample.h \
+    stimsignal/stimsignalsamplefactory.h \
+    stimsignal/stimsignalworkpackage.h \
+    stimsignal/triphasesignalgenerator.h \
     syncfilewriter.h \
     vibratorpulsefeatureparams.h \
     wavefileexporter.h \

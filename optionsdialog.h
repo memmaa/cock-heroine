@@ -4,6 +4,21 @@
 #include <QDialog>
 #include <QAudioDeviceInfo>
 
+enum EstimSourceMode
+{
+    FROM_FILE,
+    ON_THE_FLY,
+    PREGENERATED
+};
+
+enum EstimSignalType
+{
+    MONO,
+    STEREO,
+    TRIPHASE,
+    UNKNOWN
+};
+
 namespace Ui {
 class OptionsDialog;
 }
@@ -72,9 +87,15 @@ public:
     static QString getEstimOutputDeviceName();
     static bool currentEstimDeviceIsAvailable();
     static QAudioDeviceInfo getEstimOutputDeviceInfo();
+    static EstimSourceMode getEstimSourceMode();
+    static EstimSignalType getEstimSignalType();
     static int getEstimSamplingRate();
-    static int getEstimStartingFrequency();
-    static int getEstimEndingFrequency();
+    static int getEstimTriphaseStartingFrequency();
+    static int getEstimTriphaseEndingFrequency();
+    static int getEstimLeftChannelStartingFrequency();
+    static int getEstimLeftChannelEndingFrequency();
+    static int getEstimRightChannelStartingFrequency();
+    static int getEstimRightChannelEndingFrequency();
     static int getEstimTotalSignalGrowth();
     static int getEstimMaxStrokeLength();
     static int getEstimBeatFadeInTime();
@@ -82,13 +103,26 @@ public:
     static int getEstimBeatFadeOutTime();
     static int getEstimBeatFadeOutDelay();
     static int getEstimBoostShortStrokes();
-    static QString getEstimStrokeStyle();
+    static QString getEstimTriphaseStrokeStyle();
+    static QString getEstimLeftChannelStrokeStyle();
+    static QString getEstimRightChannelStrokeStyle();
     static bool getEstimInvertStrokes();
     static int getEstimStartPlaybackFadeInTime();
     static int getEstimSignalPan();
     static double getEstimCompressorBiteTime();
     static int getEstimCompressorStrength();
     static double getEstimCompressorRelease();
+    static double getEstimLeftChannelPeakPositionInCycle();
+    static double getEstimRightChannelPeakPositionInCycle();
+    static double getEstimLeftChannelTroughLevel();
+    static double getEstimRightChannelTroughLevel();
+    //!
+    //! \brief getEstimSettingsFilenameSuffix
+    //! \return a string, suitable for use in filenames, that uniquely identifies
+    //!         the estim preferences that were chosen when it was created. Used to
+    //!         work out whether a previously exported stim file can be reused.
+    //!
+    static QString getEstimSettingsFilenameSuffix();
 
 private slots:
     void on_startingIntensitySpinBox_valueChanged(int value);
@@ -132,6 +166,8 @@ private slots:
     void on_useDefaultVideoAudioDeviceCheckBox_toggled(bool checked);
 
     void on_meterChooseNowMarkerColourButton_clicked();
+
+    void on_estimModeComboBox_currentTextChanged(const QString &arg1);
 
 private:
     Ui::OptionsDialog *ui;
