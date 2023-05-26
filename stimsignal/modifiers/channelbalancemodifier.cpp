@@ -8,10 +8,14 @@ ChannelBalanceModifier::ChannelBalanceModifier()
     attenuation = 1 - (0.01 * abs(pan));
 }
 
-void ChannelBalanceModifier::modify(StimSignalSample &sample)
+void ChannelBalanceModifier::modify(StereoStimSignalSample &sample)
 {
     if (panLeft)
-        sample.secondaryAmplitude *= attenuation;
+    {
+        sample.setSecondaryAmplitude(sample.getSecondaryAmplitude() * attenuation);
+    }
     else
-        sample.primaryAmplitude *= attenuation;
+    {
+        sample.setPrimaryAmplitude(sample.getPrimaryAmplitude() * attenuation);
+    }
 }

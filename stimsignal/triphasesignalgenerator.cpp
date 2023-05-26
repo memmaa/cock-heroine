@@ -1,7 +1,7 @@
 #include "triphasesignalgenerator.h"
 #include "modifiers/phasesettermodifier.h"
 #include "modifiers/triphasemodifier.h"
-#include "modifiers/beatproximitymodifier.h"
+#include "modifiers/triphasebeatproximitymodifier.h"
 #include "modifiers/progressincreasemodifier.h"
 #include "modifiers/boostfaststrokesmodifier.h"
 #include "modifiers/phaseinvertermodifier.h"
@@ -22,7 +22,7 @@ void TriphaseSignalGenerator::setModifiers()
 {
     modifiers.append(new PhaseSetterModifier(OptionsDialog::getEstimTriphaseStartingFrequency(), OptionsDialog::getEstimTriphaseEndingFrequency()));
     modifiers.append(new TriphaseModifier());
-    modifiers.append(new BeatProximityModifier());
+    modifiers.append(new TriphaseBeatProximityModifier());
     modifiers.append(new ProgressIncreaseModifier());
     modifiers.append(new BoostFastStrokesModifier());
     if (OptionsDialog::getEstimInvertStrokes())

@@ -7,7 +7,7 @@ class BoostFastStrokesModifier : public StimSignalModifier
 {
 public:
     BoostFastStrokesModifier();
-    void modify(StimSignalSample &sample) override;
+    void modify(StereoStimSignalSample &sample) override;
     qreal maxBoostAmount;
     int normalStrokeLength;
 };

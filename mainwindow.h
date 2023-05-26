@@ -81,6 +81,9 @@ public:
     QGraphicsRectItem * maskingRectangle;
     QList<CustomEventAction *> * customShortcuts;
 
+    QString getLoadedVideo();
+    QString getLoadedScript();
+
 public slots:
     void skipForward();
     void skipBackward();
@@ -89,10 +92,14 @@ public slots:
     void toggleFullscreen();
     void httpResponseReceived(QNetworkReply *);
     void pressPlay();
-    void updateProgress(int progress, int outOf);
+    void prepareProgress(QString title, QString buttonLabel, int minimum, int maximum);
+    void updateProgress(int progress, int);
+    void handleProgressCancelled();
+    void disposeOfProgress();
 
 signals:
     void obscureMeterToggled(bool enabled);
+    void progressCancelRequested();
 
 
 protected:
@@ -118,7 +125,6 @@ private:
     void stopTimer();
     void jumpToTime();
     bool launchEditor();
-    QAudioFormat getEstimAudioFormat();
 public:
     //literally only public so that globals.c:seekToTimestamp can reallign estim signal
     void startEstimSignal();
@@ -235,6 +241,8 @@ private:
     QProgressDialog * progressDialog;
 
 private slots:
+    void videoStateChanged(QMediaPlayer::State s);
+    void videoStatusChanged(QMediaPlayer::MediaStatus s);
 
     void updateTimerDisplay();
     void triggerScheduledEvent();
@@ -245,11 +253,11 @@ private slots:
 
     void on_recordButton_pressed();
 
-    void on_startButton_pressed();
+    void on_startButton_clicked();
 
     void syncToVideo();
 
-    void on_stopButton_pressed();
+    void on_stopButton_clicked();
 
     void on_saveButton_clicked();
 

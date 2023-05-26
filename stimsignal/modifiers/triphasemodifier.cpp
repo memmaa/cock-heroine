@@ -18,7 +18,7 @@ int TriphaseModifier::getMaxTriphaseStrokeLength()
     return strokeLength;
 }
 
-void TriphaseModifier::modify(StimSignalSample &sample)
+void TriphaseModifier::modify(StereoStimSignalSample &sample)
 {
     qreal phaseDifference = 0;
 

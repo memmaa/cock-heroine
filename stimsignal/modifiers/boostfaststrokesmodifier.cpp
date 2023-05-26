@@ -9,7 +9,7 @@ BoostFastStrokesModifier::BoostFastStrokesModifier()
     normalStrokeLength = OptionsDialog::getEstimMaxStrokeLength();
 }
 
-void BoostFastStrokesModifier::modify(StimSignalSample &sample)
+void BoostFastStrokesModifier::modify(StereoStimSignalSample &sample)
 {
     qreal timestamp = sample.totalTimestamp();
     Event * before = mainWindow->getLastEventBefore(timestamp);
@@ -22,6 +22,6 @@ void BoostFastStrokesModifier::modify(StimSignalSample &sample)
         //can't (or shouldn't) help with this
         return;
     qreal boostAmount = ((qreal) (normalStrokeLength - length) / normalStrokeLength) * maxBoostAmount;
-    sample.primaryAmplitude *= (1 + boostAmount);
-    sample.secondaryAmplitude *= (1 + boostAmount);
+    sample.setPrimaryAmplitude(sample.getPrimaryAmplitude() * (1 + boostAmount));
+    sample.setSecondaryAmplitude(sample.getSecondaryAmplitude() * (1 + boostAmount));
 }

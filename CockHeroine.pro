@@ -36,23 +36,30 @@ SOURCES += main.cpp\
     newbeatvaluewidget.cpp \
     newcustombeatvaluewidget.cpp \
     playbackassociatedaction.cpp \
+    playbackassociatedactions/pregenerateestimsignalaction.cpp \
+    preplaybackactionmanager.cpp \
+    preplaybackinfodialog.cpp \
     seektotimecodedialog.cpp \
     splitdialog.cpp \
+    stimsignal/estimwavfilewriter.cpp \
     stimsignal/modifiers/channelbalancemodifier.cpp \
-    stimsignal/modifiers/beatproximitymodifier.cpp \
     stimsignal/modifiers/boostfaststrokesmodifier.cpp \
     stimsignal/modifiers/breaksoftenermodifier.cpp \
     stimsignal/modifiers/fadefromcoldmodifier.cpp \
     stimsignal/modifiers/phaseinvertermodifier.cpp \
     stimsignal/modifiers/phasesettermodifier.cpp \
     stimsignal/modifiers/progressincreasemodifier.cpp \
+    stimsignal/modifiers/singlechannelbeatproximitymodifier.cpp \
+    stimsignal/modifiers/triphasebeatproximitymodifier.cpp \
     stimsignal/modifiers/triphasemodifier.cpp \
     stimsignal/multithreadedsamplepipelineprocessor.cpp \
+    stimsignal/singlechannelsignalgenerator.cpp \
+    stimsignal/stereostimsignalsample.cpp \
     stimsignal/stimsignalgenerator.cpp \
     stimsignal/stimsignalmodifier.cpp \
     stimsignal/stimsignalsample.cpp \
     stimsignal/stimsignalsamplefactory.cpp \
-    stimsignal/stimsignalworkpackage.cpp \
+    stimsignal/stimsignalworker.cpp \
     stimsignal/triphasesignalgenerator.cpp \
     syncfilewriter.cpp \
     vibratorpulsefeatureparams.cpp \
@@ -110,23 +117,30 @@ HEADERS  += mainwindow.h \
     newbeatvaluewidget.h \
     newcustombeatvaluewidget.h \
     playbackassociatedaction.h \
+    playbackassociatedactions/pregenerateestimsignalaction.h \
+    preplaybackactionmanager.h \
+    preplaybackinfodialog.h \
     seektotimecodedialog.h \
     splitdialog.h \
+    stimsignal/estimwavfilewriter.h \
     stimsignal/modifiers/channelbalancemodifier.h \
-    stimsignal/modifiers/beatproximitymodifier.h \
     stimsignal/modifiers/boostfaststrokesmodifier.h \
     stimsignal/modifiers/breaksoftenermodifier.h \
     stimsignal/modifiers/fadefromcoldmodifier.h \
     stimsignal/modifiers/phaseinvertermodifier.h \
     stimsignal/modifiers/phasesettermodifier.h \
     stimsignal/modifiers/progressincreasemodifier.h \
+    stimsignal/modifiers/singlechannelbeatproximitymodifier.h \
+    stimsignal/modifiers/triphasebeatproximitymodifier.h \
     stimsignal/modifiers/triphasemodifier.h \
     stimsignal/multithreadedsamplepipelineprocessor.h \
+    stimsignal/singlechannelsignalgenerator.h \
+    stimsignal/stereostimsignalsample.h \
     stimsignal/stimsignalgenerator.h \
     stimsignal/stimsignalmodifier.h \
     stimsignal/stimsignalsample.h \
     stimsignal/stimsignalsamplefactory.h \
-    stimsignal/stimsignalworkpackage.h \
+    stimsignal/stimsignalworker.h \
     stimsignal/triphasesignalgenerator.h \
     syncfilewriter.h \
     vibratorpulsefeatureparams.h \
@@ -169,6 +183,7 @@ FORMS    += mainwindow.ui \
     deletedialog.ui \
     enableidentifyintervalsdialog.ui \
     exportbeatmeterdialog.ui \
+    preplaybackinfodialog.ui \
     seektotimecodedialog.ui \
     editorwindow.ui \
     analysisoptionsdialog.ui \

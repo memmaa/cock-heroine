@@ -7,11 +7,19 @@ StimSignalSample::StimSignalSample(qlonglong wholeTimestamp, qreal fractionalTim
       wholeTimestamp(wholeTimestamp),
       fractionalTimestamp(fractionalTimestamp),
       primaryAmplitude(1),
-      secondaryAmplitude(1),
-      primaryPhase(0),
-      secondaryPhase(0)
+      primaryPhase(0)
 {
 
+}
+
+qreal StimSignalSample::getPrimaryAmplitude() const
+{
+    return primaryAmplitude;
+}
+
+void StimSignalSample::setPrimaryAmplitude(const qreal &value)
+{
+    primaryAmplitude = value;
 }
 
 qreal StimSignalSample::getPrimaryPhase() const
@@ -25,35 +33,14 @@ void StimSignalSample::setPrimaryPhase(const qreal &value)
     primaryPhase -= (int) primaryPhase;
 }
 
-qreal StimSignalSample::getSecondaryPhase() const
-{
-    return secondaryPhase;
-}
-
-void StimSignalSample::setSecondaryPhase(const qreal &value)
-{
-    secondaryPhase = value;
-    secondaryPhase -= (int) secondaryPhase;
-}
-
 qreal StimSignalSample::primaryValue()
 {
     return primaryAmplitude * qSin(2 * M_PI * primaryPhase);
 }
 
-qreal StimSignalSample::secondaryValue()
-{
-    return secondaryAmplitude * qSin(2 * M_PI * secondaryPhase);
-}
-
 qint16 StimSignalSample::primaryPcm()
 {
     return realToPcm(primaryValue());
-}
-
-qint16 StimSignalSample::secondaryPcm()
-{
-    return realToPcm(secondaryValue());
 }
 
 //!

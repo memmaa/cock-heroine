@@ -10,9 +10,9 @@ BreakSoftenerModifier::BreakSoftenerModifier()
     loudeningPerActiveSample = maxQuietening / samplesInLoudeningPeriod;
 }
 
-void BreakSoftenerModifier::modify(StimSignalSample &sample)
+void BreakSoftenerModifier::modify(StereoStimSignalSample &sample)
 {
-    if (sample.primaryAmplitude == 0)
+    if (sample.getPrimaryAmplitude() == 0)
     {
         if (!atMaxQuietening())
             currentLevel -= quieteningPerSilentSample;
@@ -22,8 +22,8 @@ void BreakSoftenerModifier::modify(StimSignalSample &sample)
         if (!atMaxVolume())
         {
             currentLevel += loudeningPerActiveSample;
-            sample.primaryAmplitude *= currentLevel;
-            sample.secondaryAmplitude *= currentLevel;
+            sample.setPrimaryAmplitude(sample.getPrimaryAmplitude() * currentLevel);
+            sample.setSecondaryAmplitude(sample.getSecondaryAmplitude() * currentLevel);
         }
     }
 }

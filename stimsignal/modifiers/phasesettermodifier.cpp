@@ -14,7 +14,7 @@ PhaseSetterModifier::PhaseSetterModifier(int startFrequency, int endFrequency)
 
 }
 
-void PhaseSetterModifier::modify(StimSignalSample &sample)
+void PhaseSetterModifier::modify(StereoStimSignalSample &sample)
 {
     if (updateCounter >= frequencyUpdateInterval)
         setStep(sample.totalTimestamp());

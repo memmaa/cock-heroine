@@ -1,30 +1,30 @@
-#include "beatproximitymodifier.h"
+#include "triphasebeatproximitymodifier.h"
 #include "mainwindow.h"
 #include "globals.h"
 #include "../stimsignalgenerator.h"
 #include "optionsdialog.h"
 
-int BeatProximityModifier::getFadeInTime()
+int TriphaseBeatProximityModifier::getFadeInTime()
 {
     return fadeInTime;
 }
 
-int BeatProximityModifier::getFadeInAnticipation()
+int TriphaseBeatProximityModifier::getFadeInAnticipation()
 {
     return fadeInAnticipation;
 }
 
-int BeatProximityModifier::getFadeOutTime()
+int TriphaseBeatProximityModifier::getFadeOutTime()
 {
     return fadeOutTime;
 }
 
-int BeatProximityModifier::getFadeOutDelay()
+int TriphaseBeatProximityModifier::getFadeOutDelay()
 {
     return fadeOutDelay;
 }
 
-BeatProximityModifier::BeatProximityModifier()
+TriphaseBeatProximityModifier::TriphaseBeatProximityModifier()
 {
     fadeInTime = OptionsDialog::getEstimBeatFadeInTime();
     fadeInAnticipation = OptionsDialog::getEstimBeatFadeInAnticipationTime();
@@ -32,7 +32,7 @@ BeatProximityModifier::BeatProximityModifier()
     fadeOutDelay = OptionsDialog::getEstimBeatFadeOutDelay();
 }
 
-void BeatProximityModifier::modify(StimSignalSample &sample)
+void TriphaseBeatProximityModifier::modify(StereoStimSignalSample &sample)
 {
     //how close are we to the last event?
     Event * eventBefore = mainWindow->getLastEventBefore(sample.totalTimestamp());
@@ -67,6 +67,6 @@ void BeatProximityModifier::modify(StimSignalSample &sample)
 
     qreal volume = qMax(volumeBefore, volumeAfter);
 
-    sample.primaryAmplitude *= volume;
-    sample.secondaryAmplitude *= volume;
+    sample.setPrimaryAmplitude(sample.getPrimaryAmplitude() * volume);
+    sample.setSecondaryAmplitude(sample.getSecondaryAmplitude() * volume);
 }

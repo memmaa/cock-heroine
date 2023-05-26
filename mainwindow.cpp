@@ -42,6 +42,8 @@
 #include <QAudioOutputSelectorControl>
 #include <QMediaService>
 #include <QProgressDialog>
+#include "stimsignal/estimwavfilewriter.h"
+#include "preplaybackactionmanager.h"
 
 //how many events should we 'buffer' by sending them to the arduino hardware ahead of real time?
 //this lets it spin up motors in advance, or enqueue or ramp up its internal events for most accurate timings.
@@ -165,6 +167,10 @@ MainWindow::MainWindow(QWidget *parent) :
     videoItem = new QGraphicsVideoItem();
     videoScene->addItem(videoItem);
     videoPlayer = new QMediaPlayer(this);
+    connect(videoPlayer, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(videoStateChanged(QMediaPlayer::State)));
+    videoStateChanged(videoPlayer->state());
+    connect(videoPlayer, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(videoStatusChanged(QMediaPlayer::MediaStatus)));
+    videoStatusChanged(videoPlayer->mediaStatus());
     ui->videoGoesHere->installEventFilter(this);
     //it's important that all video-related widgets are set up before this point, as the
     //below line will access them if required.
@@ -561,9 +567,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
      else if (event->key() == Qt::Key_Space)
      {
         if (currentlyPlaying)
-            on_stopButton_pressed();
+            on_stopButton_clicked();
         else
-            on_startButton_pressed();
+            on_startButton_clicked();
      }
      else if (event->key() == Qt::Key_E &&
               waitingForEdgeRelease == false)
@@ -715,7 +721,7 @@ void MainWindow::mousePressEvent (QMouseEvent * ev)
     }
     else if (thingClicked == ui->videoGoesHere ||
              thingClicked->objectName() == "") //this is cludgy :-(
-        on_startButton_pressed();
+        on_startButton_clicked();
     else
         ev->ignore();
 }
@@ -767,18 +773,6 @@ bool MainWindow::launchEditor()
     editor->setBeatTimestamps(eventsProxyModel,ui->eventsTable->selectionModel()->selectedIndexes());
 
     return true;
-}
-
-QAudioFormat MainWindow::getEstimAudioFormat()
-{
-    QAudioFormat format;
-    format.setSampleRate(OptionsDialog::getEstimSamplingRate());
-    format.setChannelCount(2);
-    format.setSampleSize(16);
-    format.setCodec("audio/pcm");
-    format.setByteOrder(QAudioFormat::LittleEndian);
-    format.setSampleType(QAudioFormat::SignedInt);
-    return format;
 }
 
 void MainWindow::removeDuplicateEvents()
@@ -1059,29 +1053,81 @@ void MainWindow::on_recordButton_pressed()
     addEventToTable(newEvent);
 }
 
-void MainWindow::on_startButton_pressed()
+void MainWindow::on_startButton_clicked()
 {
+    static bool currentlyHandlingPlayClick = false;
+    if (currentlyHandlingPlayClick)
+    {
+        //this cludge only exists because in some situations we end up here twice in quick succession.
+        //The situations seem to occur only when clicking the play button to start playback
+        //They don't occur when clicking the video pane or pressing spacebar.
+        //If I debug the first time we hit this function, then the second call doesn't happen, so it
+        //seems to be racey.
+        qDebug() << "double call to 'on_startButton_clickified' detected. Try setting a breakpoint at this location.";
+        return;
+    }
+    currentlyHandlingPlayClick = true;
     if (currentlyPlaying)
         pause();
     else
         play();
+    currentlyHandlingPlayClick = false;
 }
 
 void MainWindow::pressPlay()
 {
-    on_startButton_pressed();
+    on_startButton_clicked();
 }
 
-void MainWindow::updateProgress(int progress, int outOf)
+void MainWindow::prepareProgress(QString title, QString buttonLabel, int minimum, int maximum)
 {
-    progressDialog->setMaximum(outOf);
-    progressDialog->setValue(progress);
+    if (progressDialog == nullptr)
+    {
+        progressDialog = new QProgressDialog(title, buttonLabel, minimum, maximum, this);
+        progressDialog->setMaximum(maximum);
+        progressDialog->setValue(minimum);
+        progressDialog->setMinimumDuration(1500);
+        connect(progressDialog, SIGNAL(canceled()), this, SLOT(handleProgressCancelled()));
+    }
+}
+
+void MainWindow::updateProgress(int progress, int)
+{
+    if (progressDialog != nullptr)
+    {
+        progressDialog->setValue(progress);
+    }
+    //not sure if this is really fine/needed. It was copied here from inside the estim generator code.
     QCoreApplication::processEvents();
+}
+
+void MainWindow::handleProgressCancelled()
+{
+    emit progressCancelRequested();
+    disposeOfProgress();
+}
+
+void MainWindow::disposeOfProgress()
+{
+    if (progressDialog != nullptr)
+    {
+        progressDialog->setValue(progressDialog->maximum());
+        progressDialog->deleteLater();
+        progressDialog = nullptr;
+    }
 }
 
 void MainWindow::play()
 {
     updateUiButtonLabels(QMediaPlayer::PlayingState);
+    PrePlaybackActionManager prePlaybackManager(this);
+    prePlaybackManager.startAll();
+    bool continueNow = prePlaybackManager.waitForCompletion();
+    if (!continueNow)
+    {
+        updateUiButtonLabels(QMediaPlayer::PausedState);
+        return;
+    }
     setVideoOutputDevice();
     videoPlayer->setPosition(currentTimecode());//IMPORTANT: Due to the way currentTimecode works, and the way it interacts with syncToVideo() this MUST occur BEFORE startTimer()
     videoPlayer->play();
@@ -1177,7 +1223,7 @@ void MainWindow::startEstimSignal()
     if (!OptionsDialog::currentEstimDeviceIsAvailable())
         return;
 
-    QAudioFormat format = getEstimAudioFormat();
+    QAudioFormat format = OptionsDialog::getEstimAudioFormat();
 
     QAudioDeviceInfo info = OptionsDialog::getEstimOutputDeviceInfo();
     if (!info.isFormatSupported(format)) {
@@ -1242,7 +1288,7 @@ void MainWindow::sendSerialTimecodeSync()
     }
 }
 
-void MainWindow::on_stopButton_pressed()
+void MainWindow::on_stopButton_clicked()
 {
     if (currentlyPlaying)
         pause();
@@ -1877,7 +1923,6 @@ void MainWindow::loadFile(QString filename, bool isAssociatedFile)
         //this is a data file. Could it overwrite something?
         if (!events.isEmpty())
         {
-
             QMessageBox handleMergeOrReplaceQuestionBox;
             handleMergeOrReplaceQuestionBox.setWindowTitle("Replace Loaded Event Data?");
             handleMergeOrReplaceQuestionBox.setText(tr("You are about to load event data, but you already have some event data loaded.\n\n"
@@ -1903,9 +1948,6 @@ void MainWindow::loadFile(QString filename, bool isAssociatedFile)
                 //the user cancelled, so don't load any data
                 return;
             }
-
-            bool replaceEvents = (handleMergeOrReplaceQuestionBox.clickedButton() == replaceButton);
-            bool importFullStrokes = (handleMergeOrReplaceQuestionBox.clickedButton() == fullStrokesButton);
         }
 
     }
@@ -2789,6 +2831,16 @@ ButtplugInterface * MainWindow::getButtplugInterface()
     return buttplugIF;
 }
 
+QString MainWindow::getLoadedVideo()
+{
+    return loadedVideo;
+}
+
+QString MainWindow::getLoadedScript()
+{
+    return loadedScript;
+}
+
 void MainWindow::on_actionConfigure_Keyboard_Shortcuts_triggered()
 {
     KeyboardShortcutsDialog dialog;
@@ -3061,6 +3113,56 @@ void MainWindow::handleSyncPlayResponse(QNetworkReply * reply)
     handyIsPlaying = doc.object().value("playing").toBool();
 }
 
+void MainWindow::videoStateChanged(QMediaPlayer::State s)
+{
+    switch (s)
+    {
+    case QMediaPlayer::PlayingState:
+        qDebug() << "State: Playing";
+        break;
+    case QMediaPlayer::PausedState:
+        qDebug() << "State: Paused";
+        break;
+    case QMediaPlayer::StoppedState:
+        qDebug() << "State: Stopped";
+        break;
+    }
+}
+
+void MainWindow::videoStatusChanged(QMediaPlayer::MediaStatus s)
+{
+    switch (s)
+    {
+    case QMediaPlayer::MediaStatus::NoMedia:
+        qDebug() << "Status: NoMedia";
+        break;
+    case QMediaPlayer::MediaStatus::EndOfMedia:
+        qDebug() << "Status: EndOfMedia";
+        break;
+    case QMediaPlayer::MediaStatus::LoadedMedia:
+        qDebug() << "Status: LoadedMedia";
+        break;
+    case QMediaPlayer::MediaStatus::InvalidMedia:
+        qDebug() << "Status: InvalidMedia";
+        break;
+    case QMediaPlayer::MediaStatus::LoadingMedia:
+        qDebug() << "Status: LoadingMedia";
+        break;
+    case QMediaPlayer::MediaStatus::StalledMedia:
+        qDebug() << "Status: StalledMedia";
+        break;
+    case QMediaPlayer::MediaStatus::BufferedMedia:
+        qDebug() << "Status: BufferedMedia";
+        break;
+    case QMediaPlayer::MediaStatus::BufferingMedia:
+        qDebug() << "Status: BufferingMedia";
+        break;
+    case QMediaPlayer::MediaStatus::UnknownMediaStatus:
+        qDebug() << "Status: UnknownMediaStatus";
+        break;
+    }
+}
+
 void MainWindow::on_actionRecalculate_Handy_Server_Time_triggered()
 {
     calculateHandyServerTimeOffset();
@@ -3101,7 +3203,7 @@ void MainWindow::on_actionDisconnect_from_Buttplug_Server_triggered()
 
 void MainWindow::on_actionNope_triggered()
 {
-    QAudioFormat format = getEstimAudioFormat();
+    QAudioFormat format = OptionsDialog::getEstimAudioFormat();
 
     if ( ! OptionsDialog::currentEstimDeviceIsAvailable())
     {
@@ -3182,116 +3284,6 @@ void MainWindow::on_actionExport_E_Stim_Track_triggered()
     if (exportFilename.contains('.') == false)
         exportFilename.append(".wav");
 
-    QFile wavFile(exportFilename);
-    bool success = wavFile.open(QIODevice::WriteOnly);
-    if (!success)
-    {
-        qDebug() << "Couldn't open file for writing!";
-        return;
-    }
-    QByteArray header(44, '\0');
-    char * ptr = header.data();
-    strcpy(ptr, "RIFF");
-    ptr += 4;
-    strcpy(ptr, "____");
-    ptr += 4;
-    strcpy(ptr, "WAVE");
-    ptr += 4;
-    strcpy(ptr, "fmt "); //or space?
-    ptr += 4;
-    qToLittleEndian((uint32_t) 16, ptr); // Size of data section above
-    ptr += 4;
-    qToLittleEndian((uint16_t) 1, ptr); //PCM
-    ptr += 2;
-    qToLittleEndian((uint16_t) 2, ptr); //No. Channels
-    ptr += 2;
-    qToLittleEndian((uint32_t) OptionsDialog::getEstimSamplingRate(), ptr);
-    ptr += 4;
-    uint32_t bytesPerSecond = OptionsDialog::getEstimSamplingRate() * /* bytes per sample */ 2 * /* channels*/  2;
-    qToLittleEndian((uint32_t) bytesPerSecond, ptr);
-    ptr += 4;
-    qToLittleEndian((uint16_t) 4, ptr); //byes per 'frame'
-    ptr += 2;
-    qToLittleEndian((uint16_t) 16, ptr); // bits per (mono) sample
-    ptr += 2;
-    strcpy(ptr, "data");
-    ptr += 4;
-    strcpy(ptr, "____");
-    wavFile.write(header);
-
-//    QDataStream stream(&header, QIODevice::WriteOnly);
-//    stream.writeRawData("RIFF", 4); //wav is a sort of riff
-//    stream.writeRawData("SIZE", 4); //total file sixe - overwrite later with 32-bit file size
-//    stream.writeRawData("WAVE", 4); //it's a wav file
-//    stream.writeRawData("fmt ", 4); //fixed string (including null byte)
-//    stream << qToLittleEndian((uint32_t) 16); // Size of data section above
-//    stream << qToLittleEndian((uint16_t) 1); //PCM
-//    stream << qToLittleEndian((uint16_t) 2); //No. Channels
-//    stream << qToLittleEndian((uint32_t) OptionsDialog::getEstimSamplingRate());
-//    uint32_t bytesPerSecond = OptionsDialog::getEstimSamplingRate() * /* bytes per sample */ 2 * /* channels*/  2;
-//    stream << qToLittleEndian((uint32_t) bytesPerSecond);
-//    stream << qToLittleEndian((uint16_t) 4); //byes per 'frame'
-//    stream << qToLittleEndian((uint16_t) 16); // bits per (mono) sample
-//    stream.writeRawData("data", 4); //fixed string
-//    stream.writeRawData("SIZE", 4); //data section size - overwrite later with 32-bit number
-
-//    wavFile.write(header);
-
-    QAudioFormat format = getEstimAudioFormat();
-
-    stimSignalGenerator = new TriphaseSignalGenerator(format, this);
-
-    stimSignalGenerator->open(QIODevice::ReadOnly);
-    progressDialog = new QProgressDialog(tr("Exporting E-Stim Track..."),tr("Cancel"),0,totalPlayTime(),this);
-    connect(stimSignalGenerator, SIGNAL(progressed(int, int)), this, SLOT(updateProgress(int, int)));
-
-    int bytesWritten = 0;
-
-    QByteArray buffer(bytesPerSecond, '\0');
-    qint64 bytesRead = 0;
-    do
-    {
-        bytesRead = stimSignalGenerator->read(buffer.data(), bytesPerSecond);
-        wavFile.write(buffer.data(), bytesRead);
-        bytesWritten += bytesRead;
-//        qDebug() << "Files seems to be " << wavFile.size();
-//        qDebug() << "Bytes we think we've written " << bytesWritten;
-        if (progressDialog->wasCanceled())
-            break;
-    }
-    //not ideal - this logic relies on the knowledge that the generator will
-    //always give you as much data as you ask for until there's no more, and then stop.
-    //Consider looking for EOF?
-    while (bytesRead == bytesPerSecond);
-
-    progressDialog->setValue(progressDialog->maximum());
-    disconnect(stimSignalGenerator, SIGNAL(progressed(int, int)), this, SLOT(updateProgress(int, int)));
-    progressDialog->deleteLater();
-
-    //finished writing data - write sizes
-    QByteArray dataSize;
-    QDataStream dataSizeStream(&dataSize, QIODevice::WriteOnly);
-//    int32_t ourDataCalculation = bytesWritten;
-//    int32_t fileBasedData = wavFile.size() - 44;
-//    if (ourDataCalculation != fileBasedData)
-//        qDebug() << "There's a problem with the data size!";
-
-    dataSizeStream << qToLittleEndian((int32_t) bytesWritten);
-    wavFile.seek(40); //that's where the data section size is
-    wavFile.write(dataSize);
-
-    //total file size is data section plus 44 bytes for the header
-//    int32_t ourFileCalculation = bytesWritten + 36;
-//    int32_t fileBasedFile = wavFile.size() - 8;
-//    if (ourFileCalculation != fileBasedFile)
-//        qDebug() << "There's a problem with the file size!";
-    bytesWritten += 44;
-    bytesWritten -= 8; //the first 8 bytes for 'RIFF####' don't count
-    QByteArray fileSize;
-    QDataStream fileSizeStream(&fileSize, QIODevice::WriteOnly);
-    fileSizeStream << qToLittleEndian((int32_t) bytesWritten);
-    wavFile.seek(4); //that's where the file size is
-    wavFile.write(dataSize);
-
-    wavFile.close();
+    EstimWavFileWriter writer(exportFilename);
+    writer.writeFile();
 }

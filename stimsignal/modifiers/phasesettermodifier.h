@@ -7,7 +7,7 @@ class PhaseSetterModifier : public StimSignalModifier
 {
 public:
     PhaseSetterModifier(int startFrequency, int endFrequency);
-    void modify(StimSignalSample &sample) override;
+    void modify(StereoStimSignalSample &sample) override;
 
 private:
     void setStep(long timestamp);

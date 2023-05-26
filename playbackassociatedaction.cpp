@@ -1,6 +1,9 @@
 #include "playbackassociatedaction.h"
 
-PlaybackAssociatedAction::PlaybackAssociatedAction(QObject *parent) : QObject(parent)
+PlaybackAssociatedAction::PlaybackAssociatedAction(QString name, QObject *parent)
+    :
+      QObject(parent),
+      name(name)
 {
 
 }

@@ -8,13 +8,13 @@ FadeFromColdModifier::FadeFromColdModifier()
     increment = 1.0 / totalSamples;
 }
 
-void FadeFromColdModifier::modify(StimSignalSample &sample)
+void FadeFromColdModifier::modify(StereoStimSignalSample &sample)
 {
     if (sampleCounter < totalSamples)
     {
         runningTotal = sampleCounter * increment;
-        sample.primaryAmplitude *= runningTotal;
-        sample.secondaryAmplitude *= runningTotal;
+        sample.setPrimaryAmplitude (sample.getPrimaryAmplitude() * runningTotal);
+        sample.setSecondaryAmplitude (sample.getSecondaryAmplitude() * runningTotal);
         ++sampleCounter;
     }
     else

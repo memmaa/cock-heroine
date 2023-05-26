@@ -1,6 +1,6 @@
 #include "stimsignalgenerator.h"
 #include "stimsignalmodifier.h"
-#include "stimsignalsample.h"
+#include "stereostimsignalsample.h"
 #include "qmath.h"
 #include <QAudioFormat>
 #include <QtEndian>
@@ -8,7 +8,9 @@
 #include "globals.h"
 #include "mainwindow.h"
 #include "multithreadedsamplepipelineprocessor.h"
-
+#include "optionsdialog.h"
+#include "stimsignal/triphasesignalgenerator.h"
+#include "stimsignal/singlechannelsignalgenerator.h"
 
 bool isPCM(const QAudioFormat &format)
 {
@@ -52,17 +54,20 @@ qint64 StimSignalGenerator::generate(char *data, qint64 maxlen)
         samplesToGenerate = 0;
     }
 
-    QList<StimSignalSample *> sampleVector;
+    QList<StereoStimSignalSample *> sampleVector;
     for (int i = 0; i < samplesToGenerate; ++i)
     {
         qreal fractionalSecond = (sampleCounter * 1.0f) / (float) audioFormat.sampleRate();
         if (fractionalSecond > stopAt)
             break;
-        StimSignalSample * sample = new StimSignalSample(generateFromTimestamp, fractionalSecond * 1000);
+        StereoStimSignalSample * sample = new StereoStimSignalSample(generateFromTimestamp, fractionalSecond * 1000);
         sampleVector.append(sample);
     }
-    MultithreadedSamplePipelineProcessor processor(&sampleVector, &modifiers, this);
-    processor.processAll();
+    if (!sampleVector.isEmpty())
+    {
+        MultithreadedSamplePipelineProcessor processor(&sampleVector, &modifiers, this);
+        processor.processAll();
+    }
 
     for (int i = 0; i < sampleVector.length(); ++i)
     {
@@ -109,12 +114,16 @@ void StimSignalGenerator::setGenerateFrom(long from)
 {
     generateFromTimestamp = from;
     sampleCounter = 0;
-    calculateCurrentFrequency();
 }
 
-void StimSignalGenerator::calculateCurrentFrequency()
+StimSignalGenerator *StimSignalGenerator::createFromPrefs(QObject *parent)
 {
-    qreal endPortion = mainWindow->progressThroughGame(generateFromTimestamp);
-    qreal beginningPortion = 1 - endPortion;
-    currentFrequency = (beginningPortion * startingFrequency) + (endPortion * endingFrequency);
+    QAudioFormat format = OptionsDialog::getEstimAudioFormat();
+    switch (OptionsDialog::getEstimSignalType())
+    {
+    case MONO:
+        return new SingleChannelSignalGenerator(format, parent);
+    default:
+        return new TriphaseSignalGenerator(format, parent);
+    }
 }

@@ -7,7 +7,7 @@ class ChannelBalanceModifier : public StimSignalModifier
 {
 public:
     ChannelBalanceModifier();
-    void modify(StimSignalSample &sample) override;
+    void modify(StereoStimSignalSample &sample) override;
 
 private:
     bool panLeft;

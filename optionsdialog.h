@@ -25,6 +25,8 @@ class OptionsDialog;
 
 #define PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE "Up-Down-Beat"
 #define PREF_ESTIM_DOWN_BEAT_UP_STROKE_STYLE "Down-Beat-Up"
+#define PREF_ESTIM_STARTS_ON_BEAT_STYLE "Cycle Starts on the Beat"
+#define PREF_ESTIM_ENDS_ON_BEAT_STYLE "Cycle Ends on the Beat"
 
 class OptionsDialog : public QDialog
 {
@@ -88,8 +90,10 @@ public:
     static bool currentEstimDeviceIsAvailable();
     static QAudioDeviceInfo getEstimOutputDeviceInfo();
     static EstimSourceMode getEstimSourceMode();
+    static int getEstimChannelCount();
     static EstimSignalType getEstimSignalType();
     static int getEstimSamplingRate();
+    static QAudioFormat getEstimAudioFormat();
     static int getEstimTriphaseStartingFrequency();
     static int getEstimTriphaseEndingFrequency();
     static int getEstimLeftChannelStartingFrequency();
@@ -116,6 +120,8 @@ public:
     static double getEstimRightChannelPeakPositionInCycle();
     static double getEstimLeftChannelTroughLevel();
     static double getEstimRightChannelTroughLevel();
+    static double getEstimLeftChannelFadeTime();
+    static double getEstimRightChannelFadeTime();
     //!
     //! \brief getEstimSettingsFilenameSuffix
     //! \return a string, suitable for use in filenames, that uniquely identifies

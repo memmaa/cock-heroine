@@ -2,30 +2,39 @@
 #define MULTITHREADEDSAMPLEPIPELINEPROCESSOR_H
 
 #include <QObject>
-#include "stimsignalsample.h"
+#include "stereostimsignalsample.h"
 #include "stimsignalmodifier.h"
-class StimSignalWorkPackage;
-#include <QAtomicInt>
+//class StimSignalWorkPackage;
+//#include <QAtomicInt>
+#include "stimsignalworker.h"
+
 
 class MultithreadedSamplePipelineProcessor : public QObject
 {
     Q_OBJECT
 public:
-    explicit MultithreadedSamplePipelineProcessor(QList<StimSignalSample *> * sampleVector, QList<StimSignalModifier *> * modifiers, QObject *parent = nullptr);
+    explicit MultithreadedSamplePipelineProcessor(QList<StereoStimSignalSample *> * sampleVector, QList<StimSignalModifier *> * modifiers, QObject *parent = nullptr);
     //!
     //! \brief processAll will run all the samples through all the modifiers and then return
     //!
     void processAll();
-    void reportWorkComplete();
 
 signals:
+    void runThroughAllWorkers(int index);
+
+public slots:
+    void registerWorkComplete(int index);
 
 private:
-    QList<StimSignalSample *> * sampleVector;
+    QList<StereoStimSignalSample *> * sampleVector;
     QList<StimSignalModifier *> * modifiers;
-    QList<StimSignalWorkPackage *> workQueue;
-    int workAssigned;
-    QAtomicInt workComplete;
+    //belongs to old, slow method
+//    QList<StimSignalWorkPackage *> workQueue;
+//    int workAssigned;
+//    QAtomicInt workComplete;
+    QList<StimSignalWorker *> workers;
+    QList<QThread *> workerThreads;
+    bool allDone = false;
 };
 
 #endif // MULTITHREADEDSAMPLEPIPELINEPROCESSOR_H

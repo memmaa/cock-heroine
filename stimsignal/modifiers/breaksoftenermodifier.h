@@ -7,7 +7,7 @@ class BreakSoftenerModifier : public StimSignalModifier
 {
 public:
     BreakSoftenerModifier();
-    void modify(StimSignalSample &sample) override;
+    void modify(StereoStimSignalSample &sample) override;
 
 private:
     qreal currentLevel = 1;

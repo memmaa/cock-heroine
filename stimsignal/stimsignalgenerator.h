@@ -25,8 +25,6 @@ class StimSignalGenerator : public QIODevice
 {
     Q_OBJECT
 public:
-    static int getMaxTriphaseStrokeLength();
-
     explicit StimSignalGenerator(QAudioFormat audioFormat, QObject *parent = nullptr);
     //TODO: destructor to delete modifiers
 
@@ -39,6 +37,8 @@ public:
     bool isSequential() const override;
     void setGenerateFrom(long from);
 
+    static StimSignalGenerator * createFromPrefs(QObject * parent);
+
 protected:
     virtual void setModifiers() = 0;
     virtual long getStopTimestamp() = 0;
@@ -47,8 +47,6 @@ protected:
     long generateFromTimestamp = 0;
     int startingFrequency;
     int endingFrequency;
-    void calculateCurrentFrequency();
-    int currentFrequency;
     QList<StimSignalModifier *> modifiers;
 
 signals:

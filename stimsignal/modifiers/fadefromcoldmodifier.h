@@ -7,7 +7,7 @@ class FadeFromColdModifier : public StimSignalModifier
 {
 public:
     FadeFromColdModifier();
-    void modify(StimSignalSample &sample) override;
+    void modify(StereoStimSignalSample &sample) override;
 
 private:
     long totalSamples;

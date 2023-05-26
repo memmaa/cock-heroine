@@ -95,9 +95,6 @@
 #define DEFAULT_PREF_ESTIM_SHORT_STROKES_BOOST 5
 #define PREF_ESTIM_TRIPHASE_STROKE_STYLE "Triphase Estim Stroke Style"
 #define DEFAULT_PREF_ESTIM_TRIPHASE_STROKE_STYLE PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE
-//#define PREF_ESTIM_MONO_STROKE_STYLE "Single Channel Estim Stroke Style"
-#define PREF_ESTIM_STARTS_ON_BEAT_STYLE "Cycle Starts on the Beat"
-#define PREF_ESTIM_ENDS_ON_BEAT_STYLE "Cycle Ends on the Beat"
 #define PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE "Left Channel Estim Stroke Style"
 #define PREF_ESTIM_RIGHT_CHANNEL_STROKE_STYLE "Right Channel Estim Stroke Style"
 #define DEFAULT_PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE PREF_ESTIM_STARTS_ON_BEAT_STYLE
@@ -837,6 +834,14 @@ EstimSourceMode OptionsDialog::getEstimSourceMode()
     return FROM_FILE;
 }
 
+int OptionsDialog::getEstimChannelCount()
+{
+    if (getEstimSignalType() == MONO)
+        return 1;
+    else
+        return 2;
+}
+
 EstimSignalType OptionsDialog::getEstimSignalType()
 {
     QSettings settings;
@@ -867,6 +872,19 @@ int OptionsDialog::getEstimSamplingRate()
     QSettings settings;
     return settings.value(PREF_ESTIM_SAMPLE_RATE, DEFAULT_PREF_ESTIM_SAMPLE_RATE).toInt();
 }
+
+QAudioFormat OptionsDialog::getEstimAudioFormat()
+{
+    QAudioFormat format;
+    format.setSampleRate(OptionsDialog::getEstimSamplingRate());
+    format.setChannelCount(getEstimChannelCount());
+    format.setSampleSize(16);
+    format.setCodec("audio/pcm");
+    format.setByteOrder(QAudioFormat::LittleEndian);
+    format.setSampleType(QAudioFormat::SignedInt);
+    return format;
+}
+
 
 int OptionsDialog::getEstimLeftChannelStartingFrequency()
 {
@@ -1014,28 +1032,49 @@ double OptionsDialog::getEstimCompressorRelease()
     return settings.value(PREF_ESTIM_COMPRESSOR_RELEASE_TIME, DEFAULT_PREF_ESTIM_COMPRESSOR_RELEASE_TIME).toDouble();
 }
 
+//! \return 0 to 1
 double OptionsDialog::getEstimLeftChannelPeakPositionInCycle()
 {
     QSettings settings;
     return settings.value(PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE).toFloat() / 100;
 }
 
+//! \return 0 to 1
 double OptionsDialog::getEstimRightChannelPeakPositionInCycle()
 {
     QSettings settings;
     return settings.value(PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE, DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE).toFloat() / 100;
 }
 
+//!
+//! \brief OptionsDialog::getEstimLeftChannelTroughLevel
+//! \return 0 to 1
+//!
 double OptionsDialog::getEstimLeftChannelTroughLevel()
 {
     QSettings settings;
     return settings.value(PREF_ESTIM_LEFT_CHANNEL_TROUGH_VALUE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_TROUGH_VALUE).toFloat() / 100;
 }
 
+//! \return 0 to 1
 double OptionsDialog::getEstimRightChannelTroughLevel()
 {
     QSettings settings;
     return settings.value(PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE, DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE).toFloat() / 100;
+}
+
+double OptionsDialog::getEstimLeftChannelFadeTime()
+{
+    double amountFadedInHalfAStrokeTime = 1 - getEstimLeftChannelTroughLevel();
+    double halfAStrokeTime = (double) getEstimMaxStrokeLength() / 2;
+    return halfAStrokeTime / amountFadedInHalfAStrokeTime;
+}
+
+double OptionsDialog::getEstimRightChannelFadeTime()
+{
+    double amountFadedInHalfAStrokeTime = 1 - getEstimRightChannelTroughLevel();
+    double halfAStrokeTime = (double) getEstimMaxStrokeLength() / 2;
+    return halfAStrokeTime / amountFadedInHalfAStrokeTime;
 }
 
 QString OptionsDialog::getEstimSettingsFilenameSuffix()
