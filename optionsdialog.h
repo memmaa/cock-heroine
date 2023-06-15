@@ -48,6 +48,8 @@ public:
     void setControlsFromPreferences();
     void setPreferencesFromControls();
 
+    static void setLastOpenedLocation(const QString path);
+    static QString getLastOpenedLocation();
     static bool autoLoadLastSession();
     static bool useDefaultAudioDeviceForVideo();
     static QString getVideoAudioOutputDeviceName();
@@ -90,6 +92,7 @@ public:
     static bool currentEstimDeviceIsAvailable();
     static QAudioDeviceInfo getEstimOutputDeviceInfo();
     static EstimSourceMode getEstimSourceMode();
+    static QString getEstimSourceFilename();
     static int getEstimChannelCount();
     static EstimSignalType getEstimSignalType();
     static int getEstimSamplingRate();

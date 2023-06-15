@@ -18,7 +18,7 @@ int TriphaseModifier::getMaxTriphaseStrokeLength()
     return strokeLength;
 }
 
-void TriphaseModifier::modify(StereoStimSignalSample &sample)
+void TriphaseModifier::modify(StimSignalSample &sample)
 {
     qreal phaseDifference = 0;
 
@@ -91,5 +91,5 @@ void TriphaseModifier::modify(StereoStimSignalSample &sample)
         phaseDifference = 0.5 * distance;
         break; //case
     }
-    sample.setSecondaryPhase(sample.getPrimaryPhase() + phaseDifference);
+    sample.setPhase(1, sample.getPrimaryPhase() + phaseDifference);
 }

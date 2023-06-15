@@ -1,6 +1,7 @@
 #include "pregenerateestimsignalaction.h"
 #include "mainwindow.h"
 #include <QFileInfo>
+#include "stimsignal/stimsignalsource.h"
 
 PregenerateEstimSignalAction::PregenerateEstimSignalAction()
     :
@@ -49,24 +50,25 @@ void PregenerateEstimSignalAction::abort()
 
 QString PregenerateEstimSignalAction::calculateFilename()
 {
-    if (!mainWindow->getLoadedScript().isEmpty())
-    {
-        QFileInfo fileInfo(mainWindow->getLoadedScript());
-//        QString textToRemove = fileInfo.completeSuffix();
-        QString textToRemove = fileInfo.suffix();
-        QString newBaseName = fileInfo.absoluteFilePath();
-        newBaseName.chop(textToRemove.length());
-        return newBaseName + "wav";
-    }
-    else if (!mainWindow->getLoadedVideo().isEmpty())
-    {
-        QFileInfo fileInfo(mainWindow->getLoadedVideo());
-        QString textToRemove = fileInfo.completeSuffix();
+//    if (!mainWindow->getLoadedScript().isEmpty())
+//    {
+//        QFileInfo fileInfo(mainWindow->getLoadedScript());
+////        QString textToRemove = fileInfo.completeSuffix();
 //        QString textToRemove = fileInfo.suffix();
-        QString newBaseName = fileInfo.absoluteFilePath();
-        newBaseName.chop(textToRemove.length());
-        return newBaseName + "wav";
-    }
-    return "";
+//        QString newBaseName = fileInfo.absoluteFilePath();
+//        newBaseName.chop(textToRemove.length());
+//        return newBaseName + "wav";
+//    }
+//    else if (!mainWindow->getLoadedVideo().isEmpty())
+//    {
+//        QFileInfo fileInfo(mainWindow->getLoadedVideo());
+//        QString textToRemove = fileInfo.completeSuffix();
+////        QString textToRemove = fileInfo.suffix();
+//        QString newBaseName = fileInfo.absoluteFilePath();
+//        newBaseName.chop(textToRemove.length());
+//        return newBaseName + "wav";
+//    }
+//    return "";
+    return StimSignalSource::calculatePregeneratedStimFilename();
 }
 

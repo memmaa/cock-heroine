@@ -7,7 +7,7 @@ class PhaseInverterModifier : public StimSignalModifier
 {
 public:
     PhaseInverterModifier();
-    void modify(StereoStimSignalSample &sample) override;
+    void modify(StimSignalSample &sample) override;
 };
 
 #endif // PHASEINVERTERMODIFIER_H

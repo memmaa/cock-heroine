@@ -16,6 +16,7 @@ const char * defaultValueShortcuts[2][10] = {{"1","2","3","4","5","6","7","8","9
 //For AZERTY, I think the numbers need changing to punctuation. Not sure if that causes a problem...
 
 QMediaPlayer * videoPlayer = NULL;
+QMediaPlayer * stimSignalPlayer = NULL;
 EditorWindow * editor = NULL;
 MainWindow * mainWindow = NULL;
 QLCDNumber * lcdDisplay; //so seekToTimestamp can update it
@@ -68,7 +69,7 @@ void seekToTimestamp(long seekTo)
         mainWindow->scheduleVideoSync();
         mainWindow->scheduleEvent();
         if (syncEstim)
-            mainWindow->startEstimSignal();
+            mainWindow->initiateEstimSignal();
         if (OptionsDialog::syncTimecodeOnSeek())
             mainWindow->scheduleVideoSync();
     }

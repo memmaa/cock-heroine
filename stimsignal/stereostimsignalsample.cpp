@@ -3,27 +3,24 @@
 
 StereoStimSignalSample::StereoStimSignalSample(qlonglong wholeTimestamp, qreal fractionalTimestamp, QObject *parent)
     :
-      StimSignalSample(wholeTimestamp, fractionalTimestamp, parent),
-      secondaryAmplitude(1),
-      secondaryPhase(0)
+      StimSignalSample(2, wholeTimestamp, fractionalTimestamp, parent)
 {
 
 }
 
 qreal StereoStimSignalSample::getSecondaryPhase() const
 {
-    return secondaryPhase;
+    return getPhase(1);
 }
 
 void StereoStimSignalSample::setSecondaryPhase(const qreal &value)
 {
-    secondaryPhase = value;
-    secondaryPhase -= (int) secondaryPhase;
+    setPhase(1, value);
 }
 
 qreal StereoStimSignalSample::secondaryValue()
 {
-    return secondaryAmplitude * qSin(2 * M_PI * secondaryPhase);
+    return value(1);
 }
 
 qint16 StereoStimSignalSample::secondaryPcm()
@@ -33,10 +30,10 @@ qint16 StereoStimSignalSample::secondaryPcm()
 
 qreal StereoStimSignalSample::getSecondaryAmplitude() const
 {
-    return secondaryAmplitude;
+    return getAmplitude(1);
 }
 
 void StereoStimSignalSample::setSecondaryAmplitude(const qreal &value)
 {
-    secondaryAmplitude = value;
+    setAmplitude(1, value);
 }

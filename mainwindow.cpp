@@ -44,6 +44,7 @@
 #include <QProgressDialog>
 #include "stimsignal/estimwavfilewriter.h"
 #include "preplaybackactionmanager.h"
+#include "stimsignal/stimsignalfile.h"
 
 //how many events should we 'buffer' by sending them to the arduino hardware ahead of real time?
 //this lets it spin up motors in advance, or enqueue or ramp up its internal events for most accurate timings.
@@ -124,6 +125,9 @@ const QString MainWindow::defaultFileExt = ".chml";
 //!the event we're currently 'working on' by holding down a key
 Event currentTimedEvent;
 
+QString loadedVideo = QString();
+QString loadedScript = QString();
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
 
@@ -134,8 +138,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     eventsModel(new eventDataModel(this)),
     eventsProxyModel(new EventDataProxyModel(this)),
-    loadedVideo(QString()),
-    loadedScript(QString()),
     strokeSoundSource(QString()),
     strokeSound(this),
 
@@ -154,7 +156,7 @@ MainWindow::MainWindow(QWidget *parent) :
     playbackLatency(0),
     mainWindowActions(new QList<QAction *>()),
     buttplugIF(new ButtplugInterface(this)),
-    stimSignalGenerator(nullptr),
+    stimSignalSource(nullptr),
     stimAudio(nullptr),
     progressDialog(nullptr)
 {
@@ -177,6 +179,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionObscure_Beat_Meter->setChecked(settings.value("Obscure Beat Meter").toBool());
     //no need to call maskBeatMeter() here, as the above line did it if needed... I think...
     //...unless actionObscure_Beat_Meter was already checked?
+
+    //TODO: As a proper alternative to the stimAudio, stimSignalPlayer should be set up, but that needs Qt6.
+    // For now, let's hack it...
+    // ...OK, so hacking it doesn't work - there is not a stable delay between calling QAudioDevice::start and the actual playback
+    // so Qt6 it is!
 
     createActions();
     KeyboardShortcutsDialog::applyActionShortcutsFromPrefs();
@@ -255,15 +262,23 @@ MainWindow::MainWindow(QWidget *parent) :
     if (OptionsDialog::autoLoadLastSession())
     {
         QString lastVideo = QSettings().value(PREF_LAST_SUCCESSFULLY_LOADED_VIDEO, QString()).toString();
+        qDebug() << "Last video is: " << lastVideo;
         if (!lastVideo.isEmpty())
         {
             QString script = getAssociatedFile(lastVideo);
             if (!script.isEmpty())
             {
+                qDebug() << "Last script is: " << script;
                 loadFile(lastVideo, true);
                 loadFile(script, true);
             }
+            else
+                qDebug() << "No associated script.";
         }
+    }
+    else
+    {
+        qDebug() << "Opening with fresh session, as requested by preferences.";
     }
 }
 
@@ -803,17 +818,6 @@ void MainWindow::clearEventsList()
         eventsModel->removeRow(0);
 }
 
-#define LAST_OPENED_LOCATION "Last opened location"
-void MainWindow::setLastOpenedLocation(const QString path)
-{
-    settings.setValue(LAST_OPENED_LOCATION, path);
-}
-
-QString MainWindow::getLastOpenedLocation()
-{
-    return settings.value(LAST_OPENED_LOCATION).toString();
-}
-
 void MainWindow::jumpToTime()
 {
     long tempTimecode;
@@ -1128,13 +1132,13 @@ void MainWindow::play()
         updateUiButtonLabels(QMediaPlayer::PausedState);
         return;
     }
+    if (OptionsDialog::emitEstimSignal())
+        initiateEstimSignal();
     setVideoOutputDevice();
     videoPlayer->setPosition(currentTimecode());//IMPORTANT: Due to the way currentTimecode works, and the way it interacts with syncToVideo() this MUST occur BEFORE startTimer()
-    videoPlayer->play();
     currentlyPlaying = true; //IMPORTANT: This MUST occur BEFORE startTimer() but after videoPlayer->setPosition(currentTimecode());
+    videoPlayer->play();
     startTimer();
-    if (OptionsDialog::emitEstimSignal())
-        startEstimSignal();
     if (OptionsDialog::syncTimecodeOnPlay() &&
             loadedVideo.isEmpty() == false)
         scheduleVideoSync();
@@ -1164,7 +1168,7 @@ void MainWindow::syncToVideo()
     if (OptionsDialog::emitEstimSignal() && OptionsDialog::syncEstimWithTimecode())
     {
         stopEstimSignal();
-        startEstimSignal();
+        initiateEstimSignal();
     }
 }
 
@@ -1218,13 +1222,32 @@ void MainWindow::startTimer()
     scheduleEvent();
 }
 
-void MainWindow::startEstimSignal()
+void MainWindow::initiateEstimSignal()
 {
     if (!OptionsDialog::currentEstimDeviceIsAvailable())
+    {
+        qDebug() << "E-stim output is enabled, but the selected device is currently unavailable, so no signal will be played.";
         return;
+    }
 
-    QAudioFormat format = OptionsDialog::getEstimAudioFormat();
+    stimSignalSource = StimSignalSource::createFromPrefs(this);
+    QFile * inputFile = dynamic_cast<QFile *>(stimSignalSource);
+    StimSignalGenerator * generator = dynamic_cast<StimSignalGenerator *>(stimSignalSource);
+    QAudioFormat format = inputFile ? StimSignalFile::deriveFormatFromFile(inputFile) : OptionsDialog::getEstimAudioFormat();
+    if (inputFile)
+    {
+        qDebug() << "Playing file: " << inputFile->fileName();
+    }
+    else
+    {
+        qDebug() << "Stim signal source is not a file (it's probably generated on-the-fly).";
+    }
 
+    if ( ! OptionsDialog::currentEstimDeviceIsAvailable())
+    {
+        qDebug() << "Cannot play estim signal because output device is unavailable: " << OptionsDialog::getEstimOutputDeviceName();
+        return;
+    }
     QAudioDeviceInfo info = OptionsDialog::getEstimOutputDeviceInfo();
     if (!info.isFormatSupported(format)) {
         qWarning() << "Raw audio format not supported by backend, cannot play estim signal.";
@@ -1255,25 +1278,39 @@ void MainWindow::startEstimSignal()
         return;
     }
 
-    stimSignalGenerator = new TriphaseSignalGenerator(format, this);
+    bool opened = stimSignalSource->open(QIODevice::ReadOnly);
+    if (!opened)
+    {
+        qDebug() << "The e-stim source could not be opened. Did you change the generation preferences while it was generating?";
+        return;
+    }
+    if (inputFile)
+    {
+        StimSignalFile::seekToTimestamp(inputFile, currentTimecode(), format.sampleRate(), format.channelCount() * format.sampleSize());
+    }
+    else if (generator)
+    {
+        generator->setPlayFrom(currentTimecode());
+    }
 
-    stimSignalGenerator->open(QIODevice::ReadOnly);
-    stimSignalGenerator->setGenerateFrom(currentTimecode());
-
-    stimAudio = new QAudioOutput(OptionsDialog::getEstimOutputDeviceInfo(), format, this);
+    stimAudio = new QAudioOutput(info, format, this);
     connect(stimAudio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleEstimAudioStateChanged(QAudio::State)));
-    stimAudio->start(stimSignalGenerator);
+    connect(stimAudio, SIGNAL(notify()), this, SLOT(calculateStimOffsetFromVideo()));
+}
+
+void MainWindow::startEstimSignal()
+{
+    if (stimAudio != nullptr && currentlyPlaying)
+    {
+        stimAudio->start(stimSignalSource);
+    }
 }
 
 void MainWindow::stopEstimSignal()
 {
     if (stimAudio != nullptr && stimAudio->state() == QAudio::ActiveState)
     {
-        disconnect(stimAudio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleEstimAudioStateChanged(QAudio::State)));
         stimAudio->stop();
-        stimSignalGenerator->close();
-        delete stimAudio;
-        stimAudio = nullptr;
     }
 }
 
@@ -1418,7 +1455,7 @@ void MainWindow::on_saveButton_clicked()
     if (ui->eventsTable->model()->rowCount() == 0)
         return; //don't save empty file
 
-    QString lastOpenedLocation = getLastOpenedLocation();
+    QString lastOpenedLocation = OptionsDialog::getLastOpenedLocation();
     if (lastOpenedLocation.isEmpty())
         lastOpenedLocation = QDir::toNativeSeparators(QDir::homePath());
     QString filenameToSave = QFileDialog::getSaveFileName(this, tr("Save Wand Events"),
@@ -1827,7 +1864,7 @@ void MainWindow::addExtraCsvEvents(int eventIndex, int holdLocation, int upLocat
 
 void MainWindow::on_loadButton_clicked()
 {
-    QString lastOpenedLocation = getLastOpenedLocation();
+    QString lastOpenedLocation = OptionsDialog::getLastOpenedLocation();
     if (lastOpenedLocation.isEmpty())
         lastOpenedLocation = QDir::toNativeSeparators(QDir::homePath());
     QString filename = QFileDialog::getOpenFileName(this,
@@ -1839,7 +1876,7 @@ void MainWindow::on_loadButton_clicked()
         return;
 
     if (!QFileInfo(filename).path().isEmpty())
-        setLastOpenedLocation(QFileInfo(filename).path());
+        OptionsDialog::setLastOpenedLocation(QFileInfo(filename).path());
     loadFile(filename);
 }
 
@@ -3113,12 +3150,32 @@ void MainWindow::handleSyncPlayResponse(QNetworkReply * reply)
     handyIsPlaying = doc.object().value("playing").toBool();
 }
 
+long MainWindow::getCurrentVideoMillis()
+{
+    if (videoPlayer)
+    {
+        return videoPlayer->position();
+    }
+    return -1;
+}
+
+long MainWindow::getCurrentEstimAudioMillis()
+{
+    if (stimAudio)
+    {
+        return timecodeLastStopped + (stimAudio->elapsedUSecs() / 1000);
+    }
+    return -1;
+}
+
 void MainWindow::videoStateChanged(QMediaPlayer::State s)
 {
     switch (s)
     {
     case QMediaPlayer::PlayingState:
         qDebug() << "State: Playing";
+        startEstimSignal();
+//        QTimer::singleShot(501, this, SLOT(startEstimSignal())); //delay is not constant (though it is usually one value the first playback, and another the rest of the time)
         break;
     case QMediaPlayer::PausedState:
         qDebug() << "State: Paused";
@@ -3203,7 +3260,18 @@ void MainWindow::on_actionDisconnect_from_Buttplug_Server_triggered()
 
 void MainWindow::on_actionNope_triggered()
 {
-    QAudioFormat format = OptionsDialog::getEstimAudioFormat();
+    stimSignalSource = StimSignalSource::createFromPrefs(this);
+    QFile * inputFile = dynamic_cast<QFile *>(stimSignalSource);
+    StimSignalGenerator * generator = dynamic_cast<StimSignalGenerator *>(stimSignalSource);
+    QAudioFormat format = inputFile ? StimSignalFile::deriveFormatFromFile(inputFile) : OptionsDialog::getEstimAudioFormat();
+    if (inputFile == nullptr)
+    {
+        qDebug() << "Playing file: " << inputFile->fileName();
+    }
+    else
+    {
+        qDebug() << "Stim signal source is not a file (it's probably generated on-the-fly).";
+    }
 
     if ( ! OptionsDialog::currentEstimDeviceIsAvailable())
     {
@@ -3216,25 +3284,113 @@ void MainWindow::on_actionNope_triggered()
         return;
     }
 
-    stimSignalGenerator = new TriphaseSignalGenerator(format, this);
-
-    stimSignalGenerator->open(QIODevice::ReadOnly);
-    stimSignalGenerator->setGenerateFrom(currentTimecode());
+    bool opened = stimSignalSource->open(QIODevice::ReadOnly);
+//    bool opened = inputFile->open(QIODevice::ReadOnly);
+    if (!opened)
+    {
+        qDebug() << "File couldn't be opened!";
+        return;
+    }
+    if (inputFile)
+    {
+        StimSignalFile::seekToTimestamp(inputFile, currentTimecode(), format.sampleRate(), format.channelCount() * format.sampleSize());
+    }
+    else if (generator)
+    {
+        generator->setPlayFrom(currentTimecode());
+    }
 
     stimAudio = new QAudioOutput(deviceInfo, format, this);
     connect(stimAudio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleEstimAudioStateChanged(QAudio::State)));
-    stimAudio->start(stimSignalGenerator);
+    stimAudio->start(stimSignalSource);
+    QTimer * throwaway = new QTimer(this);
+    throwaway->setSingleShot(false);
+    throwaway->setInterval(1000);
+    connect(throwaway, SIGNAL(timeout()), this, SLOT(reportEstimAudioState()));
+    throwaway->start();
 }
 
 void MainWindow::handleEstimAudioStateChanged(QAudio::State newState)
 {
+    qDebug() << "Estim Audio status changed";
+    boolean shouldDeleteAndCleanUp = true;
     switch (newState) {
         case QAudio::IdleState:
             // Finished playing (no more data)
             qDebug() << "Estim Audio finished playing normally";
-            stimAudio->stop();
-            stimSignalGenerator->close();
-            delete stimAudio;
+            break;
+
+        case QAudio::StoppedState:
+            // Stopped for other reasons
+            if (stimAudio->error() != QAudio::NoError) {
+                qDebug() << "Audio finished playing ABnormally!";
+                switch (stimAudio->error())
+                {
+                case QAudio::UnderrunError:
+                    qDebug() << "UnderrunError";
+                    break;
+                case QAudio::IOError:
+                    qDebug() << "IOError";
+                    break;
+                case QAudio::OpenError:
+                    qDebug() << "OpenError";
+                    break;
+                case QAudio::FatalError:
+                    qDebug() << "FatalError";
+                    break;
+                default:
+                    break;
+                }
+            } else {
+                qDebug() << "Audio playback was stopped";
+            }
+            break;
+
+    case QAudio::ActiveState:
+            qDebug() << "It's alive! (supposedly)";
+            shouldDeleteAndCleanUp = false;
+            break;
+
+    case QAudio::SuspendedState:
+            qDebug() << "The suspense is killing me...";
+            break;
+
+    case QAudio::InterruptedState:
+            qDebug() << "Interu";
+            break;
+    default:
+            qDebug() << "Some other state: " << newState;
+            break;
+    }
+    if (shouldDeleteAndCleanUp)
+    {
+        qDebug() << "Cleaning up estim";
+        disconnect(stimAudio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleEstimAudioStateChanged(QAudio::State)));
+        disconnect(stimAudio, SIGNAL(notify()), this, SLOT(calculateStimOffsetFromVideo()));
+        stimAudio->stop();
+        stimAudio->reset();
+        stimAudio->deleteLater();
+        stimAudio = nullptr;
+
+        stimSignalSource->close();
+        stimSignalSource->deleteLater();
+        stimSignalSource = nullptr;
+    }
+}
+
+void MainWindow::reportEstimAudioState()
+{
+    static int tick = 0;
+    qDebug() << tick++;
+
+    if (stimAudio == nullptr)
+    {
+        qDebug() << "stimAudio is null!";
+        return;
+    }
+    switch (stimAudio->state()) {
+        case QAudio::IdleState:
+            qDebug() << "Idle";
             break;
 
         case QAudio::StoppedState:
@@ -3261,9 +3417,43 @@ void MainWindow::handleEstimAudioStateChanged(QAudio::State newState)
             }
             break;
 
-        default:
-//            qDebug() << "Another thing!";
+    case QAudio::ActiveState:
+            qDebug() << "It's alive! (supposedly)";
             break;
+
+    case QAudio::SuspendedState:
+            qDebug() << "The suspense is killing me...";
+            break;
+
+    case QAudio::InterruptedState:
+            qDebug() << "Interu";
+            break;
+    }
+    qDebug() << "Error: " << stimAudio->error();
+}
+
+void MainWindow::calculateStimOffsetFromVideo()
+{
+    long videoMillis = getCurrentVideoMillis();
+    long estimMillis = getCurrentEstimAudioMillis();
+    if (videoMillis == -1)
+    {
+        qDebug() << "The video is not playing";
+        return;
+    }
+    if (estimMillis == -1)
+    {
+        qDebug() << "E-stim is not playing";
+        return;
+    }
+    int difference = estimMillis - videoMillis;
+    if (estimMillis >= videoMillis)
+    {
+        qDebug() << "The e-stim signal is " << difference << " milliseconds ahead of the video";
+    }
+    else
+    {
+        qDebug() << "The video is " << abs(difference) << " milliseconds ahead of the stim signal!!";
     }
 }
 
@@ -3272,7 +3462,7 @@ void MainWindow::on_actionExport_E_Stim_Track_triggered()
     if (ui->eventsTable->model()->rowCount() == 0)
         return; //don't save empty file
 
-    QString lastOpenedLocation = getLastOpenedLocation();
+    QString lastOpenedLocation = OptionsDialog::getLastOpenedLocation();
     if (lastOpenedLocation.isEmpty())
         lastOpenedLocation = QDir::toNativeSeparators(QDir::homePath());
     QString exportFilename = QFileDialog::getSaveFileName(this, tr("Export E-Stim Signal"),

@@ -2,23 +2,32 @@
 #include "optionsdialog.h"
 #include "mainwindow.h"
 
-PhaseSetterModifier::PhaseSetterModifier(int startFrequency, int endFrequency)
+PhaseSetterModifier::PhaseSetterModifier(int startFrequency, int endFrequency, int channel)
     :
       phase(0),
       step(0),
       startingFrequency(startFrequency),
       endingFrequency(endFrequency),
       updateCounter(OptionsDialog::getEstimSamplingRate()),
-      frequencyUpdateInterval(OptionsDialog::getEstimSamplingRate())
+      frequencyUpdateInterval(OptionsDialog::getEstimSamplingRate()),
+      channel(channel)
 {
 
 }
 
-void PhaseSetterModifier::modify(StereoStimSignalSample &sample)
+void PhaseSetterModifier::modify(StimSignalSample &sample)
 {
     if (updateCounter >= frequencyUpdateInterval)
         setStep(sample.totalTimestamp());
-    sample.setPrimaryPhase(phase);
+    if (channel == -1)
+    {
+        for (int i = 0; i < sample.numberOfChannels(); ++i)
+            sample.setPhase(i, phase);
+    }
+    else
+    {
+        sample.setPhase(channel, phase);
+    }
     phase += step;
 }
 

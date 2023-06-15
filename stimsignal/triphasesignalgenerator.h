@@ -10,6 +10,7 @@ public:
 protected:
     void setModifiers() override;
     long getStopTimestamp() override;
+    StimSignalSample * createSample(qlonglong wholeTimestamp, qreal fractionalTimestamp) override;
 };
 
 #endif // TRIPHASESIGNALGENERATOR_H

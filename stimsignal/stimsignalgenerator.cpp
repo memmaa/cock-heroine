@@ -9,8 +9,10 @@
 #include "mainwindow.h"
 #include "multithreadedsamplepipelineprocessor.h"
 #include "optionsdialog.h"
-#include "stimsignal/triphasesignalgenerator.h"
 #include "stimsignal/singlechannelsignalgenerator.h"
+#include "stimsignal/dualchannelsignalgenerator.h"
+#include "stimsignal/triphasesignalgenerator.h"
+#include "modifiers/waypointlist.h"
 
 bool isPCM(const QAudioFormat &format)
 {
@@ -35,14 +37,27 @@ StimSignalGenerator::StimSignalGenerator(QAudioFormat audioFormat, QObject *pare
     setGenerateFrom(0);
 }
 
+StimSignalGenerator::~StimSignalGenerator()
+{
+    sampleProcessor->deleteLater();
+    for (auto modifier : modifiers)
+    {
+        modifier->deleteLater();
+    }
+}
+
 qint64 StimSignalGenerator::generate(char *data, qint64 maxlen)
 {
     if (modifiers.isEmpty())
+    {
         setModifiers();
+        sampleProcessor = new MultithreadedSamplePipelineProcessor(&modifiers, this);
+    }
 
     qint64 bytesGenerated = 0;
     const int bytesPerChannel = audioFormat.sampleSize() / 8;
-    const int bytesPerSample = audioFormat.channelCount() * bytesPerChannel;
+    const int channelCount = audioFormat.channelCount();
+    const int bytesPerSample = channelCount * bytesPerChannel;
 
     int samplesToGenerate = maxlen / bytesPerSample;
     char *ptr = reinterpret_cast<char *>(data);
@@ -54,40 +69,62 @@ qint64 StimSignalGenerator::generate(char *data, qint64 maxlen)
         samplesToGenerate = 0;
     }
 
-    QList<StereoStimSignalSample *> sampleVector;
+    QList<StimSignalSample *> sampleVector;
     for (int i = 0; i < samplesToGenerate; ++i)
     {
         qreal fractionalSecond = (sampleCounter * 1.0f) / (float) audioFormat.sampleRate();
-        if (fractionalSecond > stopAt)
+        StimSignalSample * sample = createSample(generateFromTimestamp, fractionalSecond * 1000);
+        qreal totalTimestamp = sample->totalTimestamp();
+//        if (i)
+//        {
+//            qreal diff = abs(totalTimestamp - sampleVector.last()->totalTimestamp());
+//            if (diff < 0.123 || diff > 0.127)
+//                qDebug() << "WEIRD: difference from last: " << diff;
+//        }
+//        else
+//            qDebug() << "started generating at: " << totalTimestamp;
+//        if (i == samplesToGenerate - 1)
+//            qDebug() << "finished generating at: " << totalTimestamp;
+        if (totalTimestamp > stopAt)
             break;
-        StereoStimSignalSample * sample = new StereoStimSignalSample(generateFromTimestamp, fractionalSecond * 1000);
         sampleVector.append(sample);
+        ++sampleCounter;
+        if (sampleCounter >= audioFormat.sampleRate())
+        {
+            setGenerateFrom(generateFromTimestamp + 1000); // because that's how many milliseconds we've allocated.
+//            qDebug() << "generate from: " << generateFromTimestamp;
+        }
     }
     if (!sampleVector.isEmpty())
     {
-        MultithreadedSamplePipelineProcessor processor(&sampleVector, &modifiers, this);
-        processor.processAll();
+        sampleProcessor->processAll(&sampleVector);
     }
 
     for (int i = 0; i < sampleVector.length(); ++i)
     {
-        qToLittleEndian<qint16>(sampleVector[i]->primaryPcm(), ptr);
-        ptr += bytesPerChannel;
-        qToLittleEndian<qint16>(sampleVector[i]->secondaryPcm(), ptr);
-        ptr += bytesPerChannel;
+        for (int thisChannel = 0; thisChannel < channelCount; ++thisChannel)
+        {
+            qToLittleEndian<qint16>(sampleVector[i]->pcm(thisChannel), ptr);
+            delete sampleVector[i]; //we're done with it now - do not access again
+            ptr += bytesPerChannel;
+        }
         bytesGenerated += bytesPerSample;
         Q_ASSERT(ptr <= (data + maxlen));
-        ++sampleCounter;
-        if (sampleCounter >= audioFormat.sampleRate())
-        {
-            setGenerateFrom(generateFromTimestamp + 1000); // because that's how many milliseconds we've done.
-//            qDebug() << "generate from: " << generateFromTimestamp;
-        }
     }
     //if (bytesGenerated)
         //emit readyRead();
     emit progressed(generateFromTimestamp, stopAt);
     return bytesGenerated;
+}
+
+bool StimSignalGenerator::open(QIODevice::OpenMode mode)
+{
+    return QIODevice::open(mode);
+}
+
+void StimSignalGenerator::close()
+{
+    return QIODevice::close();
 }
 
 qint64 StimSignalGenerator::readData(char *data, qint64 maxlen)
@@ -116,6 +153,11 @@ void StimSignalGenerator::setGenerateFrom(long from)
     sampleCounter = 0;
 }
 
+void StimSignalGenerator::setPlayFrom(long timestamp)
+{
+    setGenerateFrom(timestamp);
+}
+
 StimSignalGenerator *StimSignalGenerator::createFromPrefs(QObject *parent)
 {
     QAudioFormat format = OptionsDialog::getEstimAudioFormat();
@@ -123,7 +165,65 @@ StimSignalGenerator *StimSignalGenerator::createFromPrefs(QObject *parent)
     {
     case MONO:
         return new SingleChannelSignalGenerator(format, parent);
-    default:
+    case STEREO:
+        return new DualChannelSignalGenerator(format, parent);
+    case TRIPHASE:
         return new TriphaseSignalGenerator(format, parent);
+    default:
+        return new SingleChannelSignalGenerator(format, parent);
     }
+}
+
+WaypointList * StimSignalGenerator::createWaypointList(bool waypointsComeOnOrBeforeBeat, qreal peakPositionInCycle, qreal troughLevel)
+{
+    WaypointList * list = new WaypointList();
+    int maxStrokeLength = OptionsDialog::getEstimMaxStrokeLength();
+    qreal maxBoostAmount = 0.01 * OptionsDialog::getEstimBoostShortStrokes();
+    for (int i = 0; i < events.length(); ++i)
+    {
+        if (waypointsComeOnOrBeforeBeat)
+        {
+            long start = 0;
+            long end = events[i].timestamp;
+            //deal with corner case: first beat
+            if (i)
+            {
+                start = events[i-1].timestamp;
+            }
+            int length = std::min(int(end - start), maxStrokeLength);
+            start = end - length; //we already set start, but this handles first beat or long beat
+            qreal peak = start + (peakPositionInCycle * length);
+            int otherLength = maxStrokeLength;
+            if (i < (events.length() - 1))
+            {
+                otherLength = std::min((int) (events[i+1].timestamp - end), maxStrokeLength);
+            }
+            int valueForBoostCalculation = std::max(length, otherLength);
+            qreal boostAmount = ((qreal) (maxStrokeLength - valueForBoostCalculation) / maxStrokeLength) * maxBoostAmount;
+            list->plonkOnTheEnd(new Waypoint(peak, 1 + boostAmount));
+        }
+        else
+            //waypoints come on or after the the beat
+        {
+            long start = events[i].timestamp;
+            long end = start + maxStrokeLength;
+            //deal with corner case: last beat
+            if (i < (events.length() - 1))
+            {
+                end = events[i+1].timestamp;
+            }
+            int length = std::min(int(end - start), maxStrokeLength);
+            qreal peak = start + (peakPositionInCycle * length);
+            int otherLength = maxStrokeLength;
+            if (i)
+            {
+                otherLength = std::min(int(start - events[i-1].timestamp), maxStrokeLength);
+            }
+            int valueForBoostCalculation = std::max(length, otherLength);
+            qreal boostAmount = ((qreal) (maxStrokeLength - valueForBoostCalculation) / maxStrokeLength) * maxBoostAmount;
+            list->plonkOnTheEnd(new Waypoint(peak, 1 + boostAmount));
+        }
+    }
+    list->insertTroughs(troughLevel);
+    return list;
 }

@@ -12,7 +12,7 @@ class TriphaseModifier : public StimSignalModifier
 {
 public:
     TriphaseModifier();
-    void modify(StereoStimSignalSample &sample) override;
+    void modify(StimSignalSample &sample) override;
 private:
     int strokeLength;
     int getMaxTriphaseStrokeLength();

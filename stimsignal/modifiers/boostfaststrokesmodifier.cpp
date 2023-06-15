@@ -9,7 +9,7 @@ BoostFastStrokesModifier::BoostFastStrokesModifier()
     normalStrokeLength = OptionsDialog::getEstimMaxStrokeLength();
 }
 
-void BoostFastStrokesModifier::modify(StereoStimSignalSample &sample)
+void BoostFastStrokesModifier::modify(StimSignalSample &sample)
 {
     qreal timestamp = sample.totalTimestamp();
     Event * before = mainWindow->getLastEventBefore(timestamp);
@@ -22,6 +22,9 @@ void BoostFastStrokesModifier::modify(StereoStimSignalSample &sample)
         //can't (or shouldn't) help with this
         return;
     qreal boostAmount = ((qreal) (normalStrokeLength - length) / normalStrokeLength) * maxBoostAmount;
-    sample.setPrimaryAmplitude(sample.getPrimaryAmplitude() * (1 + boostAmount));
-    sample.setSecondaryAmplitude(sample.getSecondaryAmplitude() * (1 + boostAmount));
+    // XXX
+    // Note that this will cause distortion if not combined with something which reduces the overall volume below 100%
+    // At the time of writing, this role is done by the 'ProgressIncreaseModifier'
+    for (int i = 0; i < sample.numberOfChannels(); ++i)
+        sample.setAmplitude(i, sample.getAmplitude(i) * (1 + boostAmount));
 }

@@ -47,6 +47,11 @@ QString Event::toAsciiString()
     return returnValue;
 }
 
+int Event::toHash()
+{
+    return (timestamp * 83) + (typeData * 89) + (value * 97);
+}
+
 unsigned char Event::type() const
 {
     return typeData & 0x7F;

@@ -12,7 +12,7 @@ class TriphaseBeatProximityModifier : public StimSignalModifier
 {
 public:
     TriphaseBeatProximityModifier();
-    void modify(StereoStimSignalSample &sample) override;
+    void modify(StimSignalSample &sample) override;
 private:
     int fadeInTime;
     int fadeInAnticipation;

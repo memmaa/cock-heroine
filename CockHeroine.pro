@@ -41,6 +41,7 @@ SOURCES += main.cpp\
     preplaybackinfodialog.cpp \
     seektotimecodedialog.cpp \
     splitdialog.cpp \
+    stimsignal/dualchannelsignalgenerator.cpp \
     stimsignal/estimwavfilewriter.cpp \
     stimsignal/modifiers/channelbalancemodifier.cpp \
     stimsignal/modifiers/boostfaststrokesmodifier.cpp \
@@ -52,13 +53,19 @@ SOURCES += main.cpp\
     stimsignal/modifiers/singlechannelbeatproximitymodifier.cpp \
     stimsignal/modifiers/triphasebeatproximitymodifier.cpp \
     stimsignal/modifiers/triphasemodifier.cpp \
+    stimsignal/modifiers/waypoint.cpp \
+    stimsignal/modifiers/waypointfollowermodifier.cpp \
+    stimsignal/modifiers/waypointlist.cpp \
+    stimsignal/monostimsignalsample.cpp \
     stimsignal/multithreadedsamplepipelineprocessor.cpp \
     stimsignal/singlechannelsignalgenerator.cpp \
     stimsignal/stereostimsignalsample.cpp \
+    stimsignal/stimsignalfile.cpp \
     stimsignal/stimsignalgenerator.cpp \
     stimsignal/stimsignalmodifier.cpp \
     stimsignal/stimsignalsample.cpp \
     stimsignal/stimsignalsamplefactory.cpp \
+    stimsignal/stimsignalsource.cpp \
     stimsignal/stimsignalworker.cpp \
     stimsignal/triphasesignalgenerator.cpp \
     syncfilewriter.cpp \
@@ -122,6 +129,7 @@ HEADERS  += mainwindow.h \
     preplaybackinfodialog.h \
     seektotimecodedialog.h \
     splitdialog.h \
+    stimsignal/dualchannelsignalgenerator.h \
     stimsignal/estimwavfilewriter.h \
     stimsignal/modifiers/channelbalancemodifier.h \
     stimsignal/modifiers/boostfaststrokesmodifier.h \
@@ -133,13 +141,19 @@ HEADERS  += mainwindow.h \
     stimsignal/modifiers/singlechannelbeatproximitymodifier.h \
     stimsignal/modifiers/triphasebeatproximitymodifier.h \
     stimsignal/modifiers/triphasemodifier.h \
+    stimsignal/modifiers/waypoint.h \
+    stimsignal/modifiers/waypointfollowermodifier.h \
+    stimsignal/modifiers/waypointlist.h \
+    stimsignal/monostimsignalsample.h \
     stimsignal/multithreadedsamplepipelineprocessor.h \
     stimsignal/singlechannelsignalgenerator.h \
     stimsignal/stereostimsignalsample.h \
+    stimsignal/stimsignalfile.h \
     stimsignal/stimsignalgenerator.h \
     stimsignal/stimsignalmodifier.h \
     stimsignal/stimsignalsample.h \
     stimsignal/stimsignalsamplefactory.h \
+    stimsignal/stimsignalsource.h \
     stimsignal/stimsignalworker.h \
     stimsignal/triphasesignalgenerator.h \
     syncfilewriter.h \

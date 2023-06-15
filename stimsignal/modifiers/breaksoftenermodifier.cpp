@@ -1,18 +1,34 @@
 #include "breaksoftenermodifier.h"
 #include "optionsdialog.h"
 
-BreakSoftenerModifier::BreakSoftenerModifier()
+BreakSoftenerModifier::BreakSoftenerModifier(int checkThisChannel)
+    :
+        currentLevel(1),
+        channel(checkThisChannel)
 {
     maxQuietening = qreal(OptionsDialog::getEstimCompressorStrength()) / 100;
     long samplesInQuieteningPeriod = OptionsDialog::getEstimSamplingRate() * OptionsDialog::getEstimCompressorBiteTime() + 0.5;
     long samplesInLoudeningPeriod = OptionsDialog::getEstimSamplingRate() * OptionsDialog::getEstimCompressorRelease() + 0.5;
     quieteningPerSilentSample = maxQuietening / samplesInQuieteningPeriod;
     loudeningPerActiveSample = maxQuietening / samplesInLoudeningPeriod;
+
+    if (channel == -1)
+    {
+        if (OptionsDialog::getEstimChannelCount() == 1)
+            channel = 0;
+        else
+        {
+            if (OptionsDialog::getEstimLeftChannelFadeTime() > OptionsDialog::getEstimRightChannelFadeTime())
+                channel = 1;
+            else
+                channel = 0;
+        }
+    }
 }
 
-void BreakSoftenerModifier::modify(StereoStimSignalSample &sample)
+void BreakSoftenerModifier::modify(StimSignalSample &sample)
 {
-    if (sample.getPrimaryAmplitude() == 0)
+    if (sample.getAmplitude(channel) == 0)
     {
         if (!atMaxQuietening())
             currentLevel -= quieteningPerSilentSample;
@@ -22,8 +38,8 @@ void BreakSoftenerModifier::modify(StereoStimSignalSample &sample)
         if (!atMaxVolume())
         {
             currentLevel += loudeningPerActiveSample;
-            sample.setPrimaryAmplitude(sample.getPrimaryAmplitude() * currentLevel);
-            sample.setSecondaryAmplitude(sample.getSecondaryAmplitude() * currentLevel);
+            for (int i = 0; i < sample.numberOfChannels(); ++i)
+                sample.setAmplitude(i, sample.getAmplitude(i) * currentLevel);
         }
     }
 }

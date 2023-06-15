@@ -890,7 +890,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="estimRightChannelCycleStartsOnBeatRadioButton">
+             <widget class="QRadioButton" name="estimRightChannelCycleEndsOnBeatRadioButton">
               <property name="toolTip">
                <string>A full up-and-down stroke is timed so that it finishes on the beat. It will pause at the bottom of the stroke if there is no beat shortly after.</string>
               </property>
@@ -903,7 +903,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="estimRightChannelCycleEndsOnBeatRadioButton">
+             <widget class="QRadioButton" name="estimRightChannelCycleStartsOnBeatRadioButton">
               <property name="toolTip">
                <string>A full down-and-up stroke is timed so that the bottom of the stroke falls on the beat. After the up-stroke, it will pause at the top of the stroke if there is no beat shortly after.</string>
               </property>
@@ -1049,11 +1049,11 @@
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="invertedAppearance">
-               <bool>true</bool>
-              </property>
               <property name="tickPosition">
                <enum>QSlider::TicksBothSides</enum>
+              </property>
+              <property name="tickInterval">
+               <number>10</number>
               </property>
              </widget>
             </item>
@@ -1745,7 +1745,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="estimLeftChannelCycleStartsOnBeatRadioButton">
+             <widget class="QRadioButton" name="estimLeftChannelCycleEndsOnBeatRadioButton">
               <property name="toolTip">
                <string>A full up-and-down stroke is timed so that it finishes on the beat. It will pause at the bottom of the stroke if there is no beat shortly after.</string>
               </property>
@@ -1758,7 +1758,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="estimLeftChannelCycleEndsOnBeatRadioButton">
+             <widget class="QRadioButton" name="estimLeftChannelCycleStartsOnBeatRadioButton">
               <property name="toolTip">
                <string>A full down-and-up stroke is timed so that the bottom of the stroke falls on the beat. After the up-stroke, it will pause at the top of the stroke if there is no beat shortly after.</string>
               </property>
@@ -1904,11 +1904,11 @@
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="invertedAppearance">
-               <bool>false</bool>
-              </property>
               <property name="tickPosition">
                <enum>QSlider::TicksBothSides</enum>
+              </property>
+              <property name="tickInterval">
+               <number>10</number>
               </property>
              </widget>
             </item>

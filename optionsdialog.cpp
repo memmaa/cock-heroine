@@ -292,13 +292,13 @@ void OptionsDialog::setControlsFromPreferences()
     {
         ui->estimLeftChannelCycleStartsOnBeatRadioButton->setChecked(true);
         ui->estimLeftChannelCycleEndsOnBeatRadioButton->setChecked(false);
-        ui->estimLeftChannelPeakWithinCycleSlider->setInvertedAppearance(false);
+//        ui->estimLeftChannelPeakWithinCycleSlider->setInvertedAppearance(false);
     }
     else
     {
         ui->estimLeftChannelCycleStartsOnBeatRadioButton->setChecked(false);
         ui->estimLeftChannelCycleEndsOnBeatRadioButton->setChecked(true);
-        ui->estimLeftChannelPeakWithinCycleSlider->setInvertedAppearance(true);
+//        ui->estimLeftChannelPeakWithinCycleSlider->setInvertedAppearance(true);
     }
     ui->estimLeftChannelPeakWithinCycleSlider->setValue(settings.value(PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE).toInt());
     ui->estimLeftChannelBackgroundLevelSpinBox->setValue(settings.value(PREF_ESTIM_LEFT_CHANNEL_TROUGH_VALUE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_TROUGH_VALUE).toInt());
@@ -310,13 +310,13 @@ void OptionsDialog::setControlsFromPreferences()
     {
         ui->estimRightChannelCycleStartsOnBeatRadioButton->setChecked(true);
         ui->estimRightChannelCycleEndsOnBeatRadioButton->setChecked(false);
-        ui->estimRightChannelPeakWithinCycleSlider->setInvertedAppearance(false);
+//        ui->estimRightChannelPeakWithinCycleSlider->setInvertedAppearance(false);
     }
     else
     {
         ui->estimRightChannelCycleStartsOnBeatRadioButton->setChecked(false);
         ui->estimRightChannelCycleEndsOnBeatRadioButton->setChecked(true);
-        ui->estimRightChannelPeakWithinCycleSlider->setInvertedAppearance(true);
+//        ui->estimRightChannelPeakWithinCycleSlider->setInvertedAppearance(true);
     }
     ui->estimRightChannelPeakWithinCycleSlider->setValue(settings.value(PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE, DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE).toInt());
     ui->estimRightChannelBackgroundLevelSpinBox->setValue(settings.value(PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE, DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE).toInt());
@@ -427,7 +427,10 @@ void OptionsDialog::setPreferencesFromControls()
     {
         settings.setValue(PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE, PREF_ESTIM_ENDS_ON_BEAT_STYLE);
     }
-    settings.setValue(PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE, ui->estimLeftChannelPeakWithinCycleSlider->value());
+    int leftSliderValue = ui->estimLeftChannelPeakWithinCycleSlider->value();
+    if (ui->estimLeftChannelPeakWithinCycleSlider->invertedAppearance())
+        leftSliderValue = ui->estimLeftChannelPeakWithinCycleSlider->maximum() - leftSliderValue;
+    settings.setValue(PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE, leftSliderValue);
     settings.setValue(PREF_ESTIM_LEFT_CHANNEL_TROUGH_VALUE, ui->estimLeftChannelBackgroundLevelSpinBox->value());
 
     //right channel
@@ -441,8 +444,24 @@ void OptionsDialog::setPreferencesFromControls()
     {
         settings.setValue(PREF_ESTIM_RIGHT_CHANNEL_STROKE_STYLE, PREF_ESTIM_ENDS_ON_BEAT_STYLE);
     }
-    settings.setValue(PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE, ui->estimRightChannelPeakWithinCycleSlider->value());
+    int rightSliderValue = ui->estimRightChannelPeakWithinCycleSlider->value();
+    if (ui->estimRightChannelPeakWithinCycleSlider->invertedAppearance())
+        rightSliderValue = ui->estimRightChannelPeakWithinCycleSlider->maximum() - rightSliderValue;
+    settings.setValue(PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE, rightSliderValue);
     settings.setValue(PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE, ui->estimRightChannelBackgroundLevelSpinBox->value());
+}
+
+#define LAST_OPENED_LOCATION "Last opened location"
+void OptionsDialog::setLastOpenedLocation(const QString path)
+{
+    QSettings settings;
+    settings.setValue(LAST_OPENED_LOCATION, path);
+}
+
+QString OptionsDialog::getLastOpenedLocation()
+{
+    QSettings settings;
+    return settings.value(LAST_OPENED_LOCATION).toString();
 }
 
 bool OptionsDialog::autoLoadLastSession()
@@ -834,6 +853,12 @@ EstimSourceMode OptionsDialog::getEstimSourceMode()
     return FROM_FILE;
 }
 
+QString OptionsDialog::getEstimSourceFilename()
+{
+    QSettings settings;
+    return settings.value(PREF_ESTIM_INPUT_FILE, DEFAULT_PREF_ESTIM_INPUT_FILE).toString();
+}
+
 int OptionsDialog::getEstimChannelCount()
 {
     if (getEstimSignalType() == MONO)
@@ -973,7 +998,8 @@ QString OptionsDialog::getEstimTriphaseStrokeStyle()
 QString OptionsDialog::getEstimLeftChannelStrokeStyle()
 {
     QSettings settings;
-    if (settings.value(PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE).toString() == PREF_ESTIM_STARTS_ON_BEAT_STYLE)
+    QString pref = settings.value(PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_STROKE_STYLE).toString();
+    if ( pref == PREF_ESTIM_STARTS_ON_BEAT_STYLE)
     {
         return PREF_ESTIM_STARTS_ON_BEAT_STYLE;
     }
@@ -1036,6 +1062,7 @@ double OptionsDialog::getEstimCompressorRelease()
 double OptionsDialog::getEstimLeftChannelPeakPositionInCycle()
 {
     QSettings settings;
+    float value = settings.value(PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE).toFloat() / 100;
     return settings.value(PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE).toFloat() / 100;
 }
 

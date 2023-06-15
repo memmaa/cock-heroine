@@ -30,7 +30,7 @@ class EditorWindow;
 class CustomEventAction;
 class SyncFileWriter;
 class QAudioOutput;
-class StimSignalGenerator;
+class StimSignalSource;
 class QProgressDialog;
 
 namespace Ui {
@@ -93,6 +93,7 @@ public slots:
     void httpResponseReceived(QNetworkReply *);
     void pressPlay();
     void prepareProgress(QString title, QString buttonLabel, int minimum, int maximum);
+    void startEstimSignal();
     void updateProgress(int progress, int);
     void handleProgressCancelled();
     void disposeOfProgress();
@@ -127,7 +128,7 @@ private:
     bool launchEditor();
 public:
     //literally only public so that globals.c:seekToTimestamp can reallign estim signal
-    void startEstimSignal();
+    void initiateEstimSignal();
     void stopEstimSignal();
 
 private:
@@ -136,8 +137,6 @@ private:
     void removeDuplicateEvents();
     void clearEventsList();
 
-    void setLastOpenedLocation(const QString path);
-    QString getLastOpenedLocation();
     static bool isVideoFileSuffix(const QString & suffix);
     static int isScriptFileSuffix(const QString & suffix);
     QString getAssociatedFile(const QString & filename);
@@ -182,13 +181,13 @@ private:
     void storeServerSideHandyScriptLocation(QNetworkReply *);
     void handleSyncPrepareResponse(QNetworkReply *);
     void handleSyncPlayResponse(QNetworkReply *);
+    long getCurrentVideoMillis();
+    long getCurrentEstimAudioMillis();
 
     QSettings settings;
 
     eventDataModel * eventsModel;
     EventDataProxyModel * eventsProxyModel;
-    QString loadedVideo;
-    QString loadedScript;
     QString strokeSoundSource;
     QSoundEffect strokeSound;
     const static QString defaultFileExt;
@@ -236,7 +235,8 @@ private:
     QNetworkAccessManager * networkManager = new QNetworkAccessManager(this);
     ButtplugInterface * buttplugIF;
 
-    StimSignalGenerator * stimSignalGenerator;
+    QIODevice * stimSignalSource;
+//    StimSignalFile * stimSignalFile;
     QAudioOutput * stimAudio;
     QProgressDialog * progressDialog;
 
@@ -305,6 +305,8 @@ private slots:
     void on_actionConfigure_buttplug_devices_triggered();
     void on_actionNope_triggered();
     void handleEstimAudioStateChanged(QAudio::State state);
+    void reportEstimAudioState();
+    void calculateStimOffsetFromVideo();
     void on_actionExport_E_Stim_Track_triggered();
 };
 

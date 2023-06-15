@@ -3,18 +3,23 @@
 #include "event.h"
 #include "optionsdialog.h"
 
-SingleChannelBeatProximityModifier::SingleChannelBeatProximityModifier()
+SingleChannelBeatProximityModifier::SingleChannelBeatProximityModifier(bool cycleStartsOnBeat, qreal peakPositionWithinCycle, qreal troughLevel, qreal fadeTime)
+    :
+        cycleStartsOnBeat(cycleStartsOnBeat),
+        peakPositionInCycle(peakPositionWithinCycle),
+        troughLevel(troughLevel),
+        fadeTime(fadeTime),
+        maxStrokeLength(OptionsDialog::getEstimMaxStrokeLength()),
+        amountFadedInOneBeat(OptionsDialog::getEstimMaxStrokeLength() / fadeTime)
 {
 
 }
 
 
-void SingleChannelBeatProximityModifier::modify(StereoStimSignalSample &sample)
+void SingleChannelBeatProximityModifier::modify(StimSignalSample &sample)
 {
     //probably set these as members
-    qreal peakPositionInCycle = OptionsDialog::getEstimLeftChannelPeakPositionInCycle();
-    qreal fadeTime = OptionsDialog::getEstimLeftChannelFadeTime();
-    bool linkedToFollowingBeat = OptionsDialog::getEstimLeftChannelStrokeStyle() == PREF_ESTIM_ENDS_ON_BEAT_STYLE;
+    bool linkedToFollowingBeat = !cycleStartsOnBeat;
 
     long beforeTimestamp = 0;
     Event * eventBefore = mainWindow->getLastEventBefore(sample.totalTimestamp());
@@ -27,7 +32,7 @@ void SingleChannelBeatProximityModifier::modify(StereoStimSignalSample &sample)
         afterTimestamp = eventAfter->timestamp;
 
     int lengthOfCurrentStroke = afterTimestamp - beforeTimestamp;
-    qreal proportionOfFullStrokeLength = (qreal) lengthOfCurrentStroke / OptionsDialog::getEstimMaxStrokeLength();
+    qreal proportionOfFullStrokeLength = (qreal) lengthOfCurrentStroke / maxStrokeLength;
     if (proportionOfFullStrokeLength <= 1)
     {
         //in this case, we can assume that the current volume is part of a fairly regular 'cycle'.
@@ -41,9 +46,12 @@ void SingleChannelBeatProximityModifier::modify(StereoStimSignalSample &sample)
         //There may be a better way
         if (difference > 0.5)
             difference = abs(difference - 1);
-        qreal maxReductionWithinNormalCycle = 1 - OptionsDialog::getEstimLeftChannelTroughLevel();
+        qreal maxReductionWithinNormalCycle = 1 - troughLevel;
         qreal reduction = 2 * difference * maxReductionWithinNormalCycle;
         qreal multiplier = 1 - reduction;
+        if (multiplier > 1 || multiplier < 0)
+            qDebug() << "multiplier out of range: " << multiplier;
+
         sample.setPrimaryAmplitude(sample.getPrimaryAmplitude() * multiplier);
     }
     else
@@ -59,9 +67,12 @@ void SingleChannelBeatProximityModifier::modify(StereoStimSignalSample &sample)
             if (eventAfter)
             {
                 //the approach to the next beat will happen "as normal, at normal speed"
-                qreal peakPosition = afterTimestamp - ((1 - OptionsDialog::getEstimLeftChannelPeakPositionInCycle()) * OptionsDialog::getEstimMaxStrokeLength());
+                qreal peakPosition = afterTimestamp - ((1 - peakPositionInCycle) * maxStrokeLength);
                 qreal distanceFromThere = abs(peakPosition - sample.totalTimestamp());
-                followingMultiplier = 1 - (distanceFromThere / fadeTime);
+                if (distanceFromThere < fadeTime)
+                    followingMultiplier = 1 - (distanceFromThere / fadeTime);
+                else
+                    followingMultiplier = 0;
             }
             else
             {
@@ -71,11 +82,18 @@ void SingleChannelBeatProximityModifier::modify(StereoStimSignalSample &sample)
             {
                 //the distance of the peak through the cycle dictates the level that the volume will be
                 //at as it comes out the end of the cycle.
-                qreal peakiness = abs (1 - (2 * peakPositionInCycle));
-                qreal levelAtEndOfLastCycle = OptionsDialog::getEstimLeftChannelTroughLevel() + (peakiness * (1 - OptionsDialog::getEstimLeftChannelTroughLevel()));
-                qreal distanceFromThere = abs(beforeTimestamp - sample.totalTimestamp());
-                qreal remainingFadeout = fadeTime * levelAtEndOfLastCycle;
-                precedingMultiplier = levelAtEndOfLastCycle * (1 - (distanceFromThere / remainingFadeout));
+                qreal levelAtEndOfLastCycle = 1 - ((1 - peakPositionInCycle) * amountFadedInOneBeat);
+                if (levelAtEndOfLastCycle < 0)
+                    precedingMultiplier = 0;
+                else
+                {
+                    qreal distanceFromThere = abs(beforeTimestamp - sample.totalTimestamp());
+                    qreal remainingFadein = fadeTime * levelAtEndOfLastCycle;
+                    if (distanceFromThere > remainingFadein)
+                        followingMultiplier = 0;
+                    else
+                        followingMultiplier = levelAtEndOfLastCycle * (1 - (distanceFromThere / remainingFadein));
+                }
             }
             else
             {
@@ -88,9 +106,12 @@ void SingleChannelBeatProximityModifier::modify(StereoStimSignalSample &sample)
             if (eventBefore)
             {
                 //the tail of the preceding beat will happen "as normal, at normal speed"
-                qreal peakPosition = beforeTimestamp + (OptionsDialog::getEstimLeftChannelPeakPositionInCycle() * OptionsDialog::getEstimMaxStrokeLength());
+                qreal peakPosition = beforeTimestamp + (peakPositionInCycle * maxStrokeLength);
                 qreal distanceFromThere = abs(peakPosition - sample.totalTimestamp());
-                precedingMultiplier = 1 - (distanceFromThere / fadeTime);
+                if (distanceFromThere < fadeTime)
+                    precedingMultiplier = 1 - (distanceFromThere / fadeTime);
+                else
+                    precedingMultiplier = 0;
             }
             else
             {
@@ -100,18 +121,31 @@ void SingleChannelBeatProximityModifier::modify(StereoStimSignalSample &sample)
             {
                 //the distance of the peak through the cycle dictates the level that the volume will be
                 //at as it enters the cycle.
-                qreal peakiness = abs (1 - (2 * peakPositionInCycle));
-                qreal levelAtBeginningOfNextCycle = OptionsDialog::getEstimLeftChannelTroughLevel() + (peakiness * (1 - OptionsDialog::getEstimLeftChannelTroughLevel()));
-                qreal distanceFromThere = abs(afterTimestamp - sample.totalTimestamp());
-                qreal remainingFadein = fadeTime * levelAtBeginningOfNextCycle;
-                precedingMultiplier = levelAtBeginningOfNextCycle * (1 - (distanceFromThere / remainingFadein));
+                qreal levelAtBeginningOfNextCycle = 1 - (peakPositionInCycle * amountFadedInOneBeat);
+                if (levelAtBeginningOfNextCycle < 0)
+                    followingMultiplier = 0;
+                else
+                {
+                    qreal distanceFromThere = abs(afterTimestamp - sample.totalTimestamp());
+                    qreal remainingFadein = fadeTime * levelAtBeginningOfNextCycle;
+                    if (distanceFromThere > remainingFadein)
+                        followingMultiplier = 0;
+                    else
+                        followingMultiplier = levelAtBeginningOfNextCycle * (1 - (distanceFromThere / remainingFadein));
+                }
             }
             else
             {
                 followingMultiplier = 0;
             }
         }
+        if (precedingMultiplier > 1 || precedingMultiplier < 0)
+            qDebug() << "precedingMultiplier out of range: " << precedingMultiplier;
+        if (followingMultiplier > 1 || followingMultiplier < 0)
+            qDebug() << "followingMultiplier out of range: " << followingMultiplier;
         qreal multiplier = std::max(precedingMultiplier, followingMultiplier);
+        if (multiplier > 1 || multiplier < 0)
+            qDebug() << "multiplier out of range: " << multiplier;
         sample.setPrimaryAmplitude(sample.getPrimaryAmplitude() * multiplier);
     }
 }

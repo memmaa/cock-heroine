@@ -2,7 +2,7 @@
 #define STIMSIGNALWORKER_H
 
 #include <QObject>
-class StereoStimSignalSample;
+class StimSignalSample;
 class StimSignalModifier;
 #include <QList>
 
@@ -10,7 +10,8 @@ class StimSignalWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit StimSignalWorker(QList<StereoStimSignalSample *> * sampleVector, StimSignalModifier * modifier, QObject *parent = nullptr);
+    explicit StimSignalWorker(QList<StimSignalSample *> * sampleVector, StimSignalModifier * modifier, QObject *parent = nullptr);
+    void setVector(QList<StimSignalSample *> * newVector);
 
 signals:
     void indexProcessed(int index);
@@ -19,7 +20,7 @@ public slots:
     void processIndex(int index);
 
 private:
-    QList<StereoStimSignalSample *> * sampleVector;
+    QList<StimSignalSample *> * sampleVector;
     StimSignalModifier * modifier;
 };
 

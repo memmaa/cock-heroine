@@ -19,10 +19,6 @@ public:
     qreal getSecondaryPhase() const;
     void setSecondaryPhase(const qreal &value);
 
-protected:
-    qreal secondaryAmplitude;
-    qreal secondaryPhase;
-
 signals:
 
 };

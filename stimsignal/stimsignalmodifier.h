@@ -2,7 +2,7 @@
 #define STIMSIGNALMODIFIER_H
 
 #include <QObject>
-#include "stereostimsignalsample.h"
+#include "stimsignalsample.h"
 
 class StimSignalModifier : public QObject
 {
@@ -10,7 +10,7 @@ class StimSignalModifier : public QObject
 public:
     explicit StimSignalModifier(QObject *parent = nullptr);
 
-    virtual void modify(StereoStimSignalSample & sample) = 0;
+    virtual void modify(StimSignalSample & sample) = 0;
 
 signals:
 

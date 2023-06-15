@@ -12,10 +12,10 @@ ProgressIncreaseModifier::ProgressIncreaseModifier()
     totalIncrease = endingVolume - initialValue;
 }
 
-void ProgressIncreaseModifier::modify(StereoStimSignalSample &sample)
+void ProgressIncreaseModifier::modify(StimSignalSample &sample)
 {
     qreal progress = mainWindow->progressThroughGame(sample.totalTimestamp());
     qreal scaleValue = initialValue + (progress * totalIncrease);
-    sample.setPrimaryAmplitude(sample.getPrimaryAmplitude() * scaleValue);
-    sample.setSecondaryAmplitude(sample.getSecondaryAmplitude() * scaleValue);
+    for (int i = 0; i < sample.numberOfChannels(); ++i)
+        sample.setAmplitude(i, sample.getAmplitude(i) * scaleValue);
 }

@@ -10,6 +10,7 @@
 #include "modifiers/channelbalancemodifier.h"
 #include "mainwindow.h"
 #include "optionsdialog.h"
+#include "stereostimsignalsample.h"
 
 
 TriphaseSignalGenerator::TriphaseSignalGenerator(QAudioFormat audioFormat, QObject *parent)
@@ -36,4 +37,9 @@ void TriphaseSignalGenerator::setModifiers()
 long TriphaseSignalGenerator::getStopTimestamp()
 {
     return mainWindow->totalPlayTime() + OptionsDialog::getEstimBeatFadeOutDelay() + OptionsDialog::getEstimBeatFadeOutTime();
+}
+
+StimSignalSample *TriphaseSignalGenerator::createSample(qlonglong wholeTimestamp, qreal fractionalTimestamp)
+{
+    return new StereoStimSignalSample(wholeTimestamp, fractionalTimestamp);
 }

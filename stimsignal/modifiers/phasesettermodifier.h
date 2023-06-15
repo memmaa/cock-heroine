@@ -6,8 +6,14 @@
 class PhaseSetterModifier : public StimSignalModifier
 {
 public:
-    PhaseSetterModifier(int startFrequency, int endFrequency);
-    void modify(StereoStimSignalSample &sample) override;
+    //!
+    //! \brief PhaseSetterModifier
+    //! \param startFrequency
+    //! \param endFrequency
+    //! \param channel by deafult this is 0, and will apply to the first channel. Set to -1 to apply to all channels
+    //!
+    PhaseSetterModifier(int startFrequency, int endFrequency, int channel = 0);
+    void modify(StimSignalSample &sample) override;
 
 private:
     void setStep(long timestamp);
@@ -17,6 +23,7 @@ private:
     int endingFrequency;
     int updateCounter;
     int frequencyUpdateInterval;
+    int channel;
 };
 
 #endif // PHASESETTERMODIFIER_H

@@ -7,7 +7,7 @@ class ProgressIncreaseModifier : public StimSignalModifier
 {
 public:
     ProgressIncreaseModifier();
-    void modify(StereoStimSignalSample &sample) override;
+    void modify(StimSignalSample &sample) override;
     qreal initialValue = 1;
     qreal totalIncrease = 0;
 };

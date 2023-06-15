@@ -5,7 +5,7 @@ PhaseInverterModifier::PhaseInverterModifier()
 
 }
 
-void PhaseInverterModifier::modify(StereoStimSignalSample &sample)
+void PhaseInverterModifier::modify(StimSignalSample &sample)
 {
-    sample.setSecondaryPhase(sample.getSecondaryPhase() + 0.5);
+    sample.setPhase(1, sample.getPhase(1) + 0.5);
 }

@@ -32,7 +32,7 @@ TriphaseBeatProximityModifier::TriphaseBeatProximityModifier()
     fadeOutDelay = OptionsDialog::getEstimBeatFadeOutDelay();
 }
 
-void TriphaseBeatProximityModifier::modify(StereoStimSignalSample &sample)
+void TriphaseBeatProximityModifier::modify(StimSignalSample &sample)
 {
     //how close are we to the last event?
     Event * eventBefore = mainWindow->getLastEventBefore(sample.totalTimestamp());
@@ -67,6 +67,6 @@ void TriphaseBeatProximityModifier::modify(StereoStimSignalSample &sample)
 
     qreal volume = qMax(volumeBefore, volumeAfter);
 
-    sample.setPrimaryAmplitude(sample.getPrimaryAmplitude() * volume);
-    sample.setSecondaryAmplitude(sample.getSecondaryAmplitude() * volume);
+    for (int i = 0; i < sample.numberOfChannels(); ++i)
+        sample.setAmplitude(i, sample.getAmplitude(i) * volume);
 }

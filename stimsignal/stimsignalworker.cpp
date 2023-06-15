@@ -1,13 +1,18 @@
 #include "stimsignalworker.h"
 #include "stimsignalmodifier.h"
 
-StimSignalWorker::StimSignalWorker(QList<StereoStimSignalSample *> *sampleVector, StimSignalModifier *modifier, QObject *parent)
+StimSignalWorker::StimSignalWorker(QList<StimSignalSample *> *sampleVector, StimSignalModifier *modifier, QObject *parent)
     :
         QObject(parent),
         sampleVector(sampleVector),
         modifier(modifier)
 {
 
+}
+
+void StimSignalWorker::setVector(QList<StimSignalSample *> *newVector)
+{
+    sampleVector = newVector;
 }
 
 void StimSignalWorker::processIndex(int index)

@@ -38,6 +38,8 @@ public:
 
     QString toAsciiString();
     QString toBinary();
+    //! used for hashing the events table to detect changes
+    int toHash();
 
     long timestamp;
 

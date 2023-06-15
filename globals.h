@@ -40,8 +40,12 @@ extern QList<UniqueBeatInterval> uniqueBeatIntervals;
 extern QVector<BeatPattern> beatPatterns;
 extern const char * defaultValueShortcuts[2][10];
 
+extern QString loadedVideo;
+extern QString loadedScript;
+
 extern QTimer * refreshTimer;
 extern QMediaPlayer * videoPlayer;
+extern QMediaPlayer * stimSignalPlayer;
 extern MainWindow * mainWindow;
 extern EditorWindow * editor;
 extern QTime * timecode;
