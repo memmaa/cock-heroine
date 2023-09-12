@@ -38,10 +38,10 @@ void BreakSoftenerModifier::modify(StimSignalSample &sample)
         if (!atMaxVolume())
         {
             currentLevel += loudeningPerActiveSample;
-            for (int i = 0; i < sample.numberOfChannels(); ++i)
-                sample.setAmplitude(i, sample.getAmplitude(i) * currentLevel);
         }
     }
+    for (int i = 0; i < sample.numberOfChannels(); ++i)
+        sample.setAmplitude(i, sample.getAmplitude(i) * currentLevel);
 }
 
 bool BreakSoftenerModifier::atMaxQuietening()

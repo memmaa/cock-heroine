@@ -3,6 +3,8 @@
 #include "mainwindow.h"
 #include <QAudioDeviceInfo>
 #include <QColorDialog>
+#include <QFileDialog>
+#include <QDir>
 
 #define DEFAULT_PREFS_PAGE 0
 #define CURRENT_PREFS_PAGE "Current Preferences Dialog Tab Index"
@@ -119,6 +121,8 @@
 #define DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE 50
 #define PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE "Right Channel Estim Value at Troughs Between Peaks"
 #define DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE 75
+#define PREF_ESTIM_DELAY_MS "Delay E-stim signal by (milliseconds)"
+#define DEFAULT_PREF_ESTIM_DELAY_MS 0
 
 OptionsDialog::OptionsDialog(QWidget *parent) :
     QDialog(parent),
@@ -320,6 +324,7 @@ void OptionsDialog::setControlsFromPreferences()
     }
     ui->estimRightChannelPeakWithinCycleSlider->setValue(settings.value(PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE, DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE).toInt());
     ui->estimRightChannelBackgroundLevelSpinBox->setValue(settings.value(PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE, DEFAULT_PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE).toInt());
+    ui->estimDelaySpinBox->setValue(settings.value(PREF_ESTIM_DELAY_MS, DEFAULT_PREF_ESTIM_DELAY_MS).toInt());
 
     //general
     ui->tabWidget->setCurrentIndex(settings.value(CURRENT_PREFS_PAGE, DEFAULT_PREFS_PAGE).toInt());
@@ -449,6 +454,7 @@ void OptionsDialog::setPreferencesFromControls()
         rightSliderValue = ui->estimRightChannelPeakWithinCycleSlider->maximum() - rightSliderValue;
     settings.setValue(PREF_ESTIM_RIGHT_CHANNEL_PEAK_WITHIN_CYCLE, rightSliderValue);
     settings.setValue(PREF_ESTIM_RIGHT_CHANNEL_TROUGH_VALUE, ui->estimRightChannelBackgroundLevelSpinBox->value());
+    settings.setValue(PREF_ESTIM_DELAY_MS, ui->estimDelaySpinBox->value());
 }
 
 #define LAST_OPENED_LOCATION "Last opened location"
@@ -567,7 +573,7 @@ int OptionsDialog::handyFullStrokeDuration()
 //!
 //! \brief OptionsDialog::getStrokeLengthProportion
 //! \return integer percentage - 0 is full stroke length (and try to increase speed to maintain this),
-//!         					 100 is constant speed, reducing stroke length as needed
+//!                              100 is constant speed, reducing stroke length as needed
 //!
 int OptionsDialog::getStrokeLengthProportion()
 {
@@ -840,13 +846,13 @@ EstimSourceMode OptionsDialog::getEstimSourceMode()
     QString text = settings.value(PREF_ESTIM_MODE, DEFAULT_PREF_ESTIM_MODE).toString();
     if (text == QApplication::translate("OptionsDialog", "Generate In Advance (Single Channel)", nullptr) ||
         text == QApplication::translate("OptionsDialog", "Generate In Advance (Dual Channel)", nullptr) ||
-        text ==	QApplication::translate("OptionsDialog", "Generate In Advance (Triphase)", nullptr))
+        text ==    QApplication::translate("OptionsDialog", "Generate In Advance (Triphase)", nullptr))
     {
         return PREGENERATED;
     }
     if (text == QApplication::translate("OptionsDialog", "Generate On-The-Fly (Single Channel)", nullptr) ||
         text == QApplication::translate("OptionsDialog", "Generate On-The-Fly (Dual Channel)", nullptr) ||
-        text ==	QApplication::translate("OptionsDialog", "Generate On-The-Fly (Triphase)", nullptr))
+        text ==    QApplication::translate("OptionsDialog", "Generate On-The-Fly (Triphase)", nullptr))
     {
         return ON_THE_FLY;
     }
@@ -884,8 +890,8 @@ EstimSignalType OptionsDialog::getEstimSignalType()
         return STEREO;
     }
     if (
-        text ==	QApplication::translate("OptionsDialog", "Generate On-The-Fly (Triphase)", nullptr) ||
-        text ==	QApplication::translate("OptionsDialog", "Generate In Advance (Triphase)", nullptr))
+        text ==    QApplication::translate("OptionsDialog", "Generate On-The-Fly (Triphase)", nullptr) ||
+        text ==    QApplication::translate("OptionsDialog", "Generate In Advance (Triphase)", nullptr))
     {
         return TRIPHASE;
     }
@@ -1062,7 +1068,6 @@ double OptionsDialog::getEstimCompressorRelease()
 double OptionsDialog::getEstimLeftChannelPeakPositionInCycle()
 {
     QSettings settings;
-    float value = settings.value(PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE).toFloat() / 100;
     return settings.value(PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE, DEFAULT_PREF_ESTIM_LEFT_CHANNEL_PEAK_WITHIN_CYCLE).toFloat() / 100;
 }
 
@@ -1104,25 +1109,77 @@ double OptionsDialog::getEstimRightChannelFadeTime()
     return halfAStrokeTime / amountFadedInHalfAStrokeTime;
 }
 
+int OptionsDialog::getEstimDelay()
+{
+    QSettings settings;
+    return settings.value(PREF_ESTIM_DELAY_MS, DEFAULT_PREF_ESTIM_DELAY_MS).toInt();
+}
+
 QString OptionsDialog::getEstimSettingsFilenameSuffix()
 {
-	return QString("%1HzFrom%2to%3init%4adsr%5-%6-%7-%8inc%9max%10boost%11limit%12in%13then%14style%15%16lr%17")
-            .arg(getEstimSamplingRate())
-            .arg(getEstimTriphaseStartingFrequency())
-            .arg(getEstimTriphaseEndingFrequency())
-            .arg(getEstimStartPlaybackFadeInTime())
-            .arg(getEstimBeatFadeInTime())
-            .arg(getEstimBeatFadeInAnticipationTime())
-            .arg(getEstimBeatFadeOutDelay())
-            .arg(getEstimBeatFadeOutTime())
-            .arg(getEstimTotalSignalGrowth())
-            .arg(getEstimMaxStrokeLength())
-            .arg(getEstimCompressorStrength())
-            .arg(getEstimCompressorBiteTime())
-            .arg(getEstimCompressorRelease())
-            .arg(getEstimTriphaseStrokeStyle() == PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE ? "UDB" : "DBU")
-            .arg(getEstimInvertStrokes() ? "i" : "")
-            .arg(getEstimSignalPan());
+    QString generalOptionsString =
+               QString("%1Hzinit%4inc%9max%10boost%11limit%12in%13then%14%16lr")
+                        .arg(getEstimSamplingRate())
+                                .arg(getEstimStartPlaybackFadeInTime())
+                                     .arg(getEstimTotalSignalGrowth())
+                                          .arg(getEstimMaxStrokeLength())
+                                                  .arg(getEstimCompressorStrength())
+                                                          .arg(getEstimCompressorBiteTime())
+                                                               .arg(getEstimCompressorRelease())
+                                                                      .arg(getEstimTriphaseStrokeStyle() == PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE ? "UDB" : "DBU")
+                                                                         .arg(getEstimSignalPan());
+    switch (getEstimSignalType())
+    {
+    case MONO:
+    {
+        QString monoOptionsString = QString("From%1to%2style%3pos%4t%5")
+                                                 .arg(getEstimLeftChannelStartingFrequency())
+                                                     .arg(getEstimLeftChannelEndingFrequency())
+                                                            .arg(getEstimLeftChannelStrokeStyle() == PREF_ESTIM_ENDS_ON_BEAT_STYLE ? "EOB" : "SOB" )
+                                                                 .arg(qRound(getEstimLeftChannelPeakPositionInCycle()*100) )
+                                                                     .arg(qRound(getEstimLeftChannelTroughLevel() * 100));
+        return QString("mono-%1-%2")
+                             .arg(monoOptionsString)
+                                .arg(generalOptionsString);
+    }
+    case STEREO:
+    {
+        QString leftOptionsString = QString("From%1to%2style%3pos%4t%5")
+                                                 .arg(getEstimLeftChannelStartingFrequency())
+                                                     .arg(getEstimLeftChannelEndingFrequency())
+                                                            .arg(getEstimLeftChannelStrokeStyle() == PREF_ESTIM_ENDS_ON_BEAT_STYLE ? "EOB" : "SOB" )
+                                                                 .arg(qRound(getEstimLeftChannelPeakPositionInCycle()*100) )
+                                                                     .arg(qRound(getEstimLeftChannelTroughLevel() * 100));
+        QString rightOptionsString = QString("From%1to%2style%3pos%4t%5")
+                                                  .arg(getEstimRightChannelStartingFrequency())
+                                                      .arg(getEstimRightChannelEndingFrequency())
+                                                             .arg(getEstimRightChannelStrokeStyle() == PREF_ESTIM_ENDS_ON_BEAT_STYLE ? "EOB" : "SOB" )
+                                                                  .arg(qRound(getEstimRightChannelPeakPositionInCycle()*100) )
+                                                                      .arg(qRound(getEstimRightChannelTroughLevel() * 100));
+        return QString("stereo-L%1-R%2-%3")
+                                .arg(leftOptionsString)
+                                    .arg(rightOptionsString)
+                                       .arg(generalOptionsString);
+    }
+    case TRIPHASE:
+    {
+        QString triphaseOptionsString =  QString("From%1to%2adsr%5-%6-%7-%8style%15%16")
+                                                      .arg(getEstimTriphaseStartingFrequency())
+                                                          .arg(getEstimTriphaseEndingFrequency())
+                                                                .arg(getEstimBeatFadeInTime())
+                                                                   .arg(getEstimBeatFadeInAnticipationTime())
+                                                                      .arg(getEstimBeatFadeOutDelay())
+                                                                         .arg(getEstimBeatFadeOutTime())
+                                                                                .arg(getEstimTriphaseStrokeStyle() == PREF_ESTIM_UP_DOWN_BEAT_STROKE_STYLE ? "UDB" : "DBU")
+                                                                                   .arg(getEstimInvertStrokes() ? "i" : "");
+        return QString("triphase-%1-%2")
+                                 .arg(triphaseOptionsString)
+                                    .arg(generalOptionsString);
+    }
+    default:
+        return QString();
+        }
+
 }
 
 void OptionsDialog::on_estimEnabledCheckBox_stateChanged(int checkState)
@@ -1221,3 +1278,20 @@ void OptionsDialog::on_estimModeComboBox_currentTextChanged(const QString &arg1)
     ui->estimFilenameLineEdit->setVisible(arg1.contains("File"));
     ui->estimFilenameBrowseButton->setVisible(arg1.contains("File"));
 }
+
+void OptionsDialog::on_estimFilenameBrowseButton_clicked()
+{
+    QString lastOpenedLocation = getLastOpenedLocation();
+    if (lastOpenedLocation.isEmpty())
+        lastOpenedLocation = QDir::toNativeSeparators(QDir::homePath());
+    QString filename = QFileDialog::getOpenFileName(this,
+                                            tr("Select E-Stim Signal File"),
+                                            lastOpenedLocation,
+                                            tr("Wave files (*.wav)"));
+
+    if (filename.isEmpty())
+        return;
+
+    ui->estimFilenameLineEdit->setText(filename);
+}
+

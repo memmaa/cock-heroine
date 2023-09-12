@@ -192,7 +192,7 @@ void ButtplugFeatureParams::newEnabledState(bool enabled)
     setUiEnabled(enabled);
 }
 
-void ButtplugFeatureParams::newEventType(int eventType)
+void ButtplugFeatureParams::newEventType(int )
 {
 
 }

@@ -125,6 +125,7 @@ public:
     static double getEstimRightChannelTroughLevel();
     static double getEstimLeftChannelFadeTime();
     static double getEstimRightChannelFadeTime();
+    static int getEstimDelay();
     //!
     //! \brief getEstimSettingsFilenameSuffix
     //! \return a string, suitable for use in filenames, that uniquely identifies
@@ -177,6 +178,8 @@ private slots:
     void on_meterChooseNowMarkerColourButton_clicked();
 
     void on_estimModeComboBox_currentTextChanged(const QString &arg1);
+
+    void on_estimFilenameBrowseButton_clicked();
 
 private:
     Ui::OptionsDialog *ui;

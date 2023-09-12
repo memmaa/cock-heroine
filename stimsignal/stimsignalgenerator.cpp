@@ -105,11 +105,11 @@ qint64 StimSignalGenerator::generate(char *data, qint64 maxlen)
         for (int thisChannel = 0; thisChannel < channelCount; ++thisChannel)
         {
             qToLittleEndian<qint16>(sampleVector[i]->pcm(thisChannel), ptr);
-            delete sampleVector[i]; //we're done with it now - do not access again
             ptr += bytesPerChannel;
         }
         bytesGenerated += bytesPerSample;
         Q_ASSERT(ptr <= (data + maxlen));
+        delete sampleVector[i]; //we're done with it now - do not access again
     }
     //if (bytesGenerated)
         //emit readyRead();

@@ -184,6 +184,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // For now, let's hack it...
     // ...OK, so hacking it doesn't work - there is not a stable delay between calling QAudioDevice::start and the actual playback
     // so Qt6 it is!
+    //update: it's not. Qt6 isn't complete enough for our purposes yet (August 2023)
 
     createActions();
     KeyboardShortcutsDialog::applyActionShortcutsFromPrefs();
@@ -548,6 +549,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         triggerEvent(bigWandPulse);
         addEventToTable(bigWandPulse);
      }
+     else if (event->key() == Qt::Key_Slash)
+     {
+         //TODO: Delay e-stim here
+//        playbackLatency += 50;
+//        sendSerialTimecodeSync();
+//        if (OptionsDialog::connectToHandy())
+//            setHandySyncOffset(OptionsDialog::handySyncBaseOffset() + playbackLatency);
+     }
      else if (event->key() == Qt::Key_Plus)
      {
         playbackLatency += 50;
@@ -816,6 +825,7 @@ void MainWindow::clearEventsList()
     int totalRows = eventsModel->rowCount();
     for (int i = 0; i < totalRows; ++i)
         eventsModel->removeRow(0);
+    loadedScript = QString();
 }
 
 void MainWindow::jumpToTime()
@@ -1286,7 +1296,7 @@ void MainWindow::initiateEstimSignal()
     }
     if (inputFile)
     {
-        StimSignalFile::seekToTimestamp(inputFile, currentTimecode(), format.sampleRate(), format.channelCount() * format.sampleSize());
+        StimSignalFile::seekToTimestamp(inputFile, currentTimecode(), format.sampleRate(), format.channelCount() * (format.sampleSize() / 8 /*convert bits to bytes*/));
     }
     else if (generator)
     {
@@ -3174,8 +3184,8 @@ void MainWindow::videoStateChanged(QMediaPlayer::State s)
     {
     case QMediaPlayer::PlayingState:
         qDebug() << "State: Playing";
-        startEstimSignal();
-//        QTimer::singleShot(501, this, SLOT(startEstimSignal())); //delay is not constant (though it is usually one value the first playback, and another the rest of the time)
+//        startEstimSignal();
+        QTimer::singleShot(OptionsDialog::getEstimDelay(), this, SLOT(startEstimSignal())); //delay is not constant (though it is usually one value the first playback, and another the rest of the time)
         break;
     case QMediaPlayer::PausedState:
         qDebug() << "State: Paused";

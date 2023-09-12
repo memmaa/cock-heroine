@@ -22,8 +22,8 @@ void TriphaseModifier::modify(StimSignalSample &sample)
 {
     qreal phaseDifference = 0;
 
-    long nextEventTimestamp;
-    long previousEventTimestamp;
+    long nextEventTimestamp = 0;
+    long previousEventTimestamp = 0;
     bool previousEventFound = false;
     bool nextEventFound = false;
     Event * nextEvent = mainWindow->getNextEventAfter(sample.totalTimestamp());
@@ -50,7 +50,7 @@ void TriphaseModifier::modify(StimSignalSample &sample)
         {
             //now we're part way through a 'stroke', so calculate how far through we are.
             qlonglong startStrokeAt = 0;
-            if ( !previousEventFound || abs(sample.distanceToTimestamp(previousEventTimestamp)) > getMaxTriphaseStrokeLength())
+            if ( !previousEventFound || std::abs(sample.distanceToTimestamp(previousEventTimestamp)) > getMaxTriphaseStrokeLength())
             {
                 startStrokeAt = nextEventTimestamp - getMaxTriphaseStrokeLength();
                 if (startStrokeAt < 0)
@@ -81,7 +81,7 @@ void TriphaseModifier::modify(StimSignalSample &sample)
             distance = sample.distanceToTimestamp(nextEventTimestamp) / halfOfStrokeLength;
             //distance is between 0 and 1
         }
-        else if (previousEventFound && abs(sample.distanceToTimestamp(previousEventTimestamp)) <= halfOfStrokeLength)
+        else if (previousEventFound && std::abs(sample.distanceToTimestamp(previousEventTimestamp)) <= halfOfStrokeLength)
         {
             //we're on an 'up stroke', calculate distance from beat, distance will be negative
             distance = sample.distanceToTimestamp(previousEventTimestamp) / halfOfStrokeLength;

@@ -313,22 +313,22 @@ bool MidiFileReader::handleMetaEvent()
             //fall through
         case 0x02: // Copyright notice
             if (type == 0x02) QTextStream(stdout) << "Ooh look - copyright! ";
-                   //fall through"
+                   //fall through
         case 0x03: // Sequence or track name
             if (type == 0x03) QTextStream(stdout) << "Sequence or track name: ";
-                   //fall through"
+                   //fall through
         case 0x04: // Instrument name
             if (type == 0x04) QTextStream(stdout) << "Instrument name: ";
-                   //fall through"
+                   //fall through
         case 0x05: // Lyric text
             if (type == 0x05) QTextStream(stdout) << "Lyric text: ";
-                   //fall through"
+                   //fall through
         case 0x06: // Marker text
             if (type == 0x06) QTextStream(stdout) << "Marker text: ";
-                   //fall through"
+                   //fall through
         case 0x07: // Cue point
             if (type == 0x07) QTextStream(stdout) << "Cue point text: ";
-                   //fall through"
+                   //fall through
             eventLength = readVariableLengthQuantity();
             dataBytes = new char[eventLength + 1];
             inputMidiData.readRawData(dataBytes,eventLength); //need somewhere to store string...
