@@ -5,6 +5,7 @@
 #include <QColorDialog>
 #include <QFileDialog>
 #include <QDir>
+#include <QMessageBox>
 
 #define DEFAULT_PREFS_PAGE 0
 #define CURRENT_PREFS_PAGE "Current Preferences Dialog Tab Index"
@@ -1185,6 +1186,13 @@ QString OptionsDialog::getEstimSettingsFilenameSuffix()
 void OptionsDialog::on_estimEnabledCheckBox_stateChanged(int checkState)
 {
     bool enabled = (checkState == Qt::Checked);
+    if (enabled)
+        QMessageBox::warning(this, tr("E-Stim Warning"), tr("READ THIS FIRST.\n\n"
+                                                            "This E-Stim signal generator is provided as-is without waranty of any sort.\n\n"
+                                                            "I have tested it to some degree (including many times on myself), but it is not guaranteed free from bugs. In particular, at the time of writing you should know:\n\n"
+                                                            "* There is no fade-in when starting mid-track, so it may start with a bit of jolt.\n"
+                                                            "* DECREASING 'Percentage amplitude increase over duration of game' will INCREASE the starting amplitude, so please re-calibrate after doing so.\n"
+                                                            "* There may be bugs I don't know about. YOU HAVE BEEN WARNED."));
     ui->estimDeviceComboBox->setEnabled(enabled);
     ui->estimTriphaseStartingFrequencySpinbox->setEnabled(enabled);
     ui->estimTriphaseEndingFrequencySpinbox->setEnabled(enabled);
