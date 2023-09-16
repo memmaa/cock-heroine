@@ -32,7 +32,7 @@ But, as they became a popular file format for storing sex hardware instructions,
 # So what does it do then?
 Cock Heroine is designed specifically with Cock Hero games in mind.  
 You can store timestamps for all the events, just like you can with a funscript, but these events aren't tied to particular hardware.  
-You can import funscripts, or record events on-the-fly, and then use the editor to make sure they're prefectly in time with the music.  
+You can import funscripts, or record events on-the-fly, and then use the editor to make sure they're perfectly in time with the music.  
 Then you can use them to create beat tracks, control hardware and play back the events, create funscripts or whatever.
 
 # Feature list
@@ -77,6 +77,8 @@ Then you can use them to create beat tracks, control hardware and play back the 
 * Import funscripts either as beats or as raw data
 * Export to full speed or half speed funscripts
 * Keyboard shortcuts for almost everything
+* Export beat meter as series of images
+* Very limited in-editor undo/redo support
 * Probably some other stuff I forgot
 
 # What doesn't it do?
@@ -85,8 +87,7 @@ These include:
 * [Buttplug](https://buttplug.io/) support, to control more types of hardware.
 * More drag-n-drop UI interfaces
 * Support for 'edging' type events on the Handy
-* Ability to export beat meters instead of just rendering them inside the tool
-* Undo functionality
+* More comprehensive undo functionality
 * Ask to save on exit
 * Make it less glitchy and make it crash less often (though to be fair it's not terrible)
 * Fully customisable keyboard shortcuts (they're half-done, but never quite made it)
