@@ -826,6 +826,7 @@ void MainWindow::clearEventsList()
     for (int i = 0; i < totalRows; ++i)
         eventsModel->removeRow(0);
     loadedScript = QString();
+    loadedVideo = QString();
 }
 
 void MainWindow::jumpToTime()
