@@ -71,8 +71,10 @@ Then you can use them to create beat tracks, control hardware and play back the 
 * Import and export to and from MIDI files
 * Export beat track audio file (using any beat sound you choose) for use in completed videos, or for use by other tools.
 * UI controls for some customisations  
-![image](https://user-images.githubusercontent.com/82333228/115297179-ce464000-a153-11eb-9e08-d94e04ffa8be.png)
+![image](https://github.com/memmaa/cock-heroine/assets/82333228/0cdbda09-f882-4648-af15-e7fe07ef004d)
 * Handy support - both playback and csv export
+* E-Stim support - customisable settings for single, dual channel or triphase.
+* [Buttplug](https://buttplug.io/) support for vibrator-type devices.
 * Adjust stroke location, speed, and choose how short strokes are handled
 * Import funscripts either as beats or as raw data
 * Export to full speed or half speed funscripts
@@ -84,9 +86,9 @@ Then you can use them to create beat tracks, control hardware and play back the 
 # What doesn't it do?
 There are (more than) a few things Cock Heroine doesn't do, which I wish it did, but haven't had the time to add yet.  
 These include:
-* [Buttplug](https://buttplug.io/) support, to control more types of hardware.
+* Extended [Buttplug](https://buttplug.io/) support, to control more non-vibrator types of hardware.
 * More drag-n-drop UI interfaces
-* Support for 'edging' type events on the Handy
+* Support for 'edging' type events on the Handy or E-Stim
 * More comprehensive undo functionality
 * Ask to save on exit
 * Make it less glitchy and make it crash less often (though to be fair it's not terrible)
@@ -94,9 +96,9 @@ These include:
 * A list of things that gets longer every time I think about it
 
 # How do I run it?
-I'll admit, I haven't found a very good way of distributing it yet.  
+I occasionaly put Windows builds linked from [here](https://milovana.com/forum/viewtopic.php?f=25&t=23983), but if you want the latest, or a Linux version, you'll need to build it from source.
 The basic steps are:
-* Download and install Qt Creator (complete with a version of Qt 5.x) on your platform (Linux, Mac, Windows)
+* Download and install Qt Creator (complete with a version of Qt 5.12) on your platform (Linux, Mac, Windows)
 * Download the Cock Heroine source
 * Open up the project file (CockHeroine.pro) in Qt Creator
 * Set up at least 1 configuration (if Qt installed properly, this should be as easy as clicking 'OK')
@@ -104,8 +106,6 @@ The basic steps are:
 * On Windows you will probably need to install a video codec pack because... Windows
 * On Linux, you might need to add yourself to the comms group in order to connect to the Arduino companion
 * Any other problems, consider getting in touch as I might have seen them before.
-
-If you know a better way to package and distribute a Qt application, get in touch!
 
 # How do I use it?
 If you have an existing Cock Heroine filetype or funscript:
