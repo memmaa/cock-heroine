@@ -2177,7 +2177,22 @@ void MainWindow::importFunscript(QString filename)
         importFunscriptFullStrokes(funscript);
         return;
     }
+    else if (importActualFunscriptEvents)
+    {
+        importFunscriptRawData(funscript);
+        return;
+    }
+    //so I guess the following code only needs to handle half strokes now
     QString content = funscript.readAll();
+    QJsonParseError * error = nullptr;
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(content.toUtf8(), error);
+    if (jsonDoc.isNull()) {
+        QMessageBox::warning(this,
+                             tr("An error occurred while converting the funscript"),
+                             error->errorString());
+        return;
+    }
+
     content = content.simplified();
     QRegularExpression re("{\\s*\"pos\"\\s*:\\s*(\\d+)\\s*,\\s*\"at\"\\s*:\\s*(\\d+)\\s*}");
     QRegularExpressionMatchIterator i = re.globalMatch(content);
@@ -2372,6 +2387,49 @@ void MainWindow::importFunscriptFullStrokes(QFile &funscript)
         }
         lastPos = pos;
         pos = nextPos;
+    }
+}
+
+void MainWindow::importFunscriptRawData(QFile &funscript)
+{
+    auto fsContent = funscript.readAll();
+    QJsonParseError * error = nullptr;
+    QJsonDocument fsDoc = QJsonDocument::fromJson(fsContent);
+    if (fsDoc.isNull()) {
+        QMessageBox::warning(this,
+                             tr("An error occurred while converting the funscript"),
+                             error->errorString());
+        return;
+    }
+    if (fsDoc.isObject())
+    {
+        QJsonObject fsObj = fsDoc.object();
+        QJsonValue actionsVal = fsObj.value("actions");
+        if (actionsVal.isUndefined() || !actionsVal.isArray()) {
+            QMessageBox::warning(this,"Malformed funscript", "Funscript actions absent or not a Json array");
+            return;
+        }
+        QJsonArray actionsArr = actionsVal.toArray();
+        for (int i = 0; i < actionsArr.size(); ++i)
+        {
+            QJsonValue actionVal = actionsArr[i];
+            if (!actionVal.isObject()) {
+                QMessageBox::warning(this,"Malformed funscript", "Funscript action was not a json object");
+                return;
+            }
+            QJsonValue atVal = actionVal.toObject().value("at");
+            QJsonValue posVal = actionVal.toObject().value("pos");
+            if (atVal.isUndefined() || posVal.isUndefined() || !atVal.isDouble() || !posVal.isDouble()) {
+                QMessageBox::warning(this,"Malformed funscript", "Funscript action did not contain 'pos' and 'at'");
+                return;
+            }
+            QJsonValue nextPosVal;
+            //now actually do the logic...
+            long at = roundToInt(atVal.toDouble());
+            int pos = roundToInt(posVal.toDouble());
+            Event newEvent(at, int (EVENT_STROKER_WAYPOINT), pos);
+            addEventToTable(newEvent);
+        }
     }
 }
 
