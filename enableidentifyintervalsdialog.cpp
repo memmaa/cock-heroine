@@ -215,7 +215,7 @@ void EnableIdentifyIntervalsDialog::on_intervalNumeratorSpinBox_valueChanged(int
 AbstractNewBeatValueWidget * EnableIdentifyIntervalsDialog::selectBestMatch()
 {
     AbstractNewBeatValueWidget * bestMatch = nullptr;
-    float bestValue = __FLT_MAX__;
+    float bestValue = std::numeric_limits<float>::max();
     for (auto widget : valueWidgets)
     {
         float resistance = widget->getMatchResistance();

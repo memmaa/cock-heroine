@@ -5,8 +5,10 @@
 #include<QVector>
 #include "beatanalysis.h"
 
-struct BeatValue
+class BeatValue
 {
+public:
+
     BeatValue() : active(false) {} //Because of QVector's annoying requirement for a default ctr.
     BeatValue(unsigned short numerator,
               unsigned char denominator,

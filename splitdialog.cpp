@@ -157,7 +157,7 @@ void SplitDialog::setButtonState()
 
     if (!pattern->isEmpty())
     {
-        float thisDifference = 0, lastDifference = __FLT_MAX__, lowestDifference = __FLT_MAX__;
+        float thisDifference = 0, lastDifference = std::numeric_limits<float>::max(), lowestDifference = std::numeric_limits<float>::max();
         int repetitions = 1;
         while (true) {
             thisDifference = abs(totalMsSelected - (repetitions * pattern->lengthInMsAtTempo()));

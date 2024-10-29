@@ -129,7 +129,7 @@ void WaveFileExporter::writeSoundAt(unsigned int timestamp)
         outputData << (qint8)0;
     outputFile.seek(beatStartSample + SIZE_OF_SIMPLE_WAV_HEADER);
     inputFile.seek(inputDataChunkStartPos + 8);
-    char frame[bytesPerFrame];
+    char* frame = new char[bytesPerFrame];
     unsigned int bytesWritten = 0;
     while (bytesWritten < inputAudioSize)
     {
@@ -137,6 +137,8 @@ void WaveFileExporter::writeSoundAt(unsigned int timestamp)
         outputFile.write(frame,bytesPerFrame);
         bytesWritten += bytesPerFrame;
     }
+
+    delete[] frame;
 }
 
 void WaveFileExporter::closeFile()

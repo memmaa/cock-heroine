@@ -99,11 +99,11 @@ float AbstractNewBeatValueWidget::poopness()
     float deviation = percentageDifferenceBetween(getCurrentValue(), valueInBeats);
     bool acceptableProportion = (deviation <= BeatAnalysis::Configuration::maxPercentAcceptableBeatError);
     if (!acceptableProportion)
-        return __FLT_MAX__;
+        return std::numeric_limits<float>::max();
 
     float beatsDifference = abs(valueInBeats - getCurrentValue());
     if (beatsDifference > 0.25 && BeatAnalysis::Configuration::allowHalfBeatsInBreaks)
-        return __FLT_MAX__;
+        return std::numeric_limits<float>::max();
 
     return (100 * deviation) / BeatAnalysis::Configuration::maxPercentAcceptableBeatError;
 }
