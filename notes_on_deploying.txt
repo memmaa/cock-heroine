@@ -1,0 +1,26 @@
+REM Looks like this file used to be a batch script in a former life!
+
+REM Step 1: Build Cock Heroine (from within Qt Creator, or however. Make note of the location where the .exe is produced)
+REM Step 2: Run this script (make sure the path to the exe is the one you just built)
+REM Step 3: Clear up unwanted files from the build directory, collect 'em all up and put somewhere for people to use.
+
+REM Not sure why this doesn't work. :-/
+REM set PATH="C:\Qt\Qt5.12.12\5.12.12\mingw73_32\bin;%PATH%"
+REM windeployqt.exe C:\Users\mm\Programming\Cpp\build-CockHeroine-Desktop_Qt_5_12_12_MinGW_32_bit-Release\release\CockHeroine.exe
+
+REM Use the full path instead
+REM C:\Qt\Qt5.12.12\5.12.12\mingw73_32\bin\windeployqt.exe C:\Users\mm\Programming\Cpp\build-CockHeroine-Desktop_Qt_5_12_12_MinGW_32_bit-Release\release\CockHeroine.exe
+REM The above doesn't work either!!
+
+REM Actual solution:
+REM Open the Qt command prompt (C:\Windows\System32\cmd.exe /A /Q /K C:\Qt\Qt5.12.12\5.12.12\mingw73_32\bin\qtenv2.bat)
+REM Then cd to the release directory: cd C:\Users\mm\Programming\Cpp\build-CockHeroine-Desktop_Qt_5_12_12_MinGW_32_bit-Release\release
+REM Now run: windeployqt CockHeroine.exe
+REM for 64-bit, change mingw73_32 to mingw73_64:
+REM C:\Qt\Qt5.12.12\5.12.12\mingw73_64\bin\qtenv2.bat
+REM cd C:\Users\mm\Programming\Cpp\build-CockHeroine-Desktop_Qt_5_12_12_MinGW_64_bit-Release\release
+REM windeployqt CockHeroine.exe
+
+C:\Qt\Qt5.12.12\5.12.12\mingw73_32\bin\qtenv2.bat
+cd C:\Users\mm\Programming\Cpp\build-CockHeroine-Desktop_Qt_5_12_12_MinGW_32_bit-Release\release
+windeployqt CockHeroine.exe
