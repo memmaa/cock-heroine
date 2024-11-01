@@ -82,7 +82,7 @@ float NewCustomBeatValueWidget::getMatchResistance()
     {
         return 0;
     }
-    return __FLT_MAX__;
+    return std::numeric_limits<float>::max();
 }
 
 #include "helperfunctions.h"

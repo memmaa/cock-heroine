@@ -98,7 +98,7 @@ void AddDialog::setButtonState()
     if (editor->ui->addIntervalMoveForwardRadioButton->isChecked())
         ui->shiftForwardRadioButton->setChecked(true);
     BeatValueWidget * closestMatch = nullptr;
-    float minDifference = __FLT_MAX__;
+    float minDifference = std::numeric_limits<float>::max();
     foreach (BeatValueWidget * child, ui->valuesFrame->findChildren<BeatValueWidget *>())
     {
         float difference = abs(editor->ui->addIntervalValueComboBox->currentText().toFloat() - child->getValue().getLength());

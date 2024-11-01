@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            name: Windows64
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Qt 5.15.2
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '5.15.2'
+        arch: 'win64_msvc2019_64'
+
+    - name: Build on Windows64
+      if: matrix.name == 'Windows64'
+      run: |
+        mkdir build
+        cd build
+        cmake .. -G"Visual Studio 17 2022" -DQt5_DIR="$env:QT_ROOT_DIR\lib\cmake\Qt5"
+        cmake --build . --target CockHeroine --config Release
+
+    - name: Deploy qt libraries
+      run: |
+        cd $env:QT_ROOT_DIR\bin
+        windeployqt --release $env:GITHUB_WORKSPACE\build\Release\CockHeroine.exe
+
+    - name: Zip artifacts
+      run: |
+        Compress-Archive -Path $env:GITHUB_WORKSPACE\build\Release\* -DestinationPath $env:GITHUB_WORKSPACE\build\CockHeroine.zip
+
+    - name: Upload artifacts on Windows64
+      if: matrix.name == 'Windows64'
+      uses: actions/upload-artifact@v4
+      with:
+        name: CockHeroine
+        path: ${{ github.workspace }}/build/CockHeroine.zip

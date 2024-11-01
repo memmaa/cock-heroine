@@ -118,7 +118,7 @@ short Event::maxPossibleValue()
     case EVENT_STROKER_WAYPOINT:
         return 100;
     case EVENT_TIMED_WAND_PULSE:
-        return __SHRT_MAX__;
+        return std::numeric_limits<short>::max();
     default:
         return 255;
     }

@@ -26,7 +26,7 @@ enum e_eventType
     EVENT_ENUM_SIZE
 };
 
-struct Event
+class Event
 {
 public:
     Event();
