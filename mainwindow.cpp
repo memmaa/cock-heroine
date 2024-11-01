@@ -3382,7 +3382,7 @@ void MainWindow::on_actionNope_triggered()
 void MainWindow::handleEstimAudioStateChanged(QAudio::State newState)
 {
     qDebug() << "Estim Audio status changed";
-    boolean shouldDeleteAndCleanUp = true;
+    bool shouldDeleteAndCleanUp = true;
     switch (newState) {
         case QAudio::IdleState:
             // Finished playing (no more data)
