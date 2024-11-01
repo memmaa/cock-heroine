@@ -207,4 +207,4 @@ FORMS    += mainwindow.ui \
     keyboardshortcutsdialog.ui \
     splitdialog.ui
 
-RESOURCES   = resources.qrc
+RESOURCES   = Resources/resources.qrc

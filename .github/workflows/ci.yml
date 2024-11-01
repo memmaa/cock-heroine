@@ -15,16 +15,38 @@ jobs:
         include:
           - os: windows-2022
             name: Windows64
+          - os: ubuntu-20.04 # needs to be 20.04 or else linuxdeployqt will not work
+            name: Linux
+          - os: macos-latest
+            name: macOS
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install Qt 5.15.2
+    - name: Install Qt 5.15.2 on Windows64
+      if: matrix.name == 'Windows64'
       uses: jurplel/install-qt-action@v4
       with:
         version: '5.15.2'
         arch: 'win64_msvc2019_64'
+     
+    - name: Install Qt5 on Linux
+      if: matrix.name == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install qtdeclarative5-dev
+        sudo apt-get install qtmultimedia5-dev
+        sudo apt-get install qttools5-dev
+        sudo apt-get install libqt5serialport5-dev
+        sudo apt-get install qtbase5-dev
+        sudo apt-get install libqt5websockets5-dev
+        sudo apt-get install libqt5gamepad5-dev
+
+    - name: Install Qt5 on macOS
+      if: matrix.name == 'macOS'
+      run: |
+        brew install qt5
 
     - name: Build on Windows64
       if: matrix.name == 'Windows64'
@@ -34,12 +56,42 @@ jobs:
         cmake .. -G"Visual Studio 17 2022" -DQt5_DIR="$env:QT_ROOT_DIR\lib\cmake\Qt5"
         cmake --build . --target CockHeroine --config Release
 
-    - name: Deploy qt libraries
+    - name: Build on Linux
+      if: matrix.name == 'Linux'
+      run: |
+        mkdir build
+        cd build
+        cmake .. -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
+        make -j$(nproc)
+
+    - name: Build on macOS
+      if: matrix.name == 'macOS'
+      run: |
+        mkdir build
+        cd build
+        cmake .. -G"Unix Makefiles" -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5
+        make -j4
+
+    - name: Deploy Qt libraries on Windows64
+      if: matrix.name == 'Windows64'
       run: |
         cd $env:QT_ROOT_DIR\bin
         windeployqt --release $env:GITHUB_WORKSPACE\build\Release\CockHeroine.exe
 
-    - name: Zip artifacts
+    - name: Deploy on Linux
+      if: matrix.name == 'Linux'
+      run: |
+        sudo apt-get install libfuse2
+        cd $GITHUB_WORKSPACE/build
+        wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
+        chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+        make install DESTDIR=AppDir ; find AppDir/
+        ./linuxdeployqt-continuous-x86_64.AppImage ./AppDir/usr/share/applications/CockHeroine.desktop -appimage
+        mv ./CockHeroine*.AppImage CockHeroine-x86_64.AppImage
+        ls -lF
+
+    - name: Zip Windows64 artifacts
+      if: matrix.name == 'Windows64'
       run: |
         Compress-Archive -Path $env:GITHUB_WORKSPACE\build\Release\* -DestinationPath $env:GITHUB_WORKSPACE\build\CockHeroine.zip
 
@@ -47,5 +99,12 @@ jobs:
       if: matrix.name == 'Windows64'
       uses: actions/upload-artifact@v4
       with:
-        name: CockHeroine
+        name: CockHeroine-Windows64
         path: ${{ github.workspace }}/build/CockHeroine.zip
+
+    - name: Upload artifacts on Linux
+      if: matrix.name == 'Linux'
+      uses: actions/upload-artifact@v4
+      with:
+        name: CockHeroine-Linux
+        path: ${{ github.workspace }}/build/CockHeroine-x86_64.AppImage
