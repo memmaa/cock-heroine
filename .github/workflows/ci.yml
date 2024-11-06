@@ -31,17 +31,12 @@ jobs:
         version: '5.15.2'
         arch: 'win64_msvc2019_64'
      
-    - name: Install Qt5 on Linux
+    - name: Install Qt 5.15.2 on Linux
       if: matrix.name == 'Linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install qtdeclarative5-dev
-        sudo apt-get install qtmultimedia5-dev
-        sudo apt-get install qttools5-dev
-        sudo apt-get install libqt5serialport5-dev
-        sudo apt-get install qtbase5-dev
-        sudo apt-get install libqt5websockets5-dev
-        sudo apt-get install libqt5gamepad5-dev
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '5.15.2'
+        arch: 'gcc_64'
 
     - name: Install Qt5 on macOS
       if: matrix.name == 'macOS'
