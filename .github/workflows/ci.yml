@@ -73,17 +73,17 @@ jobs:
         cd $env:QT_ROOT_DIR\bin
         windeployqt --release $env:GITHUB_WORKSPACE\build\Release\CockHeroine.exe
 
-    - name: Deploy on Linux
-      if: matrix.name == 'Linux'
-      run: |
-        sudo apt-get install libfuse2
-        cd $GITHUB_WORKSPACE/build
-        wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
-        chmod a+x linuxdeployqt-continuous-x86_64.AppImage
-        make install DESTDIR=AppDir ; find AppDir/
-        ./linuxdeployqt-continuous-x86_64.AppImage ./AppDir/usr/share/applications/CockHeroine.desktop -appimage
-        mv ./CockHeroine*.AppImage CockHeroine-x86_64.AppImage
-        ls -lF
+    #- name: Deploy on Linux
+    #  if: matrix.name == 'Linux'
+    #  run: |
+    #    sudo apt-get install libfuse2
+    #    cd $GITHUB_WORKSPACE/build
+    #    wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
+    #    chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+    #    make install DESTDIR=AppDir ; find AppDir/
+    #    ./linuxdeployqt-continuous-x86_64.AppImage ./AppDir/usr/share/applications/CockHeroine.desktop -appimage
+    #    mv ./CockHeroine*.AppImage CockHeroine-x86_64.AppImage
+    #    ls -lF
 
     - name: Zip Windows64 artifacts
       if: matrix.name == 'Windows64'
@@ -97,9 +97,9 @@ jobs:
         name: CockHeroine-Windows64
         path: ${{ github.workspace }}/build/CockHeroine.zip
 
-    - name: Upload artifacts on Linux
-      if: matrix.name == 'Linux'
-      uses: actions/upload-artifact@v4
-      with:
-        name: CockHeroine-Linux
-        path: ${{ github.workspace }}/build/CockHeroine-x86_64.AppImage
+    #- name: Upload artifacts on Linux
+    #  if: matrix.name == 'Linux'
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #    name: CockHeroine-Linux
+    #    path: ${{ github.workspace }}/build/CockHeroine-x86_64.AppImage
