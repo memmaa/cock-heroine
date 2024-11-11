@@ -13,6 +13,7 @@
 #include "stimsignal/dualchannelsignalgenerator.h"
 #include "stimsignal/triphasesignalgenerator.h"
 #include "modifiers/waypointlist.h"
+#include "modifiers/waypoint.h"
 
 bool isPCM(const QAudioFormat &format)
 {

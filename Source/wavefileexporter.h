@@ -1,8 +1,6 @@
 #ifndef WAVEFILEEXPORTER_H
 #define WAVEFILEEXPORTER_H
 
-#include <QObject>
-#include <QString>
 #include <QFile>
 #include <QDataStream>
 #include <QByteArray>

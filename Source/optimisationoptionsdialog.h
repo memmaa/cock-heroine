@@ -2,10 +2,10 @@
 #define OPTIMISATIONOPTIONSDIALOG_H
 
 #include <QDialog>
-#include <QSettings>
-#include "editorwindow.h"
 
 #define BACKUP_WHEN_OPTIMISING_PREF "createBackupWhenOptimising"
+
+class EditorWindow;
 
 namespace Ui {
 class OptimisationOptionsDialog;

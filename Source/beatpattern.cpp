@@ -2,6 +2,7 @@
 #include "globals.h"
 #include "helperfunctions.h"
 #include "beatanalysis.h"
+#include "beatvalue.h"
 
 BeatPattern::BeatPattern()
     :

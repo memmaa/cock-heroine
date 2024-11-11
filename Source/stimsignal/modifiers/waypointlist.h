@@ -1,8 +1,7 @@
 #ifndef WAYPOINTLIST_H
 #define WAYPOINTLIST_H
 
-#include <QList>
-#include "waypoint.h"
+class Waypoint;
 
 class WaypointList : public QList<Waypoint *>
 {

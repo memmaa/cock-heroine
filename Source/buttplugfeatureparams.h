@@ -1,8 +1,6 @@
 #ifndef BUTTPLUGDEVICEPARAMS_H
 #define BUTTPLUGDEVICEPARAMS_H
 
-#include <QObject>
-#include <QSettings>
 #include "buttplug/buttplugdevicefeature.h"
 
 #define PARAMS_TYPE_SETTING "Params type"

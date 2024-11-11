@@ -2,9 +2,9 @@
 #define ANALYSISOPTIONSDIALOG_H
 
 #include <QDialog>
-#include <QSettings>
-#include <QTime>
-#include <QTimer>
+
+class QTime;
+class QTimer;
 
 namespace Ui {
 class AnalysisOptionsDialog;

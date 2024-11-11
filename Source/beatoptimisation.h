@@ -1,8 +1,6 @@
 #ifndef BEATOPTIMISATION_H
 #define BEATOPTIMISATION_H
 
-#include <QVector>
-
 struct BeatOptimisation
 {
     static void optimiseBeats();

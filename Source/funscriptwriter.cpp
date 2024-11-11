@@ -1,5 +1,6 @@
 #include "funscriptwriter.h"
 #include "optionsdialog.h"
+#include <QFile>
 
 FunscriptWriter::FunscriptWriter(QFile & file, QObject * parent)
     :

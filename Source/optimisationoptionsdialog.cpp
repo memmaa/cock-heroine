@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "beattimestamp.h"
 #include "beatanalysis.h"
+#include "editorwindow.h"
 
 OptimisationOptionsDialog::OptimisationOptionsDialog(EditorWindow *parent) :
     QDialog(parent),

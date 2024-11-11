@@ -1,8 +1,6 @@
 #ifndef BUTTPLUGDEVICEFEATURE_H
 #define BUTTPLUGDEVICEFEATURE_H
 
-#include "buttplugdevice.h"
-
 #include "event.h"
 class ButtplugDevice;
 class ButtplugFeatureParams;

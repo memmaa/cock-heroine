@@ -1,8 +1,6 @@
 #ifndef EVENTMETADATA_H
 #define EVENTMETADATA_H
 
-#include "beatpattern.h"
-
 struct EventMetadata
 {
     EventMetadata();

@@ -2,6 +2,7 @@
 #include "optionsdialog.h"
 #include "mainwindow.h"
 #include "globals.h"
+#include "stimsignal/stimsignalsample.h"
 
 ProgressIncreaseModifier::ProgressIncreaseModifier()
 {

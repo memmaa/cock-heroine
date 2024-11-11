@@ -1,4 +1,5 @@
 #include "handycsvwriter.h"
+#include <QFile>
 
 HandyCsvWriter::HandyCsvWriter(QFile & file, QObject * parent)
     :

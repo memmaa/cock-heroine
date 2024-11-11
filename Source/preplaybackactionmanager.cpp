@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include "playbackassociatedactions/pregenerateestimsignalaction.h"
 #include <QCoreApplication>
+#include "preplaybackinfodialog.h"
 
 PrePlaybackActionManager::PrePlaybackActionManager(QObject *parent)
     :

@@ -1,5 +1,4 @@
 #include "buttplugdevice.h"
-#include <QVector>
 #include "buttplugdevicefeature.h"
 #include "buttpluginterface.h"
 

@@ -1,8 +1,6 @@
 #ifndef PLAYBACKASSOCIATEDACTION_H
 #define PLAYBACKASSOCIATEDACTION_H
 
-#include <QObject>
-
 class PlaybackAssociatedAction : public QObject
 {
     Q_OBJECT

@@ -1,13 +1,13 @@
 #ifndef CUSTOMEVENTACTION_H
 #define CUSTOMEVENTACTION_H
 
-#include <QObject>
 #include <QAction>
-#include <QWidget>
 class QHBoxLayout;
 class QKeySequenceEdit;
 class QSpinBox;
 class QCheckBox;
+class QWidget;
+
 #include "event.h"
 
 class CustomEventAction : public QAction

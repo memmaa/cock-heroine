@@ -4,7 +4,6 @@
 #include "globals.h"
 #include <QLabel>
 #include <QKeySequenceEdit>
-#include <QSettings>
 #include <QAction>
 #include "customeventaction.h"
 #include <QPushButton>

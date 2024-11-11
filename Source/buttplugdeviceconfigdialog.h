@@ -2,13 +2,14 @@
 #define BUTTPLUGDEVICECONFIGDIALOG_H
 
 #include <QDialog>
-#include <buttplugfeatureparams.h>
 
 namespace Ui {
 class ButtplugDeviceConfigDialog;
 }
 
 class VibratorPulseFeatureParams;
+class ButtplugFeatureParams;
+class ButtplugDeviceFeature;
 
 class ButtplugDeviceConfigDialog : public QDialog
 {

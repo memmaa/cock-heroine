@@ -1,8 +1,7 @@
 #ifndef BEATPATTERN_H
 #define BEATPATTERN_H
 
-#include <QVector>
-#include "beatvalue.h"
+class BeatValue;
 
 class BeatPattern
 {

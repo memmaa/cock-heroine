@@ -1,10 +1,9 @@
 #ifndef STIMSIGNALWORKER_H
 #define STIMSIGNALWORKER_H
 
-#include <QObject>
 class StimSignalSample;
 class StimSignalModifier;
-#include <QList>
+template<typename T> class QList;
 
 class StimSignalWorker : public QObject
 {

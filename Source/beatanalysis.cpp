@@ -1,7 +1,6 @@
 #include "beatanalysis.h"
 #include "globals.h"
 #include "editorwindow.h"
-#include <QString>
 #include "uniquebeatinterval.h"
 #include "beatinterval.h"
 #include "beatpattern.h"

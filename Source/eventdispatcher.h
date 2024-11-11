@@ -1,7 +1,6 @@
 #ifndef EVENTDISPATCHER_H
 #define EVENTDISPATCHER_H
 
-#include <QObject>
 #include "event.h"
 
 class EventDispatcher : public QObject

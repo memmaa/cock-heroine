@@ -1,7 +1,6 @@
 #ifndef FUNSCRIPTWRITER_H
 #define FUNSCRIPTWRITER_H
 
-#include <QObject>
 #include "syncfilewriter.h"
 
 class FunscriptWriter : public SyncFileWriter

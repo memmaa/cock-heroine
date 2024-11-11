@@ -2,7 +2,7 @@
 #include "buttplugfeatureparams.h"
 #include "buttplugdeviceconfigdialog.h"
 #include <QDebug>
-#include <QTimer>
+#include "buttplugdevice.h"
 
 ButtplugDeviceFeature::ButtplugDeviceFeature(ButtplugDevice * device, ButtplugDeviceFeatureType type, int index, int featureLevels)
     :

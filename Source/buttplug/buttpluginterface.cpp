@@ -3,8 +3,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
-#include <QTimer>
 #include "buttplugdevicefeature.h"
+#include "buttplugdevice.h"
 
 ButtplugInterface::ButtplugInterface(QObject *parent) : QObject(parent)
 {

@@ -2,6 +2,7 @@
 #include "buttplugfeatureparams.h"
 //#include "vibratorpulsefeatureparams.h"
 //#include "buttplugdeviceconfigdialog.h"
+#include "buttplug/buttpluginterface.h"
 
 ButtplugDispatcher::ButtplugDispatcher(ButtplugInterface * nterface, QObject * parent)
     :

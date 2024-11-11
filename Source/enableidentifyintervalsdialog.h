@@ -2,7 +2,6 @@
 #define ENABLEIDENTIFYINTERVALSDIALOG_H
 
 #include <QDialog>
-#include <QVector>
 
 class AbstractNewBeatValueWidget;
 class NewCustomBeatValueWidget;

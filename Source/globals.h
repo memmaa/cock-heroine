@@ -1,8 +1,6 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <QVector>
-#include <QList>
 #include "beatpattern.h"
 
 class QTime;

@@ -12,7 +12,6 @@
 #include "eventtabledelegate.h"
 #include "editorwindow.h"
 #include "helperfunctions.h"
-#include <QSettings>
 #include "beatanalysis.h"
 #include "chmlhandler.h"
 #include "optionsdialog.h"
@@ -45,6 +44,10 @@
 #include "stimsignal/estimwavfilewriter.h"
 #include "preplaybackactionmanager.h"
 #include "stimsignal/stimsignalfile.h"
+#include "seektotimecodedialog.h"
+#include "eventdatamodel.h"
+#include <QSerialPort>
+#include "buttplug/buttpluginterface.h"
 
 //how many events should we 'buffer' by sending them to the arduino hardware ahead of real time?
 //this lets it spin up motors in advance, or enqueue or ramp up its internal events for most accurate timings.

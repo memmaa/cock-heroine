@@ -1,7 +1,6 @@
 #ifndef EVENTSTRUCT_H
 #define EVENTSTRUCT_H
 
-#include <QString>
 #include "eventmetadata.h"
 #include "globals.h"
 

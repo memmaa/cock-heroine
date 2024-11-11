@@ -2,7 +2,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSpinBox>
-#include <QString>
 #include <QKeySequenceEdit>
 #include <QCheckBox>
 #include "mainwindow.h"

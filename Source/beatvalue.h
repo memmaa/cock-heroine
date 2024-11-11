@@ -2,7 +2,6 @@
 #define BEATVALUE_H
 
 #include<QString>
-#include<QVector>
 #include "beatanalysis.h"
 
 class BeatValue

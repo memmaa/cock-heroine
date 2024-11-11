@@ -1,7 +1,6 @@
 #ifndef VALUETABLEKEYBOARDEVENTHANDLER_H
 #define VALUETABLEKEYBOARDEVENTHANDLER_H
 
-#include <QObject>
 #include <QKeyEvent>
 
 class ValueTableKeyboardEventHandler : public QObject

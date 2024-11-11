@@ -1,8 +1,6 @@
 #ifndef STIMSIGNALSAMPLEFACTORY_H
 #define STIMSIGNALSAMPLEFACTORY_H
 
-#include <QObject>
-
 class StimSignalSampleFactory : public QObject
 {
     Q_OBJECT

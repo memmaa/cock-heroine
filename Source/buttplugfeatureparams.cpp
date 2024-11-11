@@ -11,6 +11,7 @@
 #include <QDebug>
 #include "vibratorpulsefeatureparams.h"
 #include "buttplugdeviceconfigdialog.h"
+#include "buttplug/buttplugdevice.h"
 
 ButtplugFeatureParams::ButtplugFeatureParams(QObject *parent, ButtplugDeviceFeatureType featureType, ButtplugDeviceParameter::Type type, bool enabled, short syncAdjust)
     :

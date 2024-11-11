@@ -1,7 +1,6 @@
 #ifndef STIMSIGNALGENERATOR_H
 #define STIMSIGNALGENERATOR_H
 
-#include <QBuffer>
 #include <QAudioFormat>
 #include "stimsignalsource.h"
 class StimSignalModifier;

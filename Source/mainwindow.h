@@ -3,21 +3,9 @@
 
 #include "event.h"
 #include <QMainWindow>
-#include <QSerialPort>
-#include <QTime>
-#include <QTimer>
-#include <QMediaPlayer>
 #include <QSoundEffect>
-#include <QTableWidgetItem>
-#include "seektotimecodedialog.h"
-#include "eventdatamodel.h"
-#include "eventdataproxymodel.h"
-#include <QSettings>
-#include <QGraphicsScene>
 #include <QNetworkAccessManager>
 #include <QTemporaryFile>
-#include "buttplug/buttpluginterface.h"
-#include "QAudioFormat"
 
 QT_BEGIN_NAMESPACE
 class QGamepad;
@@ -32,6 +20,14 @@ class SyncFileWriter;
 class QAudioOutput;
 class StimSignalSource;
 class QProgressDialog;
+class QNetworkReply;
+class QSerialPort;
+class ButtplugInterface;
+class EventDataProxyModel;
+class QGraphicsRectItem;
+class SeekToTimecodeDialog;
+class QGraphicsScene;
+class eventDataModel;
 
 namespace Ui {
 class MainWindow;

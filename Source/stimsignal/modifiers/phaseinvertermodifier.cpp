@@ -1,4 +1,5 @@
 #include "phaseinvertermodifier.h"
+#include "stimsignal/stimsignalsample.h"
 
 PhaseInverterModifier::PhaseInverterModifier()
 {

@@ -1,8 +1,6 @@
 #ifndef STIMSIGNALSAMPLE_H
 #define STIMSIGNALSAMPLE_H
 
-#include <QObject>
-
 class StimSignalSample : public QObject
 {
     Q_OBJECT

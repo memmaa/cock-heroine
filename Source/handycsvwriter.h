@@ -1,7 +1,6 @@
 #ifndef HANDYCSVWRITER_H
 #define HANDYCSVWRITER_H
 
-#include <QObject>
 #include "syncfilewriter.h"
 
 class HandyCsvWriter : public SyncFileWriter

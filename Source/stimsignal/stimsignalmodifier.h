@@ -1,8 +1,7 @@
 #ifndef STIMSIGNALMODIFIER_H
 #define STIMSIGNALMODIFIER_H
 
-#include <QObject>
-#include "stimsignalsample.h"
+class StimSignalSample;
 
 class StimSignalModifier : public QObject
 {

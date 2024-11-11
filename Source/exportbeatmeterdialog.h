@@ -2,7 +2,7 @@
 #define EXPORTBEATMETERDIALOG_H
 
 #include <QDialog>
-#include "globals.h"
+#include "event.h"
 
 class QGraphicsScene;
 class QAbstractGraphicsShapeItem;

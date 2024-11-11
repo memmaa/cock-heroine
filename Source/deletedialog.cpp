@@ -2,7 +2,7 @@
 #include "ui_deletedialog.h"
 #include "editorwindow.h"
 #include "ui_editorwindow.h"
-#include <QSettings>
+#include <QShortcut>
 
 DeleteDialog::DeleteDialog(EditorWindow *parent) :
     QDialog(parent),

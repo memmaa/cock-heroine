@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = CockHeroine
 TEMPLATE = app
 
+PRECOMPILED_HEADER = Source/pch.h
 
 SOURCES += Source/main.cpp\
     Source/abstractnewbeatvaluewidget.cpp \

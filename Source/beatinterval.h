@@ -2,7 +2,6 @@
 #define BEATINTERVAL_H
 
 #include "abstractbeatinterval.h"
-#include <QVector>
 
 class BeatTimestamp;
 

@@ -1,11 +1,10 @@
 #ifndef PREPLAYBACKACTIONMANAGER_H
 #define PREPLAYBACKACTIONMANAGER_H
 
-#include <QObject>
 #include <QMap>
-#include "playbackassociatedaction.h"
-#include "preplaybackinfodialog.h"
 class QAbstractButton;
+class PlaybackAssociatedAction;
+class PrePlaybackInfoDialog;
 
 class PrePlaybackActionManager : public QObject
 {

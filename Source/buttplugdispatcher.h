@@ -2,8 +2,8 @@
 #define BUTTPLUGDISPATCHER_H
 
 #include "eventdispatcher.h"
-#include "buttplug/buttpluginterface.h"
-#include "buttplugfeatureparams.h"
+
+class ButtplugInterface;
 
 class ButtplugDispatcher : public EventDispatcher
 {

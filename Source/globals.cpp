@@ -4,10 +4,10 @@
 #include "beattimestamp.h"
 #include "beatinterval.h"
 #include "uniquebeatinterval.h"
-#include <QMediaPlayer>
 #include <QLCDNumber>
 #include "mainwindow.h"
 #include "optionsdialog.h"
+#include <QRegularExpression>
 
 //For standard english QWERTY keyboard. Change here for QWERTZ, AZERTY, or whatever...
 const char * defaultValueShortcuts[2][10] = {{"1","2","3","4","5","6","7","8","9","0"},{"Q","W","E","R","T","Y","U","I","O","P"}};

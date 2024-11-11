@@ -1,6 +1,8 @@
 #include "waypointfollowermodifier.h"
 #include "waypointlist.h"
 #include <QtMath>
+#include "stimsignal/stimsignalsample.h"
+#include "waypoint.h"
 
 WaypointFollowerModifier::WaypointFollowerModifier(WaypointList *waypoints, int channel)
     :

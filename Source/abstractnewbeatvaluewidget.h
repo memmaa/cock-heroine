@@ -1,7 +1,6 @@
 #ifndef ABSTRACTNEWBEATVALUEWIDGET_H
 #define ABSTRACTNEWBEATVALUEWIDGET_H
 
-#include <QWidget>
 #include <QFrame>
 
 class QVBoxLayout;

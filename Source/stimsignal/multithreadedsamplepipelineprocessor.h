@@ -1,13 +1,12 @@
 #ifndef MULTITHREADEDSAMPLEPIPELINEPROCESSOR_H
 #define MULTITHREADEDSAMPLEPIPELINEPROCESSOR_H
 
-#include <QObject>
 #include "stereostimsignalsample.h"
-#include "stimsignalmodifier.h"
 //class StimSignalWorkPackage;
 //#include <QAtomicInt>
-#include "stimsignalworker.h"
 
+class StimSignalWorker;
+class StimSignalModifier;
 
 class MultithreadedSamplePipelineProcessor : public QObject
 {

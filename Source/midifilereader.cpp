@@ -1,6 +1,5 @@
 #include "midifilereader.h"
 
-#include <QFile>
 #include <QDataStream>
 #include <QDebug>
 

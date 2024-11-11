@@ -212,7 +212,8 @@ set(HEADER_FILES
     Source/optionsdialog.h
     Source/croppedvideosurface.h
     Source/graphicsscenevideodialog.h
-    Source/keyboardshortcutsdialog.h)
+    Source/keyboardshortcutsdialog.h
+    Source/pch.h)
 
 add_executable(${PROJECT_NAME} ${UI_FILES} ${HEADER_FILES} ${SOURCE_FILES} Resources/resources.qrc)
 
@@ -221,6 +222,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/S
 target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets Qt5::SerialPort Qt5::Multimedia Qt5::MultimediaWidgets Qt5::Xml Qt5::Gamepad Qt5::Network Qt5::WebSockets)
 
 add_subdirectory(Resources)
+
+target_precompile_headers(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Source/pch.h)
 
 if (UNIX AND NOT APPLE)
     install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)

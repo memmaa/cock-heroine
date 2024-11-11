@@ -1,7 +1,6 @@
 #ifndef MIDIFILEREADER_H
 #define MIDIFILEREADER_H
 
-#include <QObject>
 #include <QFile>
 #include <QDataStream>
 #include <QTextStream>

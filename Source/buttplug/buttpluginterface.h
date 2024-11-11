@@ -1,12 +1,11 @@
 #ifndef BUTTPLUGINTERFACE_H
 #define BUTTPLUGINTERFACE_H
 
-#include <QObject>
 #include <QWebSocket>
-#include "buttplugdevice.h"
 #include <QJsonObject>
 
 class ButtplugDeviceFeature;
+class ButtplugDevice;
 
 class ButtplugInterface : public QObject
 {

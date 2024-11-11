@@ -1,8 +1,7 @@
 #ifndef SYNCFILEWRITER_H
 #define SYNCFILEWRITER_H
 
-#include <QObject>
-#include <QFile>
+class QFile;
 
 class SyncFileWriter : public QObject
 {

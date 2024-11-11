@@ -1,7 +1,6 @@
 #include "event.h"
 #include <QDebug>
 #include <QDomDocument>
-#include <QFile>
 #include "mainwindow.h" //just for tr()
 
 Event::Event()

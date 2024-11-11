@@ -1,7 +1,6 @@
 #ifndef ESTIMWAVFILEWRITER_H
 #define ESTIMWAVFILEWRITER_H
 
-#include <QObject>
 #include <QFile>
 class QProgressDialog;
 

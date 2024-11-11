@@ -1,7 +1,6 @@
 #ifndef MIDIFILEWRITER_H
 #define MIDIFILEWRITER_H
 
-#include <QObject>
 #include <QFile>
 #include <QDataStream>
 

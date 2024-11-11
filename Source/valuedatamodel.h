@@ -2,7 +2,6 @@
 #define VALUEDATAMODEL_H
 
 #include <QAbstractTableModel>
-#include <QVector>
 
 class BeatValue;
 

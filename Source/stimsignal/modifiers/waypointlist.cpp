@@ -1,5 +1,6 @@
 #include "waypointlist.h"
 #include "optionsdialog.h"
+#include "waypoint.h"
 
 WaypointList::WaypointList()
     :

@@ -36,6 +36,7 @@
 #include "optionsdialog.h"
 #include "beatmeter/editorgridline.h"
 #include "enableidentifyintervalsdialog.h"
+#include <QTimer>
 
 EditorWindow::EditorWindow(QWidget *parent) :
     QMainWindow(parent),

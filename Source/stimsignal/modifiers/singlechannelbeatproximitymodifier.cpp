@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include "event.h"
 #include "optionsdialog.h"
+#include "stimsignal/stimsignalsample.h"
 
 SingleChannelBeatProximityModifier::SingleChannelBeatProximityModifier(bool cycleStartsOnBeat, qreal peakPositionWithinCycle, qreal troughLevel, qreal fadeTime)
     :

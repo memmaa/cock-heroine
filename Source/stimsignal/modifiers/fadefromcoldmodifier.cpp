@@ -1,5 +1,6 @@
 #include "fadefromcoldmodifier.h"
 #include "optionsdialog.h"
+#include "stimsignal/stimsignalsample.h"
 
 FadeFromColdModifier::FadeFromColdModifier()
 {

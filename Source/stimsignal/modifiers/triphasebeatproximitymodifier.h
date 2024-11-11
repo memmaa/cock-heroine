@@ -3,8 +3,6 @@
 
 #include "../stimsignalmodifier.h"
 
-#include <QObject>
-
 #define DEFAULT_STIM_FADE_IN_LENGTH 4000
 #define DEFAULT_STIM_FADE_OUT_LENGTH 4000
 

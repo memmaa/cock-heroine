@@ -3,8 +3,6 @@
 
 #include "../stimsignalmodifier.h"
 
-#include <QObject>
-
 
 class SingleChannelBeatProximityModifier : public StimSignalModifier
 {

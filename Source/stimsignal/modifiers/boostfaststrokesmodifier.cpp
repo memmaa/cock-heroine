@@ -2,6 +2,7 @@
 #include "optionsdialog.h"
 #include "globals.h"
 #include "mainwindow.h"
+#include "stimsignal/stimsignalsample.h"
 
 BoostFastStrokesModifier::BoostFastStrokesModifier()
 {

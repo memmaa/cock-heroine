@@ -12,7 +12,9 @@
 #include <QtWidgets/QSpacerItem>
 #include "mainwindow.h"
 #include "helperfunctions.h"
-#include <QSettings>
+#include "buttplug/buttpluginterface.h"
+#include "buttplug/buttplugdevice.h"
+#include <QTimer>
 
 QHash<ButtplugDeviceFeature *, QTimer *> VibratorPulseFeatureParams::endTimers;
 

@@ -3,7 +3,7 @@
 
 #include <QDialog>
 class EditorWindow;
-#include <QShortcut>
+class QShortcut;
 
 namespace Ui {
 class DeleteDialog;

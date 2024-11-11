@@ -1,5 +1,6 @@
 #include "breaksoftenermodifier.h"
 #include "optionsdialog.h"
+#include "stimsignal/stimsignalsample.h"
 
 BreakSoftenerModifier::BreakSoftenerModifier(int checkThisChannel)
     :

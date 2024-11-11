@@ -2,6 +2,8 @@
 #include "ui_analysisoptionsdialog.h"
 #include "beatanalysis.h"
 #include <QPushButton>
+#include <QTime>
+#include <QTimer>
 
 AnalysisOptionsDialog::AnalysisOptionsDialog(QWidget *parent) :
     QDialog(parent),

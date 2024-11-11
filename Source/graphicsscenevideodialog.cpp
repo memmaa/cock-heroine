@@ -1,7 +1,6 @@
 #include "graphicsscenevideodialog.h"
 #include "ui_graphicsscenevideodialog.h"
 #include "globals.h"
-#include <QMediaPlayer>
 #include "mainwindow.h"
 #include <QKeyEvent>
 #include <QtWidgets>

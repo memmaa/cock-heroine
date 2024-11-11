@@ -2,8 +2,6 @@
 
 #include <math.h>
 
-#include <QVector>
-
 #include "globals.h"
 #include "beatoptimisation.h"
 #include "beatvalue.h"

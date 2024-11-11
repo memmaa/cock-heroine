@@ -4,7 +4,6 @@
 #include "beatvaluewidget.h"
 #include "editorwindow.h"
 #include "ui_editorwindow.h"
-#include <QSettings>
 #include <QShortcut>
 #include <QDebug>
 

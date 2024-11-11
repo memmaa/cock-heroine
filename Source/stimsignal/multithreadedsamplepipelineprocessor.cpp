@@ -3,6 +3,7 @@
 #include "stimsignalmodifier.h"
 #include <QThreadPool>
 #include <QApplication>
+#include "stimsignal/stimsignalworker.h"
 
 MultithreadedSamplePipelineProcessor::MultithreadedSamplePipelineProcessor(QList<StimSignalModifier *> *modifiers, QObject *parent)
     :

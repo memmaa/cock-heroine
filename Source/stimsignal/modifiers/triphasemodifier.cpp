@@ -3,6 +3,7 @@
 #include "globals.h"
 #include "optionsdialog.h"
 #include "beatinterval.h"
+#include "stimsignal/stimsignalsample.h"
 
 TriphaseModifier::TriphaseModifier()
 {

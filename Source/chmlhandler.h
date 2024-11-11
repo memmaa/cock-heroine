@@ -2,7 +2,8 @@
 #define CHMLHANDLER_H
 
 #include <QXmlDefaultHandler>
-#include "event.h"
+
+class Event;
 
 class CHMLHandler : public QXmlDefaultHandler
 {

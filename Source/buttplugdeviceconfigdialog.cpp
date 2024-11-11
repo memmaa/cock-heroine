@@ -3,7 +3,7 @@
 #include "vibratorpulsefeatureparams.h"
 #include "globals.h"
 #include "mainwindow.h"
-#include <QSettings>
+#include "buttplug/buttpluginterface.h"
 
 QVector<ButtplugFeatureParams *> ButtplugDeviceConfigDialog::entries;
 

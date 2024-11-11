@@ -3,6 +3,7 @@
 #include "globals.h"
 #include "../stimsignalgenerator.h"
 #include "optionsdialog.h"
+#include "stimsignal/stimsignalsample.h"
 
 int TriphaseBeatProximityModifier::getFadeInTime()
 {

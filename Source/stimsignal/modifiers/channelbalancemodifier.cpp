@@ -1,5 +1,6 @@
 #include "channelbalancemodifier.h"
 #include "optionsdialog.h"
+#include "stimsignal/stimsignalsample.h"
 
 ChannelBalanceModifier::ChannelBalanceModifier()
 {

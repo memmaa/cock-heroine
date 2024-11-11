@@ -1,9 +1,6 @@
 #ifndef BUTTPLUGDEVICE_H
 #define BUTTPLUGDEVICE_H
 
-#include <QObject>
-#include <QString>
-#include <QVector>
 #include <QTimer>
 
 class ButtplugInterface;

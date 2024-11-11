@@ -1,7 +1,6 @@
 #ifndef STIMSIGNALSOURCE_H
 #define STIMSIGNALSOURCE_H
 
-#include <QObject>
 #include <QIODevice>
 
 class StimSignalSource

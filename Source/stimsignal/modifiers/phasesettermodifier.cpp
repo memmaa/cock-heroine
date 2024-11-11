@@ -1,6 +1,7 @@
 #include "phasesettermodifier.h"
 #include "optionsdialog.h"
 #include "mainwindow.h"
+#include "stimsignal/stimsignalsample.h"
 
 PhaseSetterModifier::PhaseSetterModifier(int startFrequency, int endFrequency, int channel)
     :
