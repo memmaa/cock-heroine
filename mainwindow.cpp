@@ -1181,6 +1181,15 @@ void MainWindow::syncToVideo()
         stopEstimSignal();
         initiateEstimSignal();
     }
+    if (adjustVideoAfterStart)
+    {
+        //This should probably be done by listening for the media loaded event from the media player, and
+        //then adjusting the player size once that happens, but that is many lines of code, and this is a few.
+        ui->videoGoesHere->adjustSize();
+        ui->videoGoesHere->updateGeometry();
+        if (!outOfSync)
+            adjustVideoAfterStart = false;
+    }
 }
 
 void MainWindow::scheduleVideoSync()
@@ -2072,6 +2081,10 @@ void MainWindow::loadVideo(QString video)
     QSettings().setValue(PREF_LAST_SUCCESSFULLY_LOADED_VIDEO, video);
     videoPlayer->setMedia(QUrl::fromLocalFile(video));
     updateAssociatedVideoIfAppropriate();
+
+    //Can be uncommented if we want to adjust the video player when we change video, but
+    //personally I'd find that annoying (I find it annoying in VLC too). Could add pref.
+//    adjustVideoAfterStart = true;
 }
 
 void MainWindow::updateAssociatedScriptIfAppropriate()

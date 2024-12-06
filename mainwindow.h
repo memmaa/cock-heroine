@@ -240,6 +240,7 @@ private:
 //    StimSignalFile * stimSignalFile;
     QAudioOutput * stimAudio;
     QProgressDialog * progressDialog;
+    bool adjustVideoAfterStart = true;
 
 private slots:
     void videoStateChanged(QMediaPlayer::State s);
