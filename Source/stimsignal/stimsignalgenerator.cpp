@@ -11,6 +11,7 @@
 #include "optionsdialog.h"
 #include "stimsignal/singlechannelsignalgenerator.h"
 #include "stimsignal/dualchannelsignalgenerator.h"
+#include "separatelnrsignalgenerator.h"
 #include "stimsignal/triphasesignalgenerator.h"
 #include "modifiers/waypointlist.h"
 #include "modifiers/waypoint.h"
@@ -168,6 +169,8 @@ StimSignalGenerator *StimSignalGenerator::createFromPrefs(QObject *parent)
         return new SingleChannelSignalGenerator(format, parent);
     case STEREO:
         return new DualChannelSignalGenerator(format, parent);
+    case SEPARATE_L_AND_R:
+        return new SeparateLnRSignalGenerator(format, parent);
     case TRIPHASE:
         return new TriphaseSignalGenerator(format, parent);
     default:
@@ -175,54 +178,59 @@ StimSignalGenerator *StimSignalGenerator::createFromPrefs(QObject *parent)
     }
 }
 
-WaypointList * StimSignalGenerator::createWaypointList(bool waypointsComeOnOrBeforeBeat, qreal peakPositionInCycle, qreal troughLevel)
+WaypointList * StimSignalGenerator::createWaypointList(bool waypointsComeOnOrBeforeBeat, qreal peakPositionInCycle, qreal troughLevel, QVector<Event> eventsToUse)
 {
     WaypointList * list = new WaypointList();
     int maxStrokeLength = OptionsDialog::getEstimMaxStrokeLength();
+    qreal minimumBaseAmount = 0.75;
     qreal maxBoostAmount = 0.01 * OptionsDialog::getEstimBoostShortStrokes();
-    for (int i = 0; i < events.length(); ++i)
+    for (int i = 0; i < eventsToUse.length(); ++i)
     {
         if (waypointsComeOnOrBeforeBeat)
         {
             long start = 0;
-            long end = events[i].timestamp;
+            long end = eventsToUse[i].timestamp;
             //deal with corner case: first beat
             if (i)
             {
-                start = events[i-1].timestamp;
+                start = eventsToUse[i-1].timestamp;
             }
             int length = std::min(int(end - start), maxStrokeLength);
             start = end - length; //we already set start, but this handles first beat or long beat
             qreal peak = start + (peakPositionInCycle * length);
             int otherLength = maxStrokeLength;
-            if (i < (events.length() - 1))
+            if (i < (eventsToUse.length() - 1))
             {
-                otherLength = std::min((int) (events[i+1].timestamp - end), maxStrokeLength);
+                otherLength = std::min((int) (eventsToUse[i+1].timestamp - end), maxStrokeLength);
             }
             int valueForBoostCalculation = std::max(length, otherLength);
             qreal boostAmount = ((qreal) (maxStrokeLength - valueForBoostCalculation) / maxStrokeLength) * maxBoostAmount;
-            list->plonkOnTheEnd(new Waypoint(peak, 1 + boostAmount));
+            qreal baseFraction = (qreal) eventsToUse[i].value / eventsToUse[i].maxPossibleValue();
+            qreal baseAmount = minimumBaseAmount + ((1 - minimumBaseAmount) * baseFraction);
+            list->plonkOnTheEnd(new Waypoint(peak, baseAmount + boostAmount));
         }
         else
             //waypoints come on or after the the beat
         {
-            long start = events[i].timestamp;
+            long start = eventsToUse[i].timestamp;
             long end = start + maxStrokeLength;
             //deal with corner case: last beat
-            if (i < (events.length() - 1))
+            if (i < (eventsToUse.length() - 1))
             {
-                end = events[i+1].timestamp;
+                end = eventsToUse[i+1].timestamp;
             }
             int length = std::min(int(end - start), maxStrokeLength);
             qreal peak = start + (peakPositionInCycle * length);
             int otherLength = maxStrokeLength;
             if (i)
             {
-                otherLength = std::min(int(start - events[i-1].timestamp), maxStrokeLength);
+                otherLength = std::min(int(start - eventsToUse[i-1].timestamp), maxStrokeLength);
             }
             int valueForBoostCalculation = std::max(length, otherLength);
             qreal boostAmount = ((qreal) (maxStrokeLength - valueForBoostCalculation) / maxStrokeLength) * maxBoostAmount;
-            list->plonkOnTheEnd(new Waypoint(peak, 1 + boostAmount));
+            qreal baseFraction = (qreal) eventsToUse[i].value / eventsToUse[i].maxPossibleValue();
+            qreal baseAmount = minimumBaseAmount + ((1 - minimumBaseAmount) * baseFraction);
+            list->plonkOnTheEnd(new Waypoint(peak, baseAmount + boostAmount));
         }
     }
     list->insertTroughs(troughLevel);

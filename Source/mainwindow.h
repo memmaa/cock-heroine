@@ -161,6 +161,7 @@ private:
     void importFunscript(QString filename);
     void importFunscriptFullStrokes(QFile & funscript);
     void importFunscriptRawData(QFile & funscript);
+    void importFunscriptSeparateUpAndDown(QFile & funscript);
     int convertStrokeLengthToIntensity(int);
 
     void calculateHandyServerTimeOffset();

@@ -7,6 +7,8 @@ class StimSignalModifier;
 class StimSignalSample;
 class MultithreadedSamplePipelineProcessor;
 class WaypointList;
+struct Event;
+extern QVector<Event> events;
 
 //DONE: Add prefs for: starting frequ, - Used
 //                     ending freq, - Used
@@ -54,7 +56,7 @@ protected:
     int startingFrequency;
     int endingFrequency;
     QList<StimSignalModifier *> modifiers;
-    WaypointList * createWaypointList(bool waypointsComeOnOrBeforeBeat, qreal peakPositionInCycle, qreal troughLevel);
+    WaypointList * createWaypointList(bool waypointsComeOnOrBeforeBeat, qreal peakPositionInCycle, qreal troughLevel, QVector<Event> eventsToUse = events);
 
 private:
     virtual StimSignalSample * createSample(qlonglong wholeTimestamp, qreal fractionalTimestamp) = 0;

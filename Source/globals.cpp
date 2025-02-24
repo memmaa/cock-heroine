@@ -164,6 +164,20 @@ BeatValue * getBeatValueFromDropdownEntry(const QString & entry)
 }
 
 QVector<Event> events;
+
+QVector<Event> filteredEvents(const QList<unsigned char> & types, const QVector<Event> & eventsToFilter)
+{
+    QVector<Event> filteredEvents;
+
+    for (const Event& event : eventsToFilter) {
+        if (types.contains(event.type())) {
+            filteredEvents.append(event);
+        }
+    }
+
+    return filteredEvents;
+}
+
 QVector<BeatTimestamp> beatTimestamps;
 QVector<BeatValue> beatValues;
 QVector<BeatInterval> beatIntervals;

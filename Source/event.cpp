@@ -90,6 +90,10 @@ QString Event::typeName() const
         return MainWindow::tr("Marker");
     case EVENT_STROKER_WAYPOINT: //for things like handy, launch etc.
         return MainWindow::tr("Stroker Waypoint");
+    case EVENT_STROKE_UP:
+        return MainWindow::tr("Up Stroke");
+    case EVENT_STROKE_DOWN:
+        return MainWindow::tr("Down Stroke");
     default:
         return MainWindow::tr("Undefined");
     }

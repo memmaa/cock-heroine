@@ -17,6 +17,7 @@ class QLCDNumber;
 class EventDispatcher;
 
 extern QVector<Event> events;
+QVector<Event> filteredEvents(const QList<unsigned char> & types, const QVector<Event> & eventsToFilter = events);
 extern QVector<BeatTimestamp> beatTimestamps;
 //!
 //! \brief beatValues a list of all the possible 'types' of interval length we recognise.

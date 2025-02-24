@@ -22,6 +22,8 @@ enum e_eventType
     EVENT_RECORDING_MISTAKE,
     EVENT_UNUSED,
     EVENT_STROKER_WAYPOINT, //for things like handy, launch etc.
+    EVENT_STROKE_UP, //A stroke moving from the base of the penis towards the tip
+    EVENT_STROKE_DOWN, //A stroke moving from the tip of the penis towards the base
     EVENT_ENUM_SIZE
 };
 

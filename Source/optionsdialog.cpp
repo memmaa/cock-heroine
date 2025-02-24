@@ -847,12 +847,14 @@ EstimSourceMode OptionsDialog::getEstimSourceMode()
     QString text = settings.value(PREF_ESTIM_MODE, DEFAULT_PREF_ESTIM_MODE).toString();
     if (text == QApplication::translate("OptionsDialog", "Generate In Advance (Single Channel)", nullptr) ||
         text == QApplication::translate("OptionsDialog", "Generate In Advance (Dual Channel)", nullptr) ||
+        text ==    QApplication::translate("OptionsDialog", "Generate In Advance (Separate L&R channels)", nullptr) ||
         text ==    QApplication::translate("OptionsDialog", "Generate In Advance (Triphase)", nullptr))
     {
         return PREGENERATED;
     }
     if (text == QApplication::translate("OptionsDialog", "Generate On-The-Fly (Single Channel)", nullptr) ||
         text == QApplication::translate("OptionsDialog", "Generate On-The-Fly (Dual Channel)", nullptr) ||
+        text ==    QApplication::translate("OptionsDialog", "Generate On-The-Fly (Separate L&R channels)", nullptr) ||
         text ==    QApplication::translate("OptionsDialog", "Generate On-The-Fly (Triphase)", nullptr))
     {
         return ON_THE_FLY;
@@ -895,6 +897,12 @@ EstimSignalType OptionsDialog::getEstimSignalType()
         text ==    QApplication::translate("OptionsDialog", "Generate In Advance (Triphase)", nullptr))
     {
         return TRIPHASE;
+    }
+    if (
+        text ==    QApplication::translate("OptionsDialog", "Generate On-The-Fly (Separate L&R channels)", nullptr) ||
+        text ==    QApplication::translate("OptionsDialog", "Generate In Advance (Separate L&R channels)", nullptr))
+    {
+        return SEPARATE_L_AND_R;
     }
     return UNKNOWN;
 }
@@ -1162,6 +1170,21 @@ QString OptionsDialog::getEstimSettingsFilenameSuffix()
                                     .arg(rightOptionsString)
                                        .arg(generalOptionsString);
     }
+    case SEPARATE_L_AND_R:
+    {
+        QString leftOptionsString = QString("From%1to%2t%5")
+                                                 .arg(getEstimLeftChannelStartingFrequency())
+                                                     .arg(getEstimLeftChannelEndingFrequency())
+                                                        .arg(qRound(getEstimLeftChannelTroughLevel() * 100));
+        QString rightOptionsString = QString("From%1to%2t%5")
+                                                  .arg(getEstimRightChannelStartingFrequency())
+                                                      .arg(getEstimRightChannelEndingFrequency())
+                                                         .arg(qRound(getEstimRightChannelTroughLevel() * 100));
+        return QString("separate-L%1-R%2-%3")
+                                .arg(leftOptionsString)
+                                    .arg(rightOptionsString)
+                                       .arg(generalOptionsString);
+    }
     case TRIPHASE:
     {
         QString triphaseOptionsString =  QString("From%1to%2adsr%5-%6-%7-%8style%15%16")
@@ -1279,8 +1302,8 @@ void OptionsDialog::on_estimModeComboBox_currentTextChanged(const QString &arg1)
 {
     ui->estimGeneralSettingsBox->setVisible(arg1.contains("Generate"));
     ui->estimTriphaseSettingsBox->setVisible(arg1.contains("Triphase"));
-    ui->estimLeftChannelSettingsBox->setVisible(arg1.contains("Channel") || arg1.contains("Mono"));
-    ui->estimRightChannelSettingsBox->setVisible(arg1.contains("Dual"));
+    ui->estimLeftChannelSettingsBox->setVisible(arg1.contains("Channel") || arg1.contains("Mono") || arg1.contains("L&R"));
+    ui->estimRightChannelSettingsBox->setVisible(arg1.contains("Dual") || arg1.contains("L&R"));
     ui->estimFilenameDescription->setVisible(arg1.contains("File"));
     ui->estimFilenameLabel->setVisible(arg1.contains("File"));
     ui->estimFilenameLineEdit->setVisible(arg1.contains("File"));

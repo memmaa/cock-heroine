@@ -2176,20 +2176,31 @@ void MainWindow::importFunscript(QString filename)
                                       "You should import the 'raw data' if:\n"
                                       "- You just want to use Cock Heroine to play a non-cock-hero video with a script file\n\n"
 
+                                      "You should import 'separate up and down data' if:\n"
+                                      "- You want to try out this method for generating estim tracks for non-cock-hero videos\n"
+                                      "- Be sure to select a corresponding 'Separate L&R channels' mode in the e-stim preferences\n\n"
+
                                       "How would you like to import the funscript?"));
     importTypeQuestionBox.addButton(tr("Beats (half speed)"),QMessageBox::AcceptRole);
     QPushButton * fullStrokesButton = importTypeQuestionBox.addButton(tr("Beats (full speed)"),QMessageBox::AcceptRole);
     QPushButton * rawDataButton = importTypeQuestionBox.addButton(tr("Raw Data"),QMessageBox::RejectRole);
+    QPushButton * separateDataButton = importTypeQuestionBox.addButton(tr("Separate Up and Down Data"),QMessageBox::RejectRole);
     importTypeQuestionBox.setDefaultButton(fullStrokesButton);
     importTypeQuestionBox.exec();
 
     bool importActualFunscriptEvents = (importTypeQuestionBox.clickedButton() == rawDataButton);
+    bool separateUpAndDownData = (importTypeQuestionBox.clickedButton() == separateDataButton);
     bool importFullStrokes = (importTypeQuestionBox.clickedButton() == fullStrokesButton);
     QFile funscript(filename, this);
     funscript.open(QIODevice::ReadOnly);
     if (importFullStrokes)
     {
         importFunscriptFullStrokes(funscript);
+        return;
+    }
+    else if (separateUpAndDownData)
+    {
+        importFunscriptSeparateUpAndDown(funscript);
         return;
     }
     else if (importActualFunscriptEvents)
@@ -2311,6 +2322,103 @@ void MainWindow::importFunscript(QString filename)
         }
     }
     removeDuplicateEvents();
+}
+
+//! a function that will read a funscript and generate two types of events:
+//! Events of type 16 (up stroke) are generated when the 'pos' data reaches a peak (i.e. the 'pos' of the previous point is lower, and
+//! the 'pos' of the following point is either the same or lower), while
+//! events of type 17 (down stroke) are generated when reaching a trough (the pos before is higher, the the pos afterwards is the same or higher).
+//! Consecutive movements in the same direction will not generate an event until motion stops (the following pos is the same) or reverses direction.
+void MainWindow::importFunscriptSeparateUpAndDown(QFile &funscript)
+{
+    auto fsContent = funscript.readAll();
+    QJsonDocument fsDoc = QJsonDocument::fromJson(fsContent);
+    if (!fsDoc.isObject()) {
+        QMessageBox::warning(this, "Malformed funscript", "Funscript content was not a Json Object");
+        return;
+    }
+    QJsonObject fsObj = fsDoc.object();
+    QJsonValue actionsVal = fsObj.value("actions");
+    if (actionsVal.isUndefined() || !actionsVal.isArray()) {
+        QMessageBox::warning(this, "Malformed funscript", "Funscript actions absent or not a Json array");
+        return;
+    }
+    QJsonArray actionsArr = actionsVal.toArray();
+
+    int lastEventPos = -1;  // Position where last event was generated
+    int lastPos = -1;      // Position of previous point
+    int currentPos = -1;   // Position of current point
+    int nextPos = -1;      // Position of next point
+    bool isMovingUp = false;  // Track current direction
+
+    for (int i = 0; i < actionsArr.size(); ++i)
+    {
+        QJsonValue actionVal = actionsArr[i];
+        if (!actionVal.isObject()) {
+            QMessageBox::warning(this, "Malformed funscript", "Funscript action was not a json object");
+            return;
+        }
+        QJsonValue atVal = actionVal.toObject().value("at");
+        QJsonValue posVal = actionVal.toObject().value("pos");
+        if (atVal.isUndefined() || posVal.isUndefined() || !atVal.isDouble() || !posVal.isDouble()) {
+            QMessageBox::warning(this, "Malformed funscript", "Funscript action did not contain 'pos' and 'at'");
+            return;
+        }
+
+        // Get current position and timestamp
+        long at = roundToInt(atVal.toDouble());
+        currentPos = roundToInt(posVal.toDouble());
+
+        // Get next position if not at end
+        bool isLastWaypoint = (i >= actionsArr.size() - 1);
+        if (!isLastWaypoint) {
+            QJsonValue nextActionVal = actionsArr[i + 1];
+            if (!nextActionVal.isObject()) {
+                QMessageBox::warning(this, "Malformed funscript", "Funscript action was not a json object");
+                return;
+            }
+            QJsonValue nextPosVal = nextActionVal.toObject().value("pos");
+            if (nextPosVal.isUndefined() || !nextPosVal.isDouble()) {
+                QMessageBox::warning(this, "Malformed funscript", "Funscript action did not contain 'pos'");
+                return;
+            }
+            nextPos = roundToInt(nextPosVal.toDouble());
+        }
+
+        // Initialize on first point
+        if (lastPos == -1) {
+            lastPos = currentPos;
+            lastEventPos = currentPos;
+            continue;
+        }
+
+        // Detect peaks (type 16) and troughs (type 17)
+        if (currentPos > lastPos) {
+            isMovingUp = true;
+            // Check for peak
+            if (isLastWaypoint || nextPos <= currentPos) {
+                int strokeLength = abs(currentPos - lastEventPos);
+                int strokeIntensity = convertStrokeLengthToIntensity(strokeLength);
+                Event newEvent(at, 16, strokeIntensity);
+                addEventToTable(newEvent);
+                lastEventPos = currentPos;
+            }
+        }
+        else if (currentPos < lastPos) {
+            isMovingUp = false;
+            // Check for trough
+            if (isLastWaypoint || nextPos >= currentPos) {
+                int strokeLength = abs(currentPos - lastEventPos);
+                int strokeIntensity = convertStrokeLengthToIntensity(strokeLength);
+                Event newEvent(at, 17, strokeIntensity);
+                addEventToTable(newEvent);
+                lastEventPos = currentPos;
+            }
+        }
+        // If currentPos == lastPos, we continue without generating an event
+
+        lastPos = currentPos;
+    }
 }
 
 int MainWindow::convertStrokeLengthToIntensity(int length)

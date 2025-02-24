@@ -16,6 +16,7 @@ enum EstimSignalType
     MONO,
     STEREO,
     TRIPHASE,
+    SEPARATE_L_AND_R,
     UNKNOWN
 };
 

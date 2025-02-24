@@ -61,6 +61,7 @@ SOURCES += Source/main.cpp\
     Source/stimsignal/modifiers/waypointlist.cpp \
     Source/stimsignal/monostimsignalsample.cpp \
     Source/stimsignal/multithreadedsamplepipelineprocessor.cpp \
+    Source/stimsignal/separatelnrsignalgenerator.cpp \
     Source/stimsignal/singlechannelsignalgenerator.cpp \
     Source/stimsignal/stereostimsignalsample.cpp \
     Source/stimsignal/stimsignalfile.cpp \
@@ -149,6 +150,7 @@ HEADERS  += Source/mainwindow.h \
     Source/stimsignal/modifiers/waypointlist.h \
     Source/stimsignal/monostimsignalsample.h \
     Source/stimsignal/multithreadedsamplepipelineprocessor.h \
+    Source/stimsignal/separatelnrsignalgenerator.h \
     Source/stimsignal/singlechannelsignalgenerator.h \
     Source/stimsignal/stereostimsignalsample.h \
     Source/stimsignal/stimsignalfile.h \
